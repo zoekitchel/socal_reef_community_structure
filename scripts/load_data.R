@@ -110,7 +110,7 @@ dat_kelp <- dat_kelp |>
 
 
 ########################
-##Restrict to well sampled sites for averages (sampled in at least 5 years)
+##Restrict to well sampled sites for averages (sampled in at least 3 years)
 ########################
 
 #switch to data table, easier for Zoë
@@ -136,18 +136,21 @@ dat_kelp.r <- dat_kelp[Site %in% site_by_years[Years_sampled >= 3]$Site]
 ##Take average values across all years of sampling (avg density and avg biomass of each species at site)
 ########################
 
-dat_fish_averages <- dat_fish_t.r[,.(mean_density=mean(density_m2), mean_wt_density_g_m2=mean(wt_density_g_m2)),
+dat_fish_site_averages <- dat_fish_t.r[,.(mean_density_m2=mean(density_m2), mean_wt_density_g_m2=mean(wt_density_g_m2)),
                                                .(Species, Project, Region, AR_Complex, Site, DepthZone)]
-dat_macroinvert_averages <- dat_macroinvert.r[,.(mean_density=mean(Abundance/area.m2)),
+dat_macroinvert_site_averages <- dat_macroinvert.r[,.(mean_density_m2=mean(Abundance/area.m2)),
                                               .(BenthicReefSpecies, SpeciesGroupF, Project, Region, AR_Complex, Site, DepthZone)]
-dat_kelp_averages <- dat_kelp.r[,.(mean_density=mean(Abundance/area.m2)),
+dat_kelp_site_averages <- dat_kelp.r[,.(mean_density_m2=mean(Abundance/area.m2)),
                                               .(BenthicReefSpecies, SpeciesGroupF, Project, Region, AR_Complex, Site, DepthZone)]
+
+#Which regions are retained?
+unique(dat_event.r$Region) #only islands are Santa Catalina and Santa Barbara
 
 ########################
 ##Save output
 ########################
 saveRDS(dat_event.r, file.path("data","processed_crane", "dat_event.r.rds"))
-saveRDS(dat_fish_averages, file.path("data","processed_crane", "dat_fish_averages.rds"))
-saveRDS(dat_macroinvert_averages, file.path("data","processed_crane", "dat_macroinvert_averages.rds"))
-saveRDS(dat_kelp_averages, file.path("data","processed_crane", "dat_kelp_averages.rds"))
+saveRDS(dat_fish_site_averages, file.path("data","processed_crane", "dat_fish_site_averages.rds"))
+saveRDS(dat_macroinvert_site_averages, file.path("data","processed_crane", "dat_macroinvert_site_averages.rds"))
+saveRDS(dat_kelp_site_averages, file.path("data","processed_crane", "dat_kelp_site_averages.rds"))
  
