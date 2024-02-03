@@ -111,7 +111,7 @@ pal_15 <- c("#8DD3C7", "#FFFFB3", "#BEBADA", "#FB8072", "#80B1D3",
             "#CCEBC5", "#FFED6F","darksalmon","lightskyblue","turquoise")
 
 #link spp names to spp taxonomy
-fish_list <- get_taxa(taxon_list = unique(dat_fish_averages$Species))
+fish_list <- get_taxa(taxon_list = unique(dat_fish_averages$Species)) #CHECK WEIRD ORDER
 fish_list[,Species := query]
 
 dat_fish_averages <- dat_fish_averages[fish_list, on = "Species"]
@@ -226,7 +226,9 @@ kelp_density_top5_sitetype_stacked <- ggplot(dat_kelp_averages_sitetype_top5dens
 
 ggsave(kelp_density_top5_sitetype_stacked, path = file.path("figures"), filename = "kelp_density_top5_sitetype_stacked.jpg", height = 5, width = 8, units = "in")
 
-
+##################################################################################
+#Visual summaries for OSM poster
+##################################################################################
 ##################################################################################
 #TO DO: average biomass and density for natural reefs only, MPA vs non-MPA (not sure how to determine this right now)
 ##################################################################################

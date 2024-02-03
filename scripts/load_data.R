@@ -19,6 +19,12 @@ library(dplyr)
     #--> # "BOEM_depth_comparison": Subsets to all Natural and Artificial reefs in CRANE data (Islands: SB, SCL, SCLI, San Nic, Begg Rock, mainland: Malibu to SD regions)
         #Excludes samples <= 2015 to avoid heatwaves and sea star wasting, etc. Good starting year for baseline conditions of sort (avoids blob that ended in ~2015)
 
+############################
+#Are you loading and cleaning data for OSM poster (only want 2022-2023 data)
+############################
+
+OSM = TRUE
+
 #############################
 ##Load data
 #############################
@@ -110,7 +116,7 @@ dat_kelp <- dat_kelp |>
 
 
 ########################
-##Restrict to well sampled sites for averages (sampled in at least 3 years)
+##Restrict to well sampled sites for averages (sampled in at least X years)
 ########################
 
 #switch to data table, easier for Zoë
@@ -120,17 +126,42 @@ dat_fish_t <- data.table(dat_fish_t)
 dat_macroinvert <- data.table(dat_macroinvert)
 dat_kelp <- data.table(dat_kelp)
 
-#year count per site
-site_by_years <- dat_event[,.(Years_sampled = uniqueN(SampleYear), most_recent = max(SampleYear)),Site]
+#table with unique year and site values
+unique_site_year <- unique(dat_event[,.(Site, SampleYear)])
 
+#rank years in descending order
+unique_site_year[,year_rank := frank(-SampleYear),Site]
+
+#identify most recent year of sampling
+unique_site_year[,most_recent := max(SampleYear),Site]
+
+#total number of years of sampling
+unique_site_year[,Years_sampled := uniqueN(SampleYear),Site]
+
+#list of only second most sampled years by site
+site_second_most_sample_key <- unique(unique_site_year[year_rank == 2,.(Site,SampleYear)])
+
+#rename columns
+colnames(site_second_most_sample_key) <- c("Site","second_most_recent_year")
+
+#merge back with other data table
+
+unique_site_year <- unique_site_year[site_second_most_sample_key,on = c("Site")]
+
+#unique rows
+site_by_years <- unique(unique_site_year[,.(Site, most_recent, Years_sampled, second_most_recent_year)])
+
+
+if(OSM == F){
 #how many sites with atleast 3 years of data?
-nrow(site_by_years[Years_sampled >=3]) #leaves us 92 sites
+nrow(site_by_years[Years_sampled >=3]) #leaves us 93 sites
 
 #reduce all data tables to sites that have been sampled atleast 3 times
 dat_event.r <- dat_event[Site %in% site_by_years[Years_sampled >= 3]$Site]
 dat_fish_t.r <- dat_fish_t[Site %in% site_by_years[Years_sampled >= 3]$Site]
 dat_macroinvert.r <- dat_macroinvert[Site %in% site_by_years[Years_sampled >= 3]$Site]
 dat_kelp.r <- dat_kelp[Site %in% site_by_years[Years_sampled >= 3]$Site]
+
 
 ########################
 ##Take average values across all years of sampling (avg density and avg biomass of each species at site)
@@ -153,4 +184,38 @@ saveRDS(dat_event.r, file.path("data","processed_crane", "dat_event.r.rds"))
 saveRDS(dat_fish_site_averages, file.path("data","processed_crane", "dat_fish_site_averages.rds"))
 saveRDS(dat_macroinvert_site_averages, file.path("data","processed_crane", "dat_macroinvert_site_averages.rds"))
 saveRDS(dat_kelp_site_averages, file.path("data","processed_crane", "dat_kelp_site_averages.rds"))
- 
+}
+
+
+if(OSM == T){ #different subset
+  #how many sites sampled in both 2022 and 2023
+  nrow(site_by_years[Years_sampled >=2 & most_recent == 2023 & second_most_recent_year == 2022]) #leaves us 96 sites
+  
+  #reduce all data tables to sites that have been sampled atleast 2 times, including 2022 and 2023
+  dat_event_OSM.r <- dat_event[Site %in% site_by_years[Years_sampled >=2 & most_recent == 2023 & second_most_recent_year == 2022]$Site]
+  dat_fish_t_OSM.r <- dat_fish_t[Site %in% site_by_years[Years_sampled >=2 & most_recent == 2023 & second_most_recent_year == 2022]$Site]
+  dat_macroinvert_OSM.r <- dat_macroinvert[Site %in% site_by_years[Years_sampled >=2 & most_recent == 2023 & second_most_recent_year == 2022]$Site]
+  dat_kelp_OSM.r <- dat_kelp[Site %in% site_by_years[Years_sampled >=2 & most_recent == 2023 & second_most_recent_year == 2022]$Site]
+  
+  
+  ########################
+  ##Take average values across all years of sampling (avg density and avg biomass of each species at site) and reduce to only 2022 and 2023 (years SoS was sampled)
+  ########################
+  
+  dat_event_OSM.r <- dat_event_OSM.r[SampleYear %in% c(2022,2023),]
+  
+  dat_fish_site_averages_OSM <- dat_fish_t_OSM.r[SampleYear %in% c(2022,2023),.(mean_density_m2=mean(density_m2), mean_wt_density_g_m2=mean(wt_density_g_m2)),
+                                         .(Species, Project, Region, AR_Complex, Site, DepthZone)]
+  dat_macroinvert_site_averages_OSM <- dat_macroinvert_OSM.r[SampleYear %in% c(2022,2023),.(mean_density_m2=mean(Abundance/area.m2)),
+                                                     .(BenthicReefSpecies, SpeciesGroupF, Project, Region, AR_Complex, Site, DepthZone)]
+  dat_kelp_site_averages_OSM <- dat_kelp_OSM.r[SampleYear %in% c(2022,2023),.(mean_density_m2=mean(Abundance/area.m2)),
+                                       .(BenthicReefSpecies, SpeciesGroupF, Project, Region, AR_Complex, Site, DepthZone)]
+  
+  ########################
+  ##Save output
+  ########################
+  saveRDS(dat_event_OSM.r, file.path("data","processed_crane", "dat_event_OSM.r.rds"))
+  saveRDS(dat_fish_site_averages_OSM, file.path("data","processed_crane", "dat_fish_site_averages_OSM.rds"))
+  saveRDS(dat_macroinvert_site_averages_OSM, file.path("data","processed_crane", "dat_macroinvert_site_averages_OSM.rds"))
+  saveRDS(dat_kelp_site_averages_OSM, file.path("data","processed_crane", "dat_kelp_site_averages_OSM.rds"))
+}

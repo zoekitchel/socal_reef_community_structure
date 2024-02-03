@@ -513,12 +513,14 @@ plot_kelpdensity_PCA_top5label
 
 ggsave(plot_kelpdensity_PCA_top5label, path = "figures", filename = "plot_kelpdensity_PCA_top5label.jpg", height = 4, width = 5)
 
+#################
+#MERGE ALL SPECIES
+#################
+
+
+
 #To try next
-##use species presence/absence instead of abundance
-##transform, like Jeremy recommended
-##use Jeremy's code
 ##repeat for fish, fish biomass, macro, kelp, and all species clumped together (maybe do this one by presence absence only)
 ##Integrate environmental data (distance to 200m isobath, insitu: depth, temp, rugosity or whatever)
-
 
 
