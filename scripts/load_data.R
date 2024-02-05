@@ -23,7 +23,7 @@ library(dplyr)
 #Are you loading and cleaning data for OSM poster (only want 2022-2023 data)
 ############################
 
-OSM = TRUE
+OSM = FALSE
 
 #############################
 ##Load data
