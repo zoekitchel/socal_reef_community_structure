@@ -516,11 +516,337 @@ ggsave(plot_kelpdensity_PCA_top5label, path = "figures", filename = "plot_kelpde
 #################
 #MERGE ALL SPECIES
 #################
+#TO DO for 2016-2023 data
+##################################################################################
+#Visual summaries for OSM poster
+##################################################################################
+
+########################
+##Load data (deep and AR, 2022-2023)
+########################
+dat_event_OSM.r <- readRDS(file.path("data","processed_crane", "dat_event_OSM.r.rds"))
+dat_fish_site_averages_OSM <- readRDS(file.path("data","processed_crane", "dat_fish_site_averages_OSM.rds"))
+dat_macroinvert_site_averages_OSM <- readRDS(file.path("data","processed_crane", "dat_macroinvert_site_averages_OSM.rds"))
+dat_kelp_site_averages_OSM <- readRDS(file.path("data","processed_crane", "dat_kelp_site_averages_OSM.rds"))
+
+########################
+##Deep only
+########################
+dat_event_OSM.r.deep_ar <- dat_event_OSM.r[DepthZone %in% c("ARM","Deep")]
+dat_fish_site_averages_OSM.deep_ar <- dat_fish_site_averages_OSM[DepthZone %in% c("ARM","Deep")]
+dat_macroinvert_site_averages_OSM.deep_ar <- dat_macroinvert_site_averages_OSM[DepthZone %in% c("ARM","Deep")]
+dat_kelp_site_averages_OSM.deep_ar <- dat_kelp_site_averages_OSM[DepthZone %in% c("ARM","Deep")]
+
+#######################
+##Counts of each site type
+######################
+count_natural <- length(unique(dat_event_OSM.r.deep_ar[DepthZone == "Deep",Site])) #27
+count_artificial <- length(unique(dat_event_OSM.r.deep_ar[DepthZone == "ARM",Site])) #28
+
+########################
+##Average across years for each site
+########################
+
+dat_fish_averages_bysite <- dat_fish_site_averages_OSM.deep_ar[,.(mean_depthzone_density_m2 = mean(mean_density_m2),
+                                                                   mean_depthzone_wt_density_g_m2=mean(mean_wt_density_g_m2)),
+                                                                .(Site, Region,DepthZone, Species)] 
+dat_macroinvert_averages_bysite <- dat_macroinvert_site_averages_OSM.deep_ar[,.(mean_depthzone_density_m2 = mean(mean_density_m2)),
+                                                                              .(Site, Region, DepthZone, BenthicReefSpecies)]  
+dat_kelp_averages_bysite <- dat_kelp_site_averages_OSM.deep_ar[,.(mean_depthzone_density_m2 = mean(mean_density_m2)),
+                                                                .(Site, Region,DepthZone, BenthicReefSpecies)]  
+
+#site type column
+dat_fish_averages_bysite[,`Site type` := ifelse(DepthZone=="ARM","Artificial",ifelse(DepthZone=="Deep","Natural","Star of Scotland"))]
+dat_macroinvert_averages_bysite[,`Site type` := ifelse(DepthZone=="ARM","Artificial",ifelse(DepthZone=="Deep","Natural","Star of Scotland"))]
+dat_kelp_averages_bysite[,`Site type` := ifelse(DepthZone=="ARM","Artificial",ifelse(DepthZone=="Deep","Natural","Star of Scotland"))]
+
+#reorder these factors
+dat_fish_averages_bysite[,`Site type` := factor(`Site type`, levels = c("Natural","Artificial","Star of Scotland"),
+                                                          labels = c(paste0("Natural\nn = ",count_natural),paste0("Artificial\nn = ",count_artificial),paste0("Star of Scotland\nn = ","1")))]
+dat_macroinvert_averages_bysite[,`Site type` := factor(`Site type`, levels = c("Natural","Artificial","Star of Scotland"),
+                                                labels = c(paste0("Natural\nn = ",count_natural),paste0("Artificial\nn = ",count_artificial),paste0("Star of Scotland\nn = ","1")))]
+dat_kelp_averages_bysite[,`Site type` := factor(`Site type`, levels = c("Natural","Artificial","Star of Scotland"),
+                                                labels = c(paste0("Natural\nn = ",count_natural),paste0("Artificial\nn = ",count_artificial),paste0("Star of Scotland\nn = ","1")))]
+
+#add column for species type
+dat_fish_averages_bysite[,spp_class := "fish"]
+dat_macroinvert_averages_bysite[,spp_class := "macroinvert"]
+dat_kelp_averages_bysite[,spp_class := "kelp"]
+
+#reorder columns
+dat_fish_averages_bysite <- dat_fish_averages_bysite[,.(Region, Site, DepthZone, `Site type`,spp_class, Species, mean_depthzone_density_m2)] #note, I'm excluding biomass for now!!
+dat_macroinvert_averages_bysite <- dat_macroinvert_averages_bysite[,.(Region, Site, DepthZone, `Site type`,spp_class, BenthicReefSpecies, mean_depthzone_density_m2)]
+dat_kelp_averages_bysite <- dat_kelp_averages_bysite[,.(Region, Site, DepthZone, `Site type`,spp_class, BenthicReefSpecies, mean_depthzone_density_m2)]
+
+#merge into single data table to allow for analyses with all species
+
+dat_averages_bysite <- rbind(dat_fish_averages_bysite, dat_macroinvert_averages_bysite, dat_kelp_averages_bysite, use.names = FALSE)
+
+##################################################
+#Long data to wide data for vegan analyses
+##################################################
+
+
+#melt long to wide
+dat_fish_averages_bysite.wide <- dcast(dat_fish_averages_bysite, Region + Site + DepthZone + `Site type` ~ Species, value.var = "mean_depthzone_density_m2", fun = mean)
+
+dat_macroinvert_averages_bysite.wide <- dcast(dat_macroinvert_averages_bysite, Region + Site + DepthZone + `Site type` ~ BenthicReefSpecies, value.var = "mean_depthzone_density_m2", fun = mean)
+
+dat_kelp_averages_bysite.wide <- dcast(dat_kelp_averages_bysite, Region + Site + DepthZone + `Site type` ~ BenthicReefSpecies, value.var = "mean_depthzone_density_m2", fun = mean)
+
+dat_averages_bysite.wide <- dcast(dat_averages_bysite, Region + Site + DepthZone + `Site type` ~ Species, value.var = "mean_depthzone_density_m2", fun = mean)
+
+#####################
+#PERMANOVA, Permutational Multivariate Analysis of Variance (perMANOVA)
+#####################
+#FULL COMMUNITY
+
+#Start with root transformation (high abundance spp less pull in ordination)
+dat_averages_bysite.wide.rt <- sqrt(dat_averages_bysite.wide[,c(5:ncol(dat_averages_bysite.wide)), with = FALSE])
+
+#add back reference columns
+dat_averages_bysite.wide.rt <- cbind(dat_averages_bysite.wide[,c(1:4), with = FALSE], dat_averages_bysite.wide.rt)
+
+#only keep Site and DepthZone
+dat_averages_bysite.wide.rt.trim <- dat_averages_bysite.wide.rt[,c(5:ncol(dat_averages_bysite.wide.rt)), with = FALSE]
+
+permanova_allspp <- adonis2(
+  dat_averages_bysite.wide.rt.trim ~ dat_averages_bysite.wide.rt $DepthZone,
+  method = "bray"
+)
+
+permanova_allspp
+
+#whether or not a site is an artificial reef affects community composition, but
+#accounts for relatively small amount of variation (12.3% of variation in composition)
+
+#ONLY FISH
+
+#Start with root transformation (high abundance spp less pull in ordination)
+dat_fish_averages_bysite.wide.rt <- sqrt(dat_fish_averages_bysite.wide[,c(5:ncol(dat_fish_averages_bysite.wide)), with = FALSE])
+
+#add back reference columns
+dat_fish_averages_bysite.wide.rt <- cbind(dat_fish_averages_bysite.wide[,c(1:4), with = FALSE], dat_fish_averages_bysite.wide.rt)
+
+#only keep Site and DepthZone
+dat_fish_averages_bysite.wide.rt.trim <- dat_fish_averages_bysite.wide.rt[,c(5:ncol(dat_fish_averages_bysite.wide.rt)), with = FALSE]
+
+permanova_fish <- adonis2(
+  dat_fish_averages_bysite.wide.rt.trim ~ dat_fish_averages_bysite.wide.rt $DepthZone,
+  method = "bray"
+)
+
+permanova_fish
+
+#whether or not a site is an artificial reef affects fish community composition, accounting for 14.5% of variation in composition
+
+#ONLY MACRO
+
+#Start with root transformation (high abundance spp less pull in ordination)
+dat_macroinvert_averages_bysite.wide.rt <- sqrt(dat_macroinvert_averages_bysite.wide[,c(5:ncol(dat_macroinvert_averages_bysite.wide)), with = FALSE])
+
+#add back reference columns
+dat_macroinvert_averages_bysite.wide.rt <- cbind(dat_macroinvert_averages_bysite.wide[,c(1:4), with = FALSE], dat_macroinvert_averages_bysite.wide.rt)
+
+#only keep Site and DepthZone
+dat_macroinvert_averages_bysite.wide.rt.trim <- dat_macroinvert_averages_bysite.wide.rt[,c(5:ncol(dat_macroinvert_averages_bysite.wide.rt)), with = FALSE]
+
+permanova_macroinvert <- adonis2(
+  dat_macroinvert_averages_bysite.wide.rt.trim ~ dat_macroinvert_averages_bysite.wide.rt $DepthZone,
+  method = "bray"
+)
+
+permanova_macroinvert
+
+#whether or not a site is an artificial reef affects macroinvert community composition, but only accounting for 10.5% of variation in composition
+
+
+#ONLY KELP
+
+#sometimes, no kelp at all, need to delete these rows
+kelp_row_sums <- rowSums(dat_kelp_averages_bysite.wide[,5:ncol(dat_kelp_wide_density)])
+
+dat_kelp_averages_bysite.wide[,rowSums := kelp_row_sums]
+
+dat_kelp_averages_bysite.wide.r <- dat_kelp_averages_bysite.wide[rowSums>0]
+
+#Start with root transformation (high abundance spp less pull in ordination)
+dat_kelp_averages_bysite.wide.rt <- sqrt(dat_kelp_averages_bysite.wide.r[,c(5:ncol(dat_kelp_averages_bysite.wide)), with = FALSE])
+
+#add back reference columns
+dat_kelp_averages_bysite.wide.rt <- cbind(dat_kelp_averages_bysite.wide.r[,c(1:4), with = FALSE], dat_kelp_averages_bysite.wide.rt)
+
+#only keep Site and DepthZone
+dat_kelp_averages_bysite.wide.rt.trim <- dat_kelp_averages_bysite.wide.rt[,c(5:ncol(dat_kelp_averages_bysite.wide.rt)), with = FALSE]
+
+permanova_kelp <- adonis2(
+  dat_kelp_averages_bysite.wide.rt.trim ~ dat_kelp_averages_bysite.wide.rt $DepthZone,
+  method = "bray"
+)
+
+permanova_kelp
+
+#whether or not a site is an artificial reef affects fish community composition, accounting for 14.2% of variation in composition
+
+#Take away:
+#Artificial vs natural accounts for the most variation for fish and kelp communities, and the least relative variation for macroinvert communities
+
+
+###################
+#PLOT NMDS
+###################
+#NMDS “preserves the rank order of the inter-point dissimilarities as well as possible within the constraints of a small number of dimensions” (Anderson et al. 2008, p. 105).
+#It has the least restrictive assumptions (any distance measure, no assumptions about shape of species response curves).
+
+#all species
+
+#convert to distance matrix
+dat_averages_bysite.dist <- vegdist(dat_averages_bysite.wide[,5:ncol(dat_averages_bysite.wide)], distance = "bray")
+
+full_nmds <- metaMDS(dat_averages_bysite.wide[,5:ncol(dat_averages_bysite.wide)], #metaMDS automatically does this for us
+             autotransform = FALSE,
+             distance = "bray",
+             engine = "monoMDS",
+             k = 4, #need at least twice as many sample units as dimensions, will impact results
+             weakties = TRUE,#Set to true if you commonly have sample units that don't share species 
+                              #TRUE allows observations to be positioned at different coordinates within the ordination space even though they are the same distance apart in the matrix
+                              #FALSE forces observations that are the same distance apart in the distance matrix to also be the same distance apart in ordination space
+             model = "global",
+             maxit = 300,
+             try = 40,
+             trymax = 100)
+
+print(full_nmds)
+
+
+#The number of dimensions is often selected by conducting NMDS ordinations with different 
+#numbers of dimensions (e.g., k = 1 to 5) and then plotting stress as a function of k. 
+#The intent here is to identify the point where adding the complexity of an additional dimension contributes relatively little to the reduction in stress.
+
+#Stress: 
+#         k = 2, stress = .168
+#         k = 3, stress = .112
+#         k = 4, stress = 0.07, good ordination with no real risk of drawing false inferences (Clark 1993 pg 126)
+#         k = 5, stress = 0.06
+#         k = 6, stress = 0.05
+#         k = 3, stress = 0.04
+
+#The fit of a NMDS ordination can be assessed by plotting the original dissimilarities (z$diss) against the (Euclidean) ordination distances (z$dist) 
+
+stressplot(full_nmds)
+
+#link NMDS points to site details
+dat_averages_bysite.nmds <- cbind(dat_fish_averages_bysite.wide[,1:4], full_nmds$points)
+
+#set apart SoS
+dat_averages_bysite.nmds[Site == "Star of Scotland",`Site type` := "Star of Scotland\nn = 1"]
+
+#For some reason, Marina Del Rey coded as Region = Artificial reef, change to Santa Monica Bay
+
+dat_averages_bysite.nmds[Region == "Artificial Reef",Region := "Santa Monica Bay"]
+
+full_nmds_plot_bysitetype <- ggplot(data = dat_averages_bysite.nmds) +
+  geom_point(aes(x = MDS1, y = MDS2, fill = `Site type`, shape = `Site type`), size = 3, color = "transparent") +
+  scale_fill_manual(values = c("#BF6992", "#54AEAA", "#EA3323")) +
+  scale_shape_manual(values = c(21,24,24)) +
+  lims(x= c(-1.4,1.2), y = c(-2,2)) +
+  theme_classic() +
+  theme(axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        legend.position = c(.15, .9))
+
+
+ggsave(full_nmds_plot_bysitetype, path = "figures", filename = "full_nmds_plot_bysitetype.jpg", height = 6, width = 6)
+
+full_nmds_plot_byregion <- ggplot(data = dat_averages_bysite.nmds) +
+  geom_point(aes(x = MDS1, y = MDS2, color = Region, shape = `Site type`), size = 3) +
+  scale_color_manual(values = c("#83752D", "#EAC4AA", "#D38EB6", "#F6D798","#76A6B8", "#2F624E")) +
+  scale_shape_manual(values = c(19,17,17), guide = NULL) +
+  lims(x= c(-1.4,1.2), y = c(-2,2)) +
+  theme_classic() +
+  theme(axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        legend.position = c(.2, .83),
+        legend.background = element_blank(), legend.key = element_blank())
+
+
+ggsave(full_nmds_plot_byregion, path = "figures", filename = "full_nmds_plot_byregion.jpg", height = 6, width = 6)
+
+
+#SPECIES SCORES
+species_scores <- data.table(vegan::scores(full_nmds, "species"))
+spp_list <- colnames(dat_averages_bysite.wide[,5:ncol(dat_averages_bysite.wide)])
+species_scores[,Species := spp_list]
+
+#top and bottom three for NMDS1 & 2
+top_all_spp <- c("Stereolepis gigas","Pachycerianthus fimbriatus","Crossata californica",
+                 "Paralabrax maculatofasciatus","Sebastes constellatus","Heterostichus rostratus",
+                 "Lythrypnus dalli","Haliotis fulgens","Centrostephanus coronatus",
+                 "Berthella californica","Pomaulax gibberosus","Acanthodoris rhodoceras")
+
+species_scores_top <- species_scores[Species %in% top_all_spp]
+
+species_scores_top[,Species := factor(Species,
+                                      labels = 
+                                        c("Stereolepis gigas\ngiant sea bass","Pachycerianthus fimbriatus\ntube anenome","Crossata californica\nfrogsnail",
+                                                 "Paralabrax maculatofasciatus\nspotted sand bass","Sebastes constellatus\nstarry rockfish","Heterostichus rostratus\ngiant kelpfish",
+                                                 "Lythrypnus dalli\nblue-banded goby","Haliotis fulgens\ngreen abalone","Centrostephanus coronatus\ncrowned sea urchin",
+                                                 "Berthella californica\nsea slug spp.","Pomaulax gibberosus\nred turban snail","Acanthodoris rhodoceras\nsea slug spp."))]
+
+#add to simple NMDS plot
+
+full_nmds_plot_speciesscores <- ggplot(data = dat_averages_bysite.nmds) +
+  geom_point(aes(x = MDS1, y = MDS2,shape = `Site type`), size = 3, alpha = 0.3) +
+  geom_text_repel(data = species_scores_top, aes(x = NMDS1, y = NMDS2, label = Species), size = 2) +
+  scale_shape_manual(values = c(19,17,17)) +
+  lims(x= c(-1.4,1.2), y = c(-2,2)) +
+  theme_classic() +
+  theme(axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        legend.position = c(.15, .9))
+
+
+ggsave(full_nmds_plot_speciesscores, path = "figures", filename = "full_nmds_plot_speciesscores.jpg", height = 5, width = 10)
+
+#plot together
+full_nmds_plot <- plot_grid(full_nmds_plot_bysitetype, full_nmds_plot_byregion,full_nmds_plot_speciesscores + theme(legend.position = "none"), ncol = 3)
+
+ggsave(full_nmds_plot, path = "figures", filename = "full_nmds_plot.jpg", height = 5, width = 15)
+ggsave(full_nmds_plot, path = "figures", filename = "full_nmds_plot.pdf", height = 5, width = 15)
+
+#We can create ellipses around groups
+
+veganCovEllipse<-function (cov, center = c(0, 0), scale = 1, npoints = 100) 
+{
+  theta <- (0:npoints) * 2 * pi/npoints
+  Circle <- cbind(cos(theta), sin(theta))
+  t(center + scale * t(Circle %*% chol(cov)))
+}
+
+df_ell <- data.frame()
+for(g in levels(factor(dat_averages_bysite.nmds$DepthZone))){
+  df_ell <- rbind(df_ell, cbind(as.data.frame(with(dat_averages_bysite.nmds[dat_averages_bysite.nmds$DepthZone==g,],
+                                                   veganCovEllipse(cov.wt(cbind(MDS1,MDS2),wt=rep(1/length(MDS1),length(MDS1)))$cov,center=c(mean(MDS1),mean(MDS2)))))
+                                ,group=g))
+}
+
+full_nmds_plot_bysitetype +
+geom_path(data=df_ell, aes(x=MDS1, y=MDS2,color=group), size=1, linetype=2) +
+  scale_color_manual(values = c("#BF6992", "#54AEAA"), guide = NULL)
+
+#NOT IMMEDIATELY SURE WHAT THIS ELLIPSE IS TELLING US
 
 
 
+######################
 #To try next
 ##repeat for fish, fish biomass, macro, kelp, and all species clumped together (maybe do this one by presence absence only)
 ##Integrate environmental data (distance to 200m isobath, insitu: depth, temp, rugosity or whatever)
+
+
+
 
 
