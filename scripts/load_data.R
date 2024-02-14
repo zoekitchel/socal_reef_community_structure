@@ -107,7 +107,7 @@ dat_kelp <- dat_kelp |>
   filter(!Site %in% c("Leucadia", "Old 18th")) |> #some depth zones were way out there in nMDS (probably very few species?)
   droplevels() 
 
-########WHAT DOES HE MEAN BY THIS
+ ########WHAT DOES HE MEAN BY THIS
 
 # Filter out species with very few observations??? WHAT DOES HE MEAN BY THIS
 

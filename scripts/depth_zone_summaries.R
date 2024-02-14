@@ -62,10 +62,10 @@ dat_macroinvert_averages[, summed_mean_depthzone_density_m2 := sum(mean_depthzon
 dat_macroinvert_averages_deep_ar.u <- unique(dat_macroinvert_averages[,.(Species_top5, DepthZone, summed_mean_depthzone_density_m2)])
 
 dat_macroinvert_averages_deep_ar.u[,Species_forlabel := factor(Species_top5, levels = c("Anthopleura sola", "Apostichopus parvimensis", "Centrostephanus coronatus", "Leptogorgia chilensis",
-                                                                                "Megastraea undosa", "Mesocentrotus franciscanus", "Muricea californica", "Pachycerianthus fimbriatus",
+                                                                                "Megastraea undosa", "Mesocentrotus franciscanus", "Muricea californica","Muricea fruticosa", "Pachycerianthus fimbriatus",
                                                                                 "Patiria miniata","Strongylocentrotus purpuratus", "Other"),
                                                        labels = c("Anthopleura sola\n(starburst anenome)", "Apostichopus parvimensis\n(warty sea cucumber)", "Centrostephanus coronatus\n(crowned urchin)", "Leptogorgia chilensis\n(red gorgonian)",
-                                                                  "Megastraea undosa\n(wavy turban snail)", "Mesocentrotus franciscanus\n(red urchin)", "Muricea californica\n(golden gregorian)", "Pachycerianthus fimbriatus\n(tube dwelling anenome)",
+                                                                  "Megastraea undosa\n(wavy turban snail)", "Mesocentrotus franciscanus\n(red urchin)", "Muricea californica\n(golden gregorian)","Muricea fruticosa\n(brown gregorian)", "Pachycerianthus fimbriatus\n(tube dwelling anenome)",
                                                                   "Patiria miniata\n(bat star)","Strongylocentrotus purpuratus\n(purple urchin)", "Other"))]
 
 
@@ -88,7 +88,8 @@ dat_fishbiomass_averages_deep_ar.u[,Species_forlabel := factor(Species_top5, lev
                                                                                "Paralabrax clathratus", "Paralabrax nebulifer","Sebastes serranoides", "Semicossyphus pulcher","Stereolepis gigas",
                                                                                 "Other"),
                                                        labels = c("Anisotremus davidsonii\n(sargo)", "Chromis punctipinnis\n(blacksmith damselfish)", "Girella nigricans\n(opaleye)", "Hypsypops rubicundus\n(garibaldi)",
-                                                                 "Paralabrax clathratus\n(kelp bass)", "Paralabrax nebulifer\n(barred sand bass)","Sebastes serranoides\n(olive rockfish)", "Semicossyphus pulcher\n(sheephead)","Stereolepis gigas\n(giant sea bass)",
+                                                                 "Paralabrax clathratus\n(kelp bass)", "Paralabrax nebulifer\n(barred sand bass)","Sebastes serranoides\n(olive rockfish)", "Semicossyphus pulcher\n(sheephead)",
+                                                                 "Stereolepis gigas\n(giant sea bass)",
                                                                   "Other"))]
 
 
@@ -111,19 +112,19 @@ pal_fishdens10 <- c("#CCEBC5",  #"Brachyistius frenatus"
                    "#D9D9D9")  #"Other"
 
 #fish density palette with 10 colors
-pal_fishbio10 <- c("#CEAD64",#"Anisotremus davidsonii" 
+pal_fishbio9 <- c("#CEAD64",#"Anisotremus davidsonii" 
                     "#80B1D3",#"Chromis punctipinnis"
                     "#8ea489",#"Girella nigricans" 
                     "#FDB462",#"Hypsypops rubicundus"
                     "#8DD3C7",#"Paralabrax clathratus"
                     "#FFED6F", #"Paralabrax nebulifer"
-                   "#9D9E39", #"Sebastes serranoides"
+                #   "#9D9E39", #"Sebastes serranoides"
                     "darksalmon",#"Semicossyphus pulcher"
                    "#A38389",#"Stereolepsis gigas"
-                    "#D9D9D9")
+                    "#D9D9D9") #other
 
 #macro density palette with 11 colors
-pal_macro10 <- c("#97D4BA", "#B67436","#3F4965", "#DA7E80", "#9C8074",
+pal_macro11 <- c("#97D4BA", "#B67436","#3F4965", "#DA7E80", "#9C8074",
                    "#BA4C61", "#BF9D5D", "#D7CDAA", "#E08454", "#BC80BD","#D9D9D9")
 
 #kelp density palette with 9 colors
@@ -145,7 +146,7 @@ ggsave(fish_density_top5_stacked, path = file.path("figures"), filename = "fish_
 fish_biomass_top5_stacked <- ggplot(dat_fishbiomass_averages_deep_ar.u, aes(fill=Species_forlabel, y=summed_mean_depthzone_wt_density_g_m2*100/1000, x=DepthZone)) + 
   geom_bar(position="stack", stat="identity") +
   labs(x = "Depth zone", y = expression(paste("Average biomass in kg per 100m" ^2)), fill = "Fish species") +
-  scale_fill_manual(values = pal_fishbio10) +
+  scale_fill_manual(values = pal_fishbio9 ) +
   scale_y_continuous(expand = c(0,0)) +
   theme_classic() +
   theme(legend.text = element_text(size = 5), legend.title = element_text(size = 6, face = "bold"))
@@ -156,7 +157,7 @@ ggsave(fish_biomass_top5_stacked, path = file.path("figures"), filename = "fish_
 macroinvert_density_top5_stacked <- ggplot(dat_macroinvert_averages_deep_ar.u, aes(fill=Species_forlabel, y=summed_mean_depthzone_density_m2*100, x=DepthZone)) + 
   geom_bar(position="stack", stat="identity") +
   labs(x = "Depth zone", y = expression(paste("Average density per 100m" ^2)), fill = "Macroinvertebrate species") +
-  scale_fill_manual(values = pal_macro10) +
+  scale_fill_manual(values = pal_macro11) +
   scale_y_continuous(expand = c(0,0)) +
   theme_classic() +
   theme(legend.text = element_text(size = 5), legend.title = element_text(size = 6, face = "bold"))
