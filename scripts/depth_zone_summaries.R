@@ -122,6 +122,10 @@ spp_kelp_key <- data.table(Species = factor(c("Agarum fimbriatum", "Egregia menz
                                              "turquoise", "#B3DE69", "#CDA3AB","coral","#BA4C61", "#D9D9D9"
                            ))
 
+top_spp_key <- rbind(spp_fish_key, spp_kelp_key, spp_macro_key)
+
+saveRDS(top_spp_key, file = file.path("keys","top_spp_key.Rds"))
+
 ########################
 ##Averaged across all sites, top species per depth zone
 ########################

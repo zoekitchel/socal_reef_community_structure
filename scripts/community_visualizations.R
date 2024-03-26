@@ -15,6 +15,8 @@ library(dplyr)
 library(vegan)
 library(ggvegan)
 library(labdsv)
+library(cowplot)
+library(ggnewscale)
 
 source(file.path("functions","return_spptaxonomy_function.R"))
 
@@ -60,21 +62,30 @@ dat_kelp_wide_density <- dcast(dat_kelp_long_density, Region + Site + DepthZone 
 
 #spp per depthzone
 dat_fish_long_density_removezeros <- dat_fish_long_density[mean_density_m2>0,]
+dat_fish_long_biomass_removezeros <- dat_fish_long_biomass[mean_wt_density_g_m2>0,]
 dat_macroinvert_long_density_removezeros <- dat_macroinvert_long_density[mean_density_m2>0,]
 dat_kelp_long_density_removezeros <- dat_kelp_long_density[mean_density_m2>0,]
 
 
 #number of species per depth zone?
-fish_depthzone_site_richness <- dat_fish_long_density_removezeros[,.(count_spp = .N),.(Site, DepthZone)]
-fish_depthzone_site_richness[,category:="fish"]
-macroinvert_depthzone_site_richness <- dat_macroinvert_long_density_removezeros[,.(count_spp = .N),.(Site, DepthZone)]
+fish_depthzone_site_richness_abun <- dat_fish_long_density_removezeros[,.(count_spp = .N,sum_abun = sum(mean_density_m2)),.(Site, DepthZone, Region)]
+fish_depthzone_site_richness_abun[,category:="fish"]
+fish_depthzone_site_biomass <- dat_fish_long_biomass_removezeros[,.(sum_biomass = sum(mean_wt_density_g_m2)),.(Site, DepthZone, Region)]
+fish_depthzone_site_richness_abun_biomass <- fish_depthzone_site_richness_abun[fish_depthzone_site_biomass, on = c("Site","DepthZone","Region")]
+
+macroinvert_depthzone_site_richness <- dat_macroinvert_long_density_removezeros[,.(count_spp = .N, sum_abun = sum(mean_density_m2)),.(Site, DepthZone, Region)]
 macroinvert_depthzone_site_richness[,category:="macroinvert"]
-kelp_depthzone_site_richness <- dat_kelp_long_density_removezeros[,.(count_spp = .N),.(Site, DepthZone)]
+kelp_depthzone_site_richness <- dat_kelp_long_density_removezeros[,.(count_spp = .N, sum_abun = sum(mean_density_m2)),.(Site, DepthZone, Region)]
 kelp_depthzone_site_richness[,category:="kelp"]
 
 #rbind these to make a single figure
-depthzone_site_richness <- rbind(fish_depthzone_site_richness, macroinvert_depthzone_site_richness, kelp_depthzone_site_richness)
+depthzone_site_richness <- rbind(fish_depthzone_site_richness_abun_biomass, macroinvert_depthzone_site_richness, kelp_depthzone_site_richness, fill = TRUE)
 
+##################################################
+#Diversity metric visualizations
+##################################################
+
+depthzone_site_richness[,category := factor(category, labels = c("Fish","Macroalgae","Macroinvertebrates"))]
 
 #boxplot
 pal_5 <- c("lightsalmon1", "gold1", "palegreen4","mediumpurple1","skyblue")
@@ -84,15 +95,76 @@ depthzone_site_richness_boxplot <- ggplot(depthzone_site_richness, aes(x = Depth
   scale_fill_manual(values = pal_5) +
   scale_x_discrete(labels = c("Inner \n (n = 64)", "Middle \n (n = 63)", "Outer \n (n = 55)", "Deep \n (n = 25)", "ARM \n (n = 25)")) +
   labs(x = "Depth Zone",
-       y = "Number of species per site",
-       title = "Species richness") +
+       y = "No taxa") +
   facet_grid(~category)+
   theme_classic()+
   theme(legend.position = "none")
 
 ggsave(depthzone_site_richness_boxplot, path = "figures", filename = "depthzone_site_richness_boxplot.jpg", height = 6, width = 8, unit = "in")
 
-##################################################
+#alternatively, box plot also split by ARM, island, mainland
+depthzone_site_richness[,type := ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Mainland")]
+
+depthzone_site_type_richness_boxplot <- ggplot(depthzone_site_richness, aes(x = DepthZone, y = count_spp, fill = type)) +
+  geom_boxplot(outlier.size = 1, position = position_dodge(preserve = "single")) + #the median, two hinges and two whiskers, and all "outlying" points individually
+  scale_fill_manual(values = c("grey","white"), ) +
+  scale_x_discrete(labels = c("Inner", "Middle", "Outer", "Deep", "ARM")) +
+  labs(x = "Depth Zone",
+       y = "No taxa",
+       fill = "Site location") +
+  facet_grid(~category)+
+  theme_classic()+
+  theme()
+
+ggsave(depthzone_site_type_richness_boxplot, path = "figures", filename = "depthzone_site_type_richness_boxplot.jpg", height = 5, width = 8, unit = "in")
+
+#biomass and abundance boxplots
+#abundance macro kelp
+depthzone_site_type_abundance_macro_kelp_boxplot <- ggplot(depthzone_site_richness[category != "Fish"], aes(x = DepthZone, y = sum_abun, fill = type)) +
+  geom_boxplot(outlier.size = 1, position = position_dodge(preserve = "single")) + #the median, two hinges and two whiskers, and all "outlying" points individually
+  scale_fill_manual(values = c("grey","white"), ) +
+  scale_x_discrete(labels = c("Inner", "Middle", "Outer", "Deep", "ARM")) +
+  labs(x = "Depth Zone",
+       y = "Abundance summed across all taxa\n(count per m^2)",
+       fill = "Site location") +
+  facet_wrap(~category, scales = "free_y")+
+  theme_classic()+
+  theme(legend.position = "bottom", legend.justification = "center", legend.direction = "horizontal", panel.spacing = unit(3, "lines"), axis.line = element_line())  +
+  scale_y_continuous(limits=c(0,6.5))
+
+#abundance fish
+depthzone_site_type_abundance_fish_boxplot <- ggplot(depthzone_site_richness[category == "Fish"], aes(x = DepthZone, y = sum_abun, fill = type)) +
+  geom_boxplot(outlier.size = 1, position = position_dodge(preserve = "single")) + #the median, two hinges and two whiskers, and all "outlying" points individually
+  scale_fill_manual(values = c("grey","white"), ) +
+  scale_x_discrete(labels = c("Inner", "Middle", "Outer", "Deep", "ARM")) +
+  labs(x = "Depth Zone",
+       y = "Abundance summed across all taxa\n(count per m^2)",
+       fill = "Site location") +
+  facet_grid(~category)+
+  theme_classic()+
+  theme(legend.position = "null")
+
+#biomass
+depthzone_site_type_biomass_boxplot <- ggplot(depthzone_site_richness[category == "Fish"], aes(x = DepthZone, y = sum_biomass/1000, fill = type)) +
+  geom_boxplot(outlier.size = 1, position = position_dodge(preserve = "single")) + #the median, two hinges and two whiskers, and all "outlying" points individually
+  scale_fill_manual(values = c("grey","white"), ) +
+  scale_x_discrete(labels = c("Inner", "Middle", "Outer", "Deep", "ARM")) +
+  labs(x = "Depth Zone",
+       y = "Biomass summed across all taxa\n(kg per m^2)",
+       fill = "Site location") +
+  facet_grid(~category)+
+  theme_classic()+
+  theme(legend.position = "null")
+
+depthzone_site_type_fish_biomass_abun_boxplot_merge <- plot_grid(depthzone_site_type_abundance_fish_boxplot,
+                                                                 depthzone_site_type_biomass_boxplot, ncol = 2)
+
+depthzone_site_type_biomass_abun_boxplot_merge <- plot_grid(depthzone_site_type_fish_biomass_abun_boxplot_merge,
+                                                            depthzone_site_type_abundance_macro_kelp_boxplot , ncol = 1)
+
+ggsave(depthzone_site_type_biomass_abun_boxplot_merge, path = "figures", filename = "depthzone_site_type_biomass_abun_boxplot_merge.jpg", height = 8, width = 9, unit = "in")
+
+ ##################################################
 #Long data to wide data for vegan analyses
 ##################################################
 
@@ -111,6 +183,11 @@ stopifnot(dat_fish_averages_bysite.wide[,1:3]==dat_macroinvert_averages_bysite.w
 dat_averages_bysite.wide <- cbind(dat_fish_averages_bysite.wide,
                                   dat_kelp_averages_bysite.wide[,4:ncol(dat_kelp_averages_bysite.wide)],
                                   dat_macroinvert_averages_bysite.wide[,4:ncol(dat_macroinvert_averages_bysite.wide)])
+
+####Add variables!!
+#dat_averages_bysite.wide.envir <- VRG_lat_lon_only[dat_averages_bysite.wide, on = c("Site","DepthZone")]
+#dat_averages_bysite.wide.envir <- distance_200mbathy_bysite[dat_averages_bysite.wide.envir, on = c("Site","DepthZone")]
+#dat_averages_bysite.wide.envir <- macro_density_bysite[dat_averages_bysite.wide.envir, on = c("Site","DepthZone")]
 
 #####################
 #PERMANOVA, Permutational Multivariate Analysis of Variance (perMANOVA)
@@ -146,6 +223,16 @@ permanova_allspp_noarm <- adonis2(
   dat_averages_bysite_NOARM.wide.rt.trim ~ dat_averages_bysite_NOARM.wide.rt$DepthZone,
   method = "bray"
 )
+permanova_allspp_noarm
+
+permanova_allspp_noarm <- adonis2(
+  dat_averages_bysite_NOARM.wide.rt.trim ~ dat_averages_bysite_NOARM.wide.rt$DepthZone +
+    dat_averages_bysite_NOARM.wide.rt$macro_mean_density_m2 +
+    dat_averages_bysite_NOARM.wide.rt$dist_200m_bath +
+    dat_averages_bysite_NOARM.wide.rt$BO_sstmean +
+    dat_averages_bysite_NOARM.wide.rt$Region,
+  method = "bray"
+)
 
 permanova_allspp_noarm
 
@@ -170,6 +257,9 @@ permanova_fish <- adonis2(
 
 permanova_fish
 
+#fish names
+fish_names <- colnames(dat_fish_averages_bysite.wide.rt.trim)
+
 #depth zone affects fish community composition, accounting for 23% of variation in composition
 
 #ONLY MACRO
@@ -189,6 +279,9 @@ permanova_macroinvert <- adonis2(
 )
 
 permanova_macroinvert
+
+#macro names
+macro_names <- colnames(dat_macroinvert_averages_bysite.wide.rt.trim)
 
 #depth zone affects macroinvert community composition, but only accounting for 18% of variation in composition
 
@@ -212,11 +305,14 @@ dat_kelp_averages_bysite.wide.rt <- cbind(dat_kelp_averages_bysite.wide.r[,c(1:3
 dat_kelp_averages_bysite.wide.rt.trim <- dat_kelp_averages_bysite.wide.rt[,c(4:ncol(dat_kelp_averages_bysite.wide.rt)), with = FALSE]
 
 permanova_kelp <- adonis2(
-  dat_kelp_averages_bysite.wide.rt.trim ~ dat_kelp_averages_bysite.wide.rt $DepthZone,
+  dat_kelp_averages_bysite.wide.rt.trim ~ dat_kelp_averages_bysite.wide.rt$DepthZone,
   method = "bray"
 )
 
 permanova_kelp
+
+#kelp names
+kelp_names <- colnames(dat_kelp_averages_bysite.wide.rt.trim[,1:20])
 
 #whether or not a site is an artificial reef affects fish community composition, accounting for 21% of variation in composition
 
@@ -239,6 +335,7 @@ full_nmds <- metaMDS(dat_averages_bysite.wide[,4:ncol(dat_averages_bysite.wide)]
                      autotransform = FALSE,
                      distance = "bray",
                      engine = "monoMDS",
+                     wascores = T,
                      k = 4, #need at least twice as many sample units as dimensions, will impact results
                      weakties = TRUE,#Set to true if you commonly have sample units that don't share species 
                      #TRUE allows observations to be positioned at different coordinates within the ordination space even though they are the same distance apart in the matrix
@@ -274,21 +371,91 @@ dat_averages_bysite.nmds <- cbind(dat_averages_bysite.wide[,1:3], full_nmds$poin
 
 dat_averages_bysite.nmds[Region == "Artificial Reef",Region := "Santa Monica Bay"]
 
-full_nmds_plot_bysitetype <- ggplot(data = dat_averages_bysite.nmds) +
-  geom_point(aes(x = MDS1, y = MDS2, color = DepthZone, shape = DepthZone)) +
-  scale_shape_manual(guide = "none", values = c(15,16,17,18,12)) +
+#Pull out species scores
+species_scores <- data.table(vegan::scores(full_nmds,"species"))
+species_scores[,Species := rownames(vegan::scores(full_nmds,"species"))]
+
+#add category
+species_scores[,`Spp category`:= c(rep("Fish",length(fish_names)), rep("Kelp",length(kelp_names)), rep("Macroinvert",length(macro_names)))]
+
+#put through spp function to get common name
+spp_list <- get_taxa(taxon_list = unique(species_scores$Species))
+
+#top 5 values
+top_5 <- c("Pugettia producta", "Micrometers minimus", "Hypterprosopon argenteum", "Syngnathus leptorhynchus", "Triopha catalinae",
+           "Phanerodon atripes", "Cadlina flavomaculata", "Sebastes paucispinis", "Holothuria zacae", "Peltodoris mullineri", "Sargassum Palmer",
+           "Undaria pinnatifid", "Alaria marginata", "Flabellina pricei", "Sebastes constellatus", "Calliostoma annulatum", "Janolus barbarensis",
+           "Rathbunella hypoplecta", "Acanthodoris rhodoceras", "Cancer productus","Taliepus nuttallii","Cymatogaster aggregata","Peltodoris mullineri",
+           "Sargassum horneri","Sargassum palmeri","Macrocystis pyrifera")
+
+full_nmds_plot_bysitetype <- ggplot() +
+  geom_point(data = dat_averages_bysite.nmds, aes(x = MDS1, y = MDS2, color = DepthZone, shape = DepthZone), size = 3) +
+  stat_ellipse(data = dat_averages_bysite.nmds, aes(x = MDS1, y = MDS2, color = DepthZone)) + #95% confidence level for a mlutivariate t-distribution
+  scale_color_manual(values = c("cornflowerblue","coral1","chartreuse3","darkorchid2","black")) +
+  scale_shape_manual(values = c(15,16,17,18,12)) +
+ # new_scale_color() +
+ # ggrepel::geom_text_repel(data = species_scores[Species %in% top_5], aes(x = NMDS1, y = NMDS2, label = Species, color = `Spp category`), size = 2.5, fontface ="bold.italic") +
+ # scale_color_manual(values = c("slategrey","black","brown")) +
+  annotate(geom = "text", x = 1.4, y = 1.8, label = "4d Stress: 0.11", fontface = "bold") +
   theme_classic() +
 #  lims(x= c(-1.4,1.2), y = c(-2,2)) +
-  theme(axis.title = element_blank(),
-        axis.ticks = element_blank(),
+  theme(
+    axis.title = element_blank(),
+        axis.ticks = element_blank(), 
         axis.text = element_blank(),
-   #     legend.position = c(.2, .83),
-        legend.background = element_blank(), legend.key = element_blank())
+        legend.position = c(.1, .83),
+        legend.background = element_blank(), legend.key = element_blank()
+     )
 
 
-ggsave(full_nmds_plot_bysitetype, path = "figures", filename = "full_nmds_plot_bysitetype.jpg", height = 6, width = 6)
+ggsave(full_nmds_plot_bysitetype, path = "figures", filename = "full_nmds_plot_bysitetype.jpg", height = 6, width = 8)
 
-full_nmds_plot_byregion <- ggplot(data = dat_averages_bysite.nmds) +
+#species labels with color
+full_nmds_plot_bysitetype_spplabel_color <- ggplot() +
+  geom_point(data = dat_averages_bysite.nmds, aes(x = MDS1, y = MDS2, color = DepthZone, shape = DepthZone), size = 3) +
+  stat_ellipse(data = dat_averages_bysite.nmds, aes(x = MDS1, y = MDS2, color = DepthZone)) + #95% confidence level for a mlutivariate t-distribution
+  scale_color_manual(values = c("cornflowerblue","coral1","chartreuse3","darkorchid2","black")) +
+  scale_shape_manual(values = c(15,16,17,18,12)) +
+  new_scale_color() +
+  ggrepel::geom_text_repel(data = species_scores[Species %in% top_5], aes(x = NMDS1, y = NMDS2, label = Species, color = `Spp category`), size = 2.5, fontface ="bold.italic") +
+  scale_color_manual(values = c("slategrey","black","brown")) +
+  annotate(geom = "text", x = 1.8, y = 1.8, label = "4d Stress: 0.11", fontface = "bold") +
+  theme_classic() +
+  #  lims(x= c(-1.4,1.2), y = c(-2,2)) +
+  theme(
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    #     legend.position = c(.2, .83),
+    legend.background = element_blank(), legend.key = element_blank()
+  )
+
+
+ggsave(full_nmds_plot_bysitetype_spplabel_color, path = "figures", filename = "full_nmds_plot_bysitetype_spplabel_color.jpg", height = 6, width = 8)
+
+#species label black and white
+full_nmds_plot_bysitetype_spplabel_bw <- ggplot() +
+  geom_point(data = dat_averages_bysite.nmds, aes(x = MDS1, y = MDS2, color = DepthZone, shape = DepthZone), size = 3) +
+  stat_ellipse(data = dat_averages_bysite.nmds, aes(x = MDS1, y = MDS2, color = DepthZone)) + #95% confidence level for a mlutivariate t-distribution
+  scale_color_manual(values = c("cornflowerblue","coral1","chartreuse3","darkorchid2","black")) +
+  scale_shape_manual(values = c(15,16,17,18,12)) +
+  ggrepel::geom_text_repel(data = species_scores[Species %in% top_5], aes(x = NMDS1, y = NMDS2, label = Species), size = 2.5, fontface ="bold.italic") +
+  annotate(geom = "text", x = 1.8, y = 1.8, label = "4d Stress: 0.11", fontface = "bold") +
+  theme_classic() +
+  #  lims(x= c(-1.4,1.2), y = c(-2,2)) +
+  theme(
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    #     legend.position = c(.2, .83),
+    legend.background = element_blank(), legend.key = element_blank()
+  )
+
+
+ggsave(full_nmds_plot_bysitetype_spplabel_bw, path = "figures", filename = "full_nmds_plot_bysitetype_spplabel_bw.jpg", height = 6, width = 8)
+
+
+    full_nmds_plot_byregion <- ggplot(data = dat_averages_bysite.nmds) +
   geom_point(aes(x = MDS1, y = MDS2, color = Region), size = 2) +
   scale_color_manual(values = c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "black", "#A65628" ,"#F781BF")) +
  # lims(x= c(-1.4,1.2), y = c(-2,2)) +
@@ -381,6 +548,117 @@ full_nmds_plot_byregion_withkelp_legend <- ggdraw(xlim = c(0,1), ylim = c(0,1)) 
   draw_plot(macrocystis_density_legend, x = 0.17, y = 0.7, height = 0.2, width = 0.2)
 
 ggsave(full_nmds_plot_byregion_withkelp_legend, path = "figures", filename = "full_nmds_plot_byregion_withkelp_legend.jpg", height = 7, width = 7)
+
+
+
+#Visualize by distance to 200m isobath
+#link kelp density
+dat_averages_bysite.nmds_dist_200m <- distance_200mbathy_bysite[dat_averages_bysite.nmds, on = c("Site","DepthZone")]
+
+full_nmds_plot_byregion_dist_200m <- ggplot(data = dat_averages_bysite.nmds_dist_200m) +
+  geom_point(aes(x = MDS1, y = MDS2, color = Region, size = dist_200m_bath/1000)) +
+  scale_size_continuous(guide = "none") +
+  scale_color_manual(values = c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "black", "#A65628" ,"#F781BF")) +
+  # lims(x= c(-1.4,1.2), y = c(-2,2)) +
+  theme_classic() +
+  theme(axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        legend.position = "top",
+        legend.direction = "horizontal",
+        legend.title = element_blank(),
+        legend.background = element_blank(), legend.key = element_blank()) +
+  guides(color = guide_legend(override.aes = list(size=4)))
+
+full_nmds_plot_byregion_dist_200m 
+
+#extract legend for shape only
+dist_200m_legend <- get_legend(ggplot(data = dat_averages_bysite.nmds_dist_200m) +
+                                           geom_point(aes(x = MDS1, y = MDS2,size = dist_200m_bath/1000)) +
+                                           scale_size_continuous("Kilometers to 200m isobath") +
+                                           # lims(x= c(-1.4,1.2), y = c(-2,2)) +
+                                           theme_classic() +
+                                           guides(size = guide_legend(title.position = "top")) +
+                                           theme(axis.title = element_blank(),
+                                                 axis.ticks = element_blank(),
+                                                 axis.text = element_blank(),
+                                                 legend.position = "top",
+                                                 legend.direction = "horizontal",
+                                                 legend.background = element_blank(), legend.key = element_blank()))
+
+#add shape legend to plot
+full_nmds_plot_byregion_dist_200m_legend <- ggdraw(xlim = c(0,1), ylim = c(0,1)) +
+  draw_plot(full_nmds_plot_byregion_dist_200m, x = 0, y = 0, height = 1, width = 1) +
+  draw_plot(dist_200m_legend, x = 0.17, y = 0.7, height = 0.2, width = 0.2)
+
+ggsave(full_nmds_plot_byregion_dist_200m_legend, path = "figures", filename = "full_nmds_plot_byregion_dist_200m_legend.jpg", height = 7, width = 7)
+
+
+#Visualize by temp
+#link kelp density
+dat_averages_bysite.nmds_200m_color <- ggplot(data = dat_averages_bysite.nmds_dist_200m) +
+  geom_point(aes(x = MDS1, y = MDS2, color = dist_200m_bath)) +
+  # scale_size_continuous(guide = "none") +
+  scale_color_viridis() +
+  # lims(x= c(-1.4,1.2), y = c(-2,2)) +
+  labs(color = "Meters to 200m Isobath") +
+  theme_classic() +
+  theme(axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        legend.position = "top",
+        legend.direction = "horizontal",
+        #   legend.title = element_blank(),
+        legend.background = element_blank(), legend.key = element_blank()) +
+  guides(color = guide_legend(override.aes = list(size=4)))
+
+full_nmds_plot_byregion_meantemp 
+
+
+
+#Visualize by temp
+#link kelp density
+dat_averages_bysite.nmds_meantemp <- VRG_lat_lon_only[dat_averages_bysite.nmds, on = c("Site","DepthZone")]
+
+full_nmds_plot_byregion_meantemp <- ggplot(data = dat_averages_bysite.nmds_meantemp) +
+  geom_point(aes(x = MDS1, y = MDS2, color = BO_sstmean)) +
+ # scale_size_continuous(guide = "none") +
+  scale_colour_gradientn(colors = c("blue","lightblue","pink","red")) +
+  # lims(x= c(-1.4,1.2), y = c(-2,2)) +
+  labs(color = "Temperature") +
+  theme_classic() +
+  theme(axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        legend.position = "top",
+        legend.direction = "horizontal",
+     #   legend.title = element_blank(),
+        legend.background = element_blank(), legend.key = element_blank()) +
+  guides(color = guide_legend(override.aes = list(size=4)))
+
+full_nmds_plot_byregion_meantemp 
+
+
+#extract legend for shape only
+dist_200m_legend <- get_legend(ggplot(data = dat_averages_bysite.nmds_meantemp) +
+                                 geom_point(aes(x = MDS1, y = MDS2,size = dist_200m_bath/1000)) +
+                                 scale_size_continuous("Kilometers to 200m isobath") +
+                                 # lims(x= c(-1.4,1.2), y = c(-2,2)) +
+                                 theme_classic() +
+                                 guides(size = guide_legend(title.position = "top")) +
+                                 theme(axis.title = element_blank(),
+                                       axis.ticks = element_blank(),
+                                       axis.text = element_blank(),
+                                       legend.position = "top",
+                                       legend.direction = "horizontal",
+                                       legend.background = element_blank(), legend.key = element_blank()))
+
+#add shape legend to plot
+full_nmds_plot_byregion_meantemp_legend <- ggdraw(xlim = c(0,1), ylim = c(0,1)) +
+  draw_plot(full_nmds_plot_byregion_meantemp, x = 0, y = 0, height = 1, width = 1) +
+  draw_plot(dist_200m_legend, x = 0.17, y = 0.7, height = 0.2, width = 0.2)
+
+ggsave(full_nmds_plot_byregion_meantemp_legend, path = "figures", filename = "full_nmds_plot_byregion_meantemp_legend.jpg", height = 7, width = 7)
 
 
 
