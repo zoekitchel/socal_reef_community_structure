@@ -22,6 +22,9 @@ dat_fish_site_averages <- readRDS(file.path("data","processed_crane", "dat_fish_
 dat_macroinvert_site_averages <- readRDS(file.path("data","processed_crane", "dat_macroinvert_site_averages.rds"))
 dat_kelp_site_averages <- readRDS(file.path("data","processed_crane", "dat_kelp_site_averages.rds"))
 
+#included giant kelp stipes for in situ habitat data, but DELETE for community analyses
+  dat_kelp_site_averages <- dat_kelp_site_averages[BenthicReefSpecies != "Macrocystis pyrifera stipes",] 
+
 #Pull in lat lon from priority sites (I use 2022 list here)
 VRG_priority_lat_lon <- fread(file.path("VRG_sites","2022_DiveSitePriority_Coor_List.csv"))
 

@@ -6,8 +6,8 @@ library(dplyr)
 
 get_taxa <- function(taxon_list){
 # Get WoRM's id for sourcing
-wrm <- taxize::gnr_datasources() %>% 
-  dplyr::filter(title == "World Register of Marine Species") %>% 
+wrm_alg <- taxize::gnr_datasources() %>% 
+  dplyr::filter(title %in% c("World Register of Marine Species","AlgaeBase")) %>% 
   dplyr::pull(id)
 
 # If scientific names are provided, check synonyms and get correct name and ID
@@ -17,7 +17,7 @@ wrm <- taxize::gnr_datasources() %>%
 
 # If scientific names are provided, check misspelling
 fix_taxon <- taxize::gnr_resolve(taxon_list,
-                                 data_source_ids = wrm,
+                                 data_source_ids = wrm_alg,
                                  best_match_only = TRUE,
                                  canonical = TRUE,
                                  ask = FALSE) %>%
@@ -74,7 +74,7 @@ worms_db <- alphaid %>%
                 -status) %>% 
   dplyr::distinct(query,.keep_all = T) 
 
-missing_salt_fish <- alphaid %>% 
+missing_salt <- alphaid %>% 
   # Select only marine species (NOTE: These are not exclusively marine species)
   dplyr::filter(is.na(isMarine) | isMarine != 1) %>% 
   dplyr::select(-isMarine) # we don't really need this 
@@ -93,6 +93,19 @@ output_df <- dplyr::left_join(worms_db, fishbase_id, by = "taxa") %>%
     SpecCode,
     everything()
   )
+
+#get common name
+#list of taxa
+taxa_list <- output_df$taxa
+#empty list of common names
+common_name_list <- c()
+
+for(i in 1:length(taxa_list)){
+  common_name <- sci2comm(sci = taxa_list[i], simplify = F)
+  common_name_list[i] <- ifelse(length(common_name[[1]]) > 0, common_name[[1]], NA)
+}
+  
+output_df$common_name <- unlist(common_name_list)
 
 return(data.table(output_df))
 

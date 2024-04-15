@@ -1,4 +1,5 @@
-# CREATION DATE 28 Jan 2023
+# CREATION DATE 28 Jan 2024
+# MODIFIED DATE 14 Apr 2024
 
 # AUTHOR: kitchel@oxy.edu
 
@@ -59,10 +60,10 @@ CRANE_data_prep(SELECT = "BOEM_depth_comparison",
                                 "crustaceans", "sponges", "molluscs - sessile", "gorgonians", "tunicates",  "hydrocorals", "sea pens"))
 
 #KELP (SWATH)
-  #swath_melt_T_sp, and then %in% "kelp - understory", "kelp - canopy" ,"Sargassum", "green algae"
-    #      "giant kelp stipes" excluded
+  #swath_melt_T_sp, and then %in% "kelp - understory", "kelp - canopy" ,"Sargassum", "green algae", "giant kelp stipes"
+    #      "giant kelp stipes" included
   dat_kelp <- swath_melt_T_sp %>%
-    filter(SpeciesGroupF %in% c("kelp - understory", "kelp - canopy" ,"Sargassum", "green algae"))
+    filter(SpeciesGroupF %in% c("kelp - understory", "kelp - canopy" ,"Sargassum", "green algae","giant kelp stipes"))
 
 ########################
 ##Add Level Orders to Region, Site, DepthZone (mostly from Jeremy's code)
@@ -162,20 +163,27 @@ dat_fish_t.r <- dat_fish_t[Site %in% site_by_years[Years_sampled >= 3]$Site]
 dat_macroinvert.r <- dat_macroinvert[Site %in% site_by_years[Years_sampled >= 3]$Site]
 dat_kelp.r <- dat_kelp[Site %in% site_by_years[Years_sampled >= 3]$Site]
 
+########################
+##Remove TBF 2016 Project (ASK WHAT THIS IS AND IF I SHOULD LEAVE IT IN)
+########################
+dat_event.r <- dat_event.r[Project != "TBF2016",]
+dat_fish_t.r <- dat_fish_t.r[Project != "TBF2016",]
+dat_macroinvert.r <- dat_macroinvert.r[Project != "TBF2016",]
+dat_kelp.r <- dat_kelp.r[Project != "TBF2016",]
 
 ########################
 ##Take average values across all years of sampling (avg density and avg biomass of each species at site)
 ########################
 
 dat_fish_site_averages <- dat_fish_t.r[,.(mean_density_m2=mean(density_m2), mean_wt_density_g_m2=mean(wt_density_g_m2)),
-                                               .(Species, Project, Region, AR_Complex, Site, DepthZone)]
+                                               .(Species, Region, AR_Complex, Site, DepthZone)]
 dat_macroinvert_site_averages <- dat_macroinvert.r[,.(mean_density_m2=mean(Abundance/area.m2)),
-                                              .(BenthicReefSpecies, SpeciesGroupF, Project, Region, AR_Complex, Site, DepthZone)]
+                                              .(BenthicReefSpecies, SpeciesGroupF, Region, AR_Complex, Site, DepthZone)]
 dat_kelp_site_averages <- dat_kelp.r[,.(mean_density_m2=mean(Abundance/area.m2)),
-                                              .(BenthicReefSpecies, SpeciesGroupF, Project, Region, AR_Complex, Site, DepthZone)]
+                                              .(BenthicReefSpecies, SpeciesGroupF, Region, AR_Complex, Site, DepthZone)]
 
 #Which regions are retained?
-unique(dat_event.r$Region) #only islands are Santa Catalina and Santa Barbara
+unique(dat_event.r$Region)
 
 ########################
 ##Save output

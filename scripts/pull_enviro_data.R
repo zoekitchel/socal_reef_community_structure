@@ -1,4 +1,5 @@
-# CREATION DATE 14 Jan 2023
+# CREATION DATE 14 Jan 2024
+# MODIFIED DATE 14 April 2024
 
 # AUTHOR: kitchel@oxy.edu
 
@@ -58,7 +59,8 @@ fwrite(lat_lon_site_fix, file.path("data","processed_crane","lat_lon_site_fix.cs
 #Prep in situ habitat characteristics
 #############
 
-#######KELP
+
+#######MACROCYSTIS STIPE DENSITY
 #first, only macrocystis
 dat_kelp_site_averages <- readRDS(file.path("data","processed_crane", "dat_kelp_site_averages.rds"))
 
