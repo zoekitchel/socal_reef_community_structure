@@ -13,6 +13,46 @@ library(dplyr)
 library(sf)
 library(raster)
 library(sdmpredictors)
+library(stringr)
+
+#############################
+#Get correct lat lon values
+#############################
+
+#Chelsea recommends using Lat/Lon from "2023 Dive Site Priority" instead of All Sites File
+dive_site_priority_list <- fread("dive_site_priority_list.csv")
+
+#extract depth zone and site from location
+dive_site_priority_list[,DepthZone := word(Location,-1)][,Site := word(Location, start = 1, end = -2)]
+
+#change column names
+colnames(dive_site_priority_list) <- c("Location","Latitude_fix","Longitude_fix","DepthZone","Site")
+
+#limit to lat, lon, depthzone, site
+dive_site_priority_list.r <- dive_site_priority_list[,.(Site, DepthZone, Latitude_fix, Longitude_fix)]
+
+#load dat_event.r
+dat_event.r <- readRDS(file.path("data","processed_crane", "dat_event.r.rds"))
+
+#reduce to unique lat, lon, site, depth zone
+lat_lon_site_orig <- unique(dat_event.r[,.(Site, DepthZone, Latitude, Longitude)])
+
+#merge event data with fixed lat and lon from dive site priority list
+lat_lon_site_fix <- lat_lon_site_orig[dive_site_priority_list.r, on = c("Site","DepthZone")]
+
+#Delete any rows without values, and use this as key for Site, Lat and Long
+lat_lon_site_fix <- lat_lon_site_fix[complete.cases(lat_lon_site_fix),]
+
+#only keep unique values
+lat_lon_site_fix <- unique(lat_lon_site_fix) #245 sites
+
+#delete old lat lon columns from all sites
+lat_lon_site_fix <- lat_lon_site_fix[,c(1,2,5,6)]
+
+#change col names
+colnames(lat_lon_site_fix) <- c("Site","DepthZone","Latitude","Longitude")
+
+fwrite(lat_lon_site_fix, file.path("data","processed_crane","lat_lon_site_fix.csv"))
 
 #############
 #Prep in situ habitat characteristics

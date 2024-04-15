@@ -17,6 +17,7 @@ library(ggvegan)
 library(labdsv)
 library(cowplot)
 library(ggnewscale)
+library(ggrepel)
 
 source(file.path("functions","return_spptaxonomy_function.R"))
 
@@ -194,7 +195,7 @@ dat_averages_bysite.wide <- cbind(dat_fish_averages_bysite.wide,
 #####################
 #FULL COMMUNITY
 
-#Start with root transformation (high abundance spp less pull in ordination)
+#Square root transformation (high abundance spp less pull in ordination)
 dat_averages_bysite.wide.rt <- sqrt(dat_averages_bysite.wide[,c(4:ncol(dat_averages_bysite.wide)), with = FALSE])
 
 
@@ -210,7 +211,7 @@ dat_averages_bysite.wide.rt.trim <- dat_averages_bysite.wide.rt[,c(4:ncol(dat_av
   #alternative version without artificial reefs
   dat_averages_bysite_NOARM.wide.rt.trim <- dat_averages_bysite_NOARM.wide.rt[,c(4:ncol(dat_averages_bysite_NOARM.wide.rt)), with = FALSE]
 
-#permanova including ARM as depth zone
+#perMANOVA including ARM as depth zone
 permanova_allspp <- adonis2(
   dat_averages_bysite.wide.rt.trim ~ dat_averages_bysite.wide.rt$DepthZone,
   method = "bray"
@@ -225,18 +226,7 @@ permanova_allspp_noarm <- adonis2(
 )
 permanova_allspp_noarm
 
-permanova_allspp_noarm <- adonis2(
-  dat_averages_bysite_NOARM.wide.rt.trim ~ dat_averages_bysite_NOARM.wide.rt$DepthZone +
-    dat_averages_bysite_NOARM.wide.rt$macro_mean_density_m2 +
-    dat_averages_bysite_NOARM.wide.rt$dist_200m_bath +
-    dat_averages_bysite_NOARM.wide.rt$BO_sstmean +
-    dat_averages_bysite_NOARM.wide.rt$Region,
-  method = "bray"
-)
-
-permanova_allspp_noarm
-
-#depth zone accounts for 19% of variation
+#depth zone accounts for 19% of variation for natural reef sites
 #depth zone PLUS AR accounts for 23% of variation
 
 #ONLY FISH
@@ -305,7 +295,7 @@ dat_kelp_averages_bysite.wide.rt <- cbind(dat_kelp_averages_bysite.wide.r[,c(1:3
 dat_kelp_averages_bysite.wide.rt.trim <- dat_kelp_averages_bysite.wide.rt[,c(4:ncol(dat_kelp_averages_bysite.wide.rt)), with = FALSE]
 
 permanova_kelp <- adonis2(
-  dat_kelp_averages_bysite.wide.rt.trim ~ dat_kelp_averages_bysite.wide.rt$DepthZone,
+  dat_kelp_averages_bysite.wide.rt.trim[,1:20] ~ dat_kelp_averages_bysite.wide.rt$DepthZone,
   method = "bray"
 )
 
@@ -316,15 +306,13 @@ kelp_names <- colnames(dat_kelp_averages_bysite.wide.rt.trim[,1:20])
 
 #whether or not a site is an artificial reef affects fish community composition, accounting for 21% of variation in composition
 
-#Take away:
-#
-
-
 ###################
 #PLOT NMDS
 ###################
 #NMDS “preserves the rank order of the inter-point dissimilarities as well as possible within the constraints of a small number of dimensions” (Anderson et al. 2008, p. 105).
 #It has the least restrictive assumptions (any distance measure, no assumptions about shape of species response curves).
+
+#We may replace these with latent variable plots
 
 #all species
 
@@ -335,7 +323,7 @@ full_nmds <- metaMDS(dat_averages_bysite.wide[,4:ncol(dat_averages_bysite.wide)]
                      autotransform = FALSE,
                      distance = "bray",
                      engine = "monoMDS",
-                     wascores = T,
+                     wascores = T, #weighted average scores
                      k = 4, #need at least twice as many sample units as dimensions, will impact results
                      weakties = TRUE,#Set to true if you commonly have sample units that don't share species 
                      #TRUE allows observations to be positioned at different coordinates within the ordination space even though they are the same distance apart in the matrix
@@ -372,21 +360,8 @@ dat_averages_bysite.nmds <- cbind(dat_averages_bysite.wide[,1:3], full_nmds$poin
 dat_averages_bysite.nmds[Region == "Artificial Reef",Region := "Santa Monica Bay"]
 
 #Pull out species scores
-species_scores <- data.table(vegan::scores(full_nmds,"species"))
-species_scores[,Species := rownames(vegan::scores(full_nmds,"species"))]
-
-#add category
-species_scores[,`Spp category`:= c(rep("Fish",length(fish_names)), rep("Kelp",length(kelp_names)), rep("Macroinvert",length(macro_names)))]
-
-#put through spp function to get common name
-spp_list <- get_taxa(taxon_list = unique(species_scores$Species))
-
-#top 5 values
-top_5 <- c("Pugettia producta", "Micrometers minimus", "Hypterprosopon argenteum", "Syngnathus leptorhynchus", "Triopha catalinae",
-           "Phanerodon atripes", "Cadlina flavomaculata", "Sebastes paucispinis", "Holothuria zacae", "Peltodoris mullineri", "Sargassum Palmer",
-           "Undaria pinnatifid", "Alaria marginata", "Flabellina pricei", "Sebastes constellatus", "Calliostoma annulatum", "Janolus barbarensis",
-           "Rathbunella hypoplecta", "Acanthodoris rhodoceras", "Cancer productus","Taliepus nuttallii","Cymatogaster aggregata","Peltodoris mullineri",
-           "Sargassum horneri","Sargassum palmeri","Macrocystis pyrifera")
+    #SEE LINES BELOW
+    #output: species_scores_top
 
 full_nmds_plot_bysitetype <- ggplot() +
   geom_point(data = dat_averages_bysite.nmds, aes(x = MDS1, y = MDS2, color = DepthZone, shape = DepthZone), size = 3) +
@@ -417,7 +392,7 @@ full_nmds_plot_bysitetype_spplabel_color <- ggplot() +
   scale_color_manual(values = c("cornflowerblue","coral1","chartreuse3","darkorchid2","black")) +
   scale_shape_manual(values = c(15,16,17,18,12)) +
   new_scale_color() +
-  ggrepel::geom_text_repel(data = species_scores[Species %in% top_5], aes(x = NMDS1, y = NMDS2, label = Species, color = `Spp category`), size = 2.5, fontface ="bold.italic") +
+  ggrepel::geom_text_repel(data = species_scores_top, aes(x = MDS1, y = MDS2, label = Species, color = `Spp category`), size = 2.5, fontface ="bold.italic") +
   scale_color_manual(values = c("slategrey","black","brown")) +
   annotate(geom = "text", x = 1.8, y = 1.8, label = "4d Stress: 0.11", fontface = "bold") +
   theme_classic() +
@@ -439,7 +414,7 @@ full_nmds_plot_bysitetype_spplabel_bw <- ggplot() +
   stat_ellipse(data = dat_averages_bysite.nmds, aes(x = MDS1, y = MDS2, color = DepthZone)) + #95% confidence level for a mlutivariate t-distribution
   scale_color_manual(values = c("cornflowerblue","coral1","chartreuse3","darkorchid2","black")) +
   scale_shape_manual(values = c(15,16,17,18,12)) +
-  ggrepel::geom_text_repel(data = species_scores[Species %in% top_5], aes(x = NMDS1, y = NMDS2, label = Species), size = 2.5, fontface ="bold.italic") +
+  ggrepel::geom_text_repel(data = species_scores_top, aes(x = MDS1, y = MDS2, label = Species), size = 2.5, fontface ="bold.italic") +
   annotate(geom = "text", x = 1.8, y = 1.8, label = "4d Stress: 0.11", fontface = "bold") +
   theme_classic() +
   #  lims(x= c(-1.4,1.2), y = c(-2,2)) +
@@ -455,21 +430,25 @@ full_nmds_plot_bysitetype_spplabel_bw <- ggplot() +
 ggsave(full_nmds_plot_bysitetype_spplabel_bw, path = "figures", filename = "full_nmds_plot_bysitetype_spplabel_bw.jpg", height = 6, width = 8)
 
 
-    full_nmds_plot_byregion <- ggplot(data = dat_averages_bysite.nmds) +
-  geom_point(aes(x = MDS1, y = MDS2, color = Region), size = 2) +
+full_nmds_plot_byregion <- ggplot(data = dat_averages_bysite.nmds) +
+  geom_point(aes(x = MDS1, y = MDS2, color = Region), size = 2.5) +
   scale_color_manual(values = c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "black", "#A65628" ,"#F781BF")) +
- # lims(x= c(-1.4,1.2), y = c(-2,2)) +
+  new_scale_color() +
+  stat_ellipse(data = dat_averages_bysite.nmds, aes(x = MDS1, y = MDS2, color = DepthZone)) + #95% confidence level for a mlutivariate t-distribution
+  scale_color_manual(values = c("cornflowerblue","coral1","chartreuse3","darkorchid2","black")) +
+ # guides(color = guide_legend(nrow = 2)) +
+   # lims(x= c(-1.4,1.2), y = c(-2,2)) +
   theme_classic() +
   theme(axis.title = element_blank(),
         axis.ticks = element_blank(),
         axis.text = element_blank(),
-        legend.position = "top",
-        legend.direction = "horizontal",
+    #    legend.position = "top",
+      #  legend.direction = "horizontal",
         legend.title = element_blank(),
         legend.background = element_blank(), legend.key = element_blank())
 
 
-ggsave(full_nmds_plot_byregion, path = "figures", filename = "full_nmds_plot_byregion.jpg", height = 7, width = 7)
+ggsave(full_nmds_plot_byregion, path = "figures", filename = "full_nmds_plot_byregion.jpg", height = 7, width = 9)
 
 full_nmds_plot_byregion_zone <- ggplot(data = dat_averages_bysite.nmds) +
   geom_point(aes(x = MDS1, y = MDS2, color = Region, shape = DepthZone), size = 2) +
@@ -486,7 +465,7 @@ full_nmds_plot_byregion_zone <- ggplot(data = dat_averages_bysite.nmds) +
         legend.background = element_blank(), legend.key = element_blank()) +
   guides(color = guide_legend(override.aes = list(size=4)))
 
-#extract legend for shape only
+#extract legend for color ellipse only
 depthzone_legend <- get_legend(ggplot(data = dat_averages_bysite.nmds) +
   geom_point(aes(x = MDS1, y = MDS2, shape = DepthZone), size = 2) +
     scale_shape_manual(values = c(15,16,17,18,12)) +
@@ -507,6 +486,7 @@ full_nmds_plot_byregion_zone_legend <- ggdraw(xlim = c(0,1), ylim = c(0,1)) +
 
 ggsave(full_nmds_plot_byregion_zone_legend, path = "figures", filename = "full_nmds_plot_byregion_zone_legend.jpg", height = 7, width = 7)
 
+#######NEED TO ADD IN HABITAT/ENVIRONMENTAL VARIABLES AGAIN
 #Visualize by kelp density
 #link kelp density
 dat_averages_bysite.nmds_pluskelp <- dat_averages_bysite.nmds[macro_density_bysite, on = c("Site","DepthZone")]
@@ -694,32 +674,52 @@ permanova_fish_kelp_predictor
 
 
 
+#######################
+########SPECIES SCORES
+#######################
+#For species scores, you can do it in a few different ways. See this page for a helpful explanation of the differences: https://stackoverflow.com/questions/60937869/using-envfit-vegan-to-calculate-species-scores
+# "wascores() are best thought of as optima, where the abundance declines as you move away from the weighted centroid"
+# "wascores() takes the coordinates of the points in the nmds space and computes the mean on each dimension, weighting observations by the abundance of the species at each point. Hence the species score returned by wascores() is a weighted centroid in the NMDS space for each species, where the weights are the abundances of the species."
+# "envfit() in an NMDS is not necessarily a good thing as we wouldn't expect abundances to vary linearly over the ordination space."
 
-#SPECIES SCORES
-species_scores <- data.table(vegan::scores(full_nmds, "species"))
-spp_list <- colnames(dat_averages_bysite.wide[,5:ncol(dat_averages_bysite.wide)])
+
+#I believe we should be calculating species scores from raw data, not from transformed data as are automatically in the NMDS
+
+species_scores <- data.table(vegan::wascores(full_nmds$points, #ordination scores
+                                             dat_averages_bysite.wide[,4:ncol(dat_averages_bysite.wide)]#weights; species abundances
+                                             ))
+
+spp_list <- colnames(dat_averages_bysite.wide[,4:ncol(dat_averages_bysite.wide)])
 species_scores[,Species := spp_list]
 
+#add category
+species_scores[,`Spp category`:= c(rep("Fish",length(fish_names)), rep("Kelp",length(kelp_names)), rep("Macroinvert",length(macro_names)))]
+#add category
+species_scores[,`Spp category`:= c(rep("Fish",length(fish_names)), rep("Kelp",length(kelp_names)), rep("Macroinvert",length(macro_names)))]
+
+
 #top and bottom three for NMDS1 & 2
-top_all_spp <- c("Stereolepis gigas","Pachycerianthus fimbriatus","Crossata californica",
-                 "Paralabrax maculatofasciatus","Sebastes constellatus","Heterostichus rostratus",
-                 "Lythrypnus dalli","Haliotis fulgens","Centrostephanus coronatus",
-                 "Berthella californica","Pomaulax gibberosus","Acanthodoris rhodoceras")
+#sort by MDS1
+setkey(species_scores, MDS1)
+mds1_full_spp_scores1 <- head(species_scores[complete.cases(species_scores),],5)[,Species]
+mds1_full_spp_scores2 <- tail(species_scores[complete.cases(species_scores),],5)[,Species]
+setkey(species_scores, MDS2)
+mds1_full_spp_scores3 <- head(species_scores[complete.cases(species_scores),],5)[,Species]
+mds1_full_spp_scores4 <- tail(species_scores[complete.cases(species_scores),],5)[,Species]
+
+top_all_spp <- sort(unique(c(mds1_full_spp_scores1,
+                 mds1_full_spp_scores2,
+                 mds1_full_spp_scores3,
+                 mds1_full_spp_scores4
+                 )))
 
 species_scores_top <- species_scores[Species %in% top_all_spp]
-
-species_scores_top[,Species := factor(Species,
-                                      labels = 
-                                        c("Stereolepis gigas\ngiant sea bass","Pachycerianthus fimbriatus\ntube anenome","Crossata californica\nfrogsnail",
-                                          "Paralabrax maculatofasciatus\nspotted sand bass","Sebastes constellatus\nstarry rockfish","Heterostichus rostratus\ngiant kelpfish",
-                                          "Lythrypnus dalli\nblue-banded goby","Haliotis fulgens\ngreen abalone","Centrostephanus coronatus\ncrowned sea urchin",
-                                          "Berthella californica\nsea slug spp.","Pomaulax gibberosus\nred turban snail","Acanthodoris rhodoceras\nsea slug spp."))]
 
 #add to simple NMDS plot
 
 full_nmds_plot_speciesscores <- ggplot(data = dat_averages_bysite.nmds) +
   geom_point(aes(x = MDS1, y = MDS2,shape = `Site type`), size = 3, alpha = 0.3) +
-  geom_text_repel(data = species_scores_top, aes(x = NMDS1, y = NMDS2, label = Species), size = 2) +
+  geom_text_repel(data = species_scores_top, aes(x = MDS1, y = MDS2, label = Species), size = 2) +
   scale_shape_manual(values = c(19,17,17)) +
   lims(x= c(-1.4,1.2), y = c(-2,2)) +
   theme_classic() +
