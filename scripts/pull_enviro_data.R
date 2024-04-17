@@ -16,6 +16,8 @@ library(raster)
 library(sdmpredictors)
 library(stringr)
 library(rvest)
+library(viridis)
+library(marmap)
 
 #pull in functions
 source("https://raw.githubusercontent.com/zoekitchel/CA_environmental_data/main/UPC_in_situ_habitat.R")
@@ -293,8 +295,8 @@ lat_lon_site_variable_full[variable == "sst",value_adj := 0.15*value-3.0]
 lat_lon_site_variable_full[variable == "chl",value_adj :=10^(0.015*value-2.0)]
 
 #save as csv
-fwrite(lat_lon_site_variable_full, file.path("data","enviro_predictors","lat_lon_site_variable_full.csv"))
-#lat_lon_site_variable_full <- fread(file.path("data","enviro_predictors","lat_lon_site_variable_full.csv"))
+#fwrite(lat_lon_site_variable_full, file.path("data","enviro_predictors","lat_lon_site_variable_full.csv"))
+lat_lon_site_variable_full <- fread(file.path("data","enviro_predictors","lat_lon_site_variable_full.csv"))
 
 #mean_value per site across all months in time series, also across DepthZones, because the resolution is 1km, so we wouldn't expect depth zones to be different
 lat_lon_site_variable_full[, mean_value_adj := mean(value_adj, na.rm = T),.(Site, variable)]
@@ -317,6 +319,7 @@ chl_bysite <- lat_lon_site_variable_full.r[variable == "chl"][,mean_chl_mg_m3 :=
 #######Distance to 200 m isobath
 
 distance_200mbathy_bysite <- add_depth_columns(lat_lon_site_fix, ETOPO = F, CDFW = F, USGS_socal=F, dist_200m = T)
+
 
 #remove lat lon columns
 distance_200mbathy_bysite <- unique(distance_200mbathy_bysite[,.(Site, DepthZone, dist_200m_bath)])
@@ -346,45 +349,42 @@ all_env_lat_lon <- chl_bysite[all_env_lat_lon, on = c("Site")]
 #save
 fwrite(all_env_lat_lon,file.path("data","enviro_predictors","all_env_lat_lon.csv"))
 
+all_env_lat_lon <- fread(file.path("data","enviro_predictors","all_env_lat_lon.csv"))
+
+###############################################
+#variables still to pull
+###############################################
+#Reef slope
+#Maximum wave height: TBell, UCSB (Data from buoys closest to site)
+#Kelp canopy biomass: TBell, UCSB (900 m^2 radius around Site (wet kg canopy per 900 m^2))
+
+
+
 ###############################################
 #plot by colors to make sure that these variables look right
 ###############################################
 
-#mean value per site (get rid of depth zones)
+#mean value per site (get rid of depth zones, too high resolution for maps)
 all_env_lat_lon_nodepthzone <- all_env_lat_lon[,c(1:7,9:19)]
 all_env_lat_lon.r <- all_env_lat_lon_nodepthzone[, lapply(.SD, mean, na.rm = T), by=c("Site")] #some values look into this 
-
-library(ggplot2)
-library(data.table)
-library(dplyr)
-library(vegan)
-library(ggvegan)
-library(labdsv)
-library(cowplot)
-library(marmap) #to pull depth data
-library(rasterVis)
-library(ggspatial)
-library(ggmap) #background google map
-library(sp)
-library(RColorBrewer)
 
 ##############################################type_sum()
 #Map
 #######################
 #set square from which to extract bathy data from NOAA server
-bathy_VRG <- getNOAA.bathy(min(unique_lat_lon$avg_lon)-2, max(unique_lat_lon$avg_lon)+2, min(unique_lat_lon$avg_lat)-0.5, max(unique_lat_lon$avg_lat)+0.5, resolution = 0.000001) #bathymetry matrix
+bathy_VRG <- getNOAA.bathy(min(all_env_lat_lon.r$Longitude)-2, max(all_env_lat_lon.r$Longitude)+2,
+                           min(all_env_lat_lon.r$Latitude)-0.5, max(all_env_lat_lon.r$Latitude)+0.5,
+                           resolution = 0.001) #bathymetry matrix
 
 #map of bathymetry w kelp density
-kelp_site_map <- autoplot.bathy(bathy_VRG, geom=c("tile"
+kelp_site_map <- autoplot.bathy(bathy_VRG, geom=c("raster"
                                              # ,"contour" exclude contour
 ), coast = F) +
   scale_fill_etopo(breaks = c(-12000,-6000, 0, 6000, 10000), labels = c(12, 6, 0, 6, 10), #from marmap, great way to visualize land and water instead of 'world' object
                    guide = NULL) +
-  geom_point(data = all_env_lat_lon.r, aes(x = Longitude, y = Latitude, size = giantkelp_density_m2, color = giantkelp_density_m2), alpha = 0.8) +
+  geom_point(data = all_env_lat_lon.r, aes(x = Longitude, y = Latitude, color = giantkelp_density_m2), size = 3) +
   scale_size(range = c(1,3.5)) +
   scale_color_gradient(low = "white",high = "darkviolet") +
-  labs(y = "Latitude", x = "Longitude", fill = "Elevation/Depth\n(1000s of m)") +
-  # scale_x_continuous(breaks = c(-120:-117), labels = c("120˚W" ,"119˚W" ,"118˚W" ,"117˚W")) +
   scale_y_continuous(breaks = c(33:34),labels = c("33˚N" ,"34˚N" )) +
   coord_sf(xlim = c(-119.1,-116.75), ylim = c(32.6, 34.3), expand = F) +
   theme_classic() +
@@ -393,7 +393,7 @@ kelp_site_map <- autoplot.bathy(bathy_VRG, geom=c("tile"
 ggsave(kelp_site_map, filename = "kelp_site_map.jpg", path = file.path("figures"), width = 10, height = 7, units = "in")
 
 #map of bathymetry w temperature
-temperature_site_map <- autoplot.bathy(bathy_VRG, geom=c("tile"
+temperature_site_map <- autoplot.bathy(bathy_VRG, geom=c("raster"
                                                   # ,"contour" exclude contour
 ), coast = F) +
   scale_fill_etopo(breaks = c(-12000,-6000, 0, 6000, 10000), labels = c(12, 6, 0, 6, 10), #from marmap, great way to visualize land and water instead of 'world' object
@@ -409,8 +409,25 @@ temperature_site_map <- autoplot.bathy(bathy_VRG, geom=c("tile"
 
 ggsave(temperature_site_map, filename = "temperature_site_map.jpg", path = file.path("figures"), width = 10, height = 7, units = "in")
 
+#map of bathymetry w chlorophyll
+chl_site_map <- autoplot.bathy(bathy_VRG, geom=c("raster"
+                                                         # ,"contour" exclude contour
+), coast = F) +
+  scale_fill_etopo(breaks = c(-12000,-6000, 0, 6000, 10000), labels = c(12, 6, 0, 6, 10), #from marmap, great way to visualize land and water instead of 'world' object
+                   guide = NULL) +
+  geom_point(data = all_env_lat_lon.r, aes(x = Longitude, y = Latitude, color = mean_chl_mg_m3), alpha = 0.8, size = 3) +
+  scale_color_viridis(option = "A") +
+  labs(y = "Latitude", x = "Longitude", fill = "Elevation/Depth\n(1000s of m)") +
+  # scale_x_continuous(breaks = c(-120:-117), labels = c("120˚W" ,"119˚W" ,"118˚W" ,"117˚W")) +
+  scale_y_continuous(breaks = c(33:34),labels = c("33˚N" ,"34˚N" )) +
+  coord_sf(xlim = c(-119.1,-116.75), ylim = c(32.6, 34.3), expand = F) +
+  theme_classic() +
+  theme(axis.title = element_blank())
+
+ggsave(chl_site_map, filename = "chl_site_map.jpg", path = file.path("figures"), width = 10, height = 7, units = "in")
+
 #map of bathymetry w/ 200m distance
-distance_200_site_map <- autoplot.bathy(bathy_VRG, geom=c("tile"
+distance_200_site_map <- autoplot.bathy(bathy_VRG, geom=c("raster"
                                                   # ,"contour" exclude contour
 ), coast = F) +
   scale_fill_etopo(breaks = c(-12000,-6000, 0, 6000, 10000), labels = c(12, 6, 0, 6, 10), #from marmap, great way to visualize land and water instead of 'world' object
