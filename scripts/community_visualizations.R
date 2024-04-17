@@ -18,16 +18,21 @@ library(labdsv)
 library(cowplot)
 library(ggnewscale)
 library(ggrepel)
+library(gllvm) #latent variable modeling
 
 source(file.path("functions","return_spptaxonomy_function.R"))
 
 ########################
 ##Load data
 ########################
+#biotic
 dat_event.r <- readRDS(file.path("data","processed_crane", "dat_event.r.rds"))
 dat_fish_site_averages <- readRDS(file.path("data","processed_crane", "dat_fish_site_averages.rds"))
 dat_macroinvert_site_averages <- readRDS(file.path("data","processed_crane", "dat_macroinvert_site_averages.rds"))
 dat_kelp_site_averages <- readRDS(file.path("data","processed_crane", "dat_kelp_site_averages.rds"))
+
+#environmental
+all_env_lat_lon <- fread(file.path("data","enviro_predictors","all_env_lat_lon.csv"))
 
 
 ##################################################
@@ -185,10 +190,66 @@ dat_averages_bysite.wide <- cbind(dat_fish_averages_bysite.wide,
                                   dat_kelp_averages_bysite.wide[,4:ncol(dat_kelp_averages_bysite.wide)],
                                   dat_macroinvert_averages_bysite.wide[,4:ncol(dat_macroinvert_averages_bysite.wide)])
 
-####Add variables!!
-#dat_averages_bysite.wide.envir <- VRG_lat_lon_only[dat_averages_bysite.wide, on = c("Site","DepthZone")]
-#dat_averages_bysite.wide.envir <- distance_200mbathy_bysite[dat_averages_bysite.wide.envir, on = c("Site","DepthZone")]
-#dat_averages_bysite.wide.envir <- macro_density_bysite[dat_averages_bysite.wide.envir, on = c("Site","DepthZone")]
+####Add variables to single data table
+#for all
+dat_averages_bysite.wide.envir <- all_env_lat_lon[dat_averages_bysite.wide, on = c("Site","DepthZone")]
+#for fish abun only
+dat_averages_bysite.wide.envir <- all_env_lat_lon[dat_averages_bysite.wide, on = c("Site","DepthZone")]
+#for fish biomass only
+dat_averages_bysite.wide.envir <- all_env_lat_lon[dat_averages_bysite.wide, on = c("Site","DepthZone")]
+#for kelp only
+dat_averages_bysite.wide.envir <- all_env_lat_lon[dat_averages_bysite.wide, on = c("Site","DepthZone")]
+#for macroinvert only
+dat_averages_bysite.wide.envir <- all_env_lat_lon[dat_averages_bysite.wide, on = c("Site","DepthZone")]
+
+
+
+#add mainland island at some point
+
+#ALTERNATIVELY, to match gllvm package example
+#species only
+site_spp <- dat_averages_bysite.wide.envir[,c(21:234)] #check these #s
+site_env <- dat_averages_bysite.wide.envir[,c(2:7,9:17)] #check these #s, AND NOTE I EXCLUDED DEPTH ZONE
+site_env.s <- scale(site_env)
+#merge with depth zone
+site_env.f <- cbind(site_env.s, site_depth)
+site_depth <- dat_averages_bysite.wide.envir[,8]
+
+########################
+#Latent variable modeling
+#########################
+#response = counts (poisson or negative binomial; log link; method = VA/LA)
+#response = biomass (tweedie distribution, log link; method = LA)
+#row.eff = defining type of row effects (none, fixed, random)
+#offset = offsets
+#power = defining power parameter of tweedie distribution
+#starting.val = judicious chocie of starting values for latent variables
+
+#GLLVMs can be used as a model-based approach to unconstrained ordination by including two latent variables in the model but NO predictors
+  #corresponding ordination plot then provides a graphical representation of which sites are similar in terms of thei rspecies composition
+
+
+#model based ordination
+y <- as.matrix(site_spp)
+x <- as.matrix(site_env.f)
+
+fitp <- gllvm(y, family = poisson()) #takes a few minutes
+
+fitvm <- gllvm(y, family = "negative binomial")
+
+#check AIC to see which is a better model
+#note that latent variables provide some capacity to account for overdispersion, so overdispersed counts do not always require us to move beyond Poisson
+
+#visualize!
+ordiplot(fit_ord, biplot = T, ind.spp = 20)
+
+#Including environmental variables
+
+#example
+library(mvabund)
+data(antTraits)
+
+
 
 #####################
 #PERMANOVA, Permutational Multivariate Analysis of Variance (perMANOVA)

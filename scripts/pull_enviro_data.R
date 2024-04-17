@@ -18,6 +18,7 @@ library(stringr)
 library(rvest)
 library(viridis)
 library(marmap)
+library(purrr)
 
 #pull in functions
 source("https://raw.githubusercontent.com/zoekitchel/CA_environmental_data/main/UPC_in_situ_habitat.R")
@@ -28,42 +29,41 @@ source("https://raw.githubusercontent.com/zoekitchel/CA_environmental_data/main/
 #############################
 
 #Chelsea recommends using Lat/Lon from "2023 Dive Site Priority" instead of All Sites File
-dive_site_priority_list <- fread("dive_site_priority_list.csv")
+dive_site_priority_list <- fread("dive_site_priority_list.csv") #location, true lat and lon
 
 #extract depth zone and site from location column
 dive_site_priority_list[,DepthZone := word(Location,-1)][,Site := word(Location, start = 1, end = -2)]
 
-#change column names
-colnames(dive_site_priority_list) <- c("Location","Latitude_fix","Longitude_fix","DepthZone","Site")
-
 #limit to lat, lon, depthzone, site
-dive_site_priority_list.r <- dive_site_priority_list[,.(Site, DepthZone, Latitude_fix, Longitude_fix)]
+dive_site_priority_list.r <- dive_site_priority_list[,.(Site, DepthZone, Latitude, Longitude)]
 
-#load dat_event.r
+#load dat_event.r (VRG transect data, with bad lat lon coordinates)
 dat_event.r <- readRDS(file.path("data","processed_crane", "dat_event.r.rds"))
 
+#pull out avg lat lon values for Flat Rock North Outer as it is not included in dive priority list
+flat_rock_outer <- dat_event.r[Site == "Flat Rock North" & DepthZone == "Outer",.(Latitude, Longitude)][1]
+
 #reduce to unique lat, lon, site, depth zone
-lat_lon_site_orig <- unique(dat_event.r[,.(Site, DepthZone, Latitude, Longitude)])
+lat_lon_site_orig <- unique(dat_event.r[,.(Region, Site, DepthZone)]) #243 sites
 
 #merge event data with fixed lat and lon from dive site priority list
-lat_lon_site_fix <- lat_lon_site_orig[dive_site_priority_list.r, on = c("Site","DepthZone")]
+lat_lon_site_fix <- dive_site_priority_list.r[lat_lon_site_orig, on = c("Site","DepthZone")] #249 sites
 
-#Delete any rows without values, and use this as key for Site, Lat and Long
-lat_lon_site_fix <- lat_lon_site_fix[complete.cases(lat_lon_site_fix),]
+#manually add lat lon for Flat Rock North Outer
+lat_lon_site_fix[Site == "Flat Rock North" & DepthZone == "Outer",Latitude:= flat_rock_outer[,1]]
+lat_lon_site_fix[Site == "Flat Rock North" & DepthZone == "Outer",Longitude:= flat_rock_outer[,2]]
 
-#only keep unique values
-lat_lon_site_fix <- unique(lat_lon_site_fix) #245 sites
+#add column for mainlandisland
+lat_lon_site_fix[,main_isl := ifelse(Region %in% c("San Clemente Island","Santa Barbara Island","Santa Catalina Island"), "island","mainland")]
+lat_lon_site_fix[,nat_art := ifelse(DepthZone == "ARM", "art","nat")]
 
-#delete old lat lon columns from all sites
-lat_lon_site_fix <- lat_lon_site_fix[,c(1,2,5,6)]
-
-#change col names
-colnames(lat_lon_site_fix) <- c("Site","DepthZone","Latitude","Longitude")
 
 #convert to spatial points
 lat_lon_site.sf <- st_as_sf(lat_lon_site_fix,
                             coords = c("Longitude","Latitude"),
                             crs = 4326)
+
+#note, right now, all AR sites are coded AR region. I'll need to fix this
 
 #save csv
 fwrite(lat_lon_site_fix, file.path("data","processed_crane","lat_lon_site_fix.csv"))
@@ -355,8 +355,8 @@ all_env_lat_lon <- fread(file.path("data","enviro_predictors","all_env_lat_lon.c
 #variables still to pull
 ###############################################
 #Reef slope
-#Maximum wave height: TBell, UCSB (Data from buoys closest to site)
-#Kelp canopy biomass: TBell, UCSB (900 m^2 radius around Site (wet kg canopy per 900 m^2))
+#Maximum wave height: TBell, UCSB (Data from buoys closest to site) (Jeremy said to ignore this)
+#Kelp canopy biomass: TBell, UCSB (900 m^2 radius around Site (wet kg canopy per 900 m^2)) (seems circular, maybe leave out for now)
 
 
 
@@ -368,9 +368,9 @@ all_env_lat_lon <- fread(file.path("data","enviro_predictors","all_env_lat_lon.c
 all_env_lat_lon_nodepthzone <- all_env_lat_lon[,c(1:7,9:19)]
 all_env_lat_lon.r <- all_env_lat_lon_nodepthzone[, lapply(.SD, mean, na.rm = T), by=c("Site")] #some values look into this 
 
-##############################################type_sum()
-#Map
-#######################
+#map
+
+#bathymetry backdrop from marmap
 #set square from which to extract bathy data from NOAA server
 bathy_VRG <- getNOAA.bathy(min(all_env_lat_lon.r$Longitude)-2, max(all_env_lat_lon.r$Longitude)+2,
                            min(all_env_lat_lon.r$Latitude)-0.5, max(all_env_lat_lon.r$Latitude)+0.5,
