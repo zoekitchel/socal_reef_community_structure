@@ -170,41 +170,37 @@ depthzone_site_type_biomass_abun_boxplot_merge <- plot_grid(depthzone_site_type_
 
 ggsave(depthzone_site_type_biomass_abun_boxplot_merge, path = "figures", filename = "depthzone_site_type_biomass_abun_boxplot_merge.jpg", height = 8, width = 9, unit = "in")
 
- ##################################################
-#Long data to wide data for vegan analyses
-##################################################
+##################################################################################################
+#Long data to wide data for multivariate community visualizations and analyses
+##################################################################################################
 
 #melt long to wide
-dat_fish_averages_bysite.wide <- dcast(dat_fish_long_density, Region + Site + DepthZone ~ Species, value.var = "mean_density_m2", fun = mean)
+dat_fish_averages_bysite.wide <- dcast(dat_fish_long_density_removezeros, Region + Site + DepthZone ~ Species, value.var = "mean_density_m2", fun = mean, fill = 0)
 
-dat_macroinvert_averages_bysite.wide <- dcast(dat_macroinvert_long_density, Region + Site + DepthZone ~ BenthicReefSpecies, value.var = "mean_density_m2", fun = mean)
+dat_fish_biomass_averages_bysite.wide <- dcast(dat_fish_long_biomass_removezeros, Region + Site + DepthZone ~ Species, value.var = "mean_wt_density_g_m2", fun = mean, fill = 0)
 
-dat_kelp_averages_bysite.wide <- dcast(dat_kelp_long_density, Region + Site + DepthZone ~ BenthicReefSpecies, value.var = "mean_density_m2", fun = mean)
+dat_macroinvert_averages_bysite.wide <- dcast(dat_macroinvert_long_density_removezeros, Region + Site + DepthZone ~ BenthicReefSpecies, value.var = "mean_density_m2", fun = mean, fill = 0)
 
-#check that all ordered in same way
-stopifnot(dat_fish_averages_bysite.wide[,1:3]==dat_kelp_averages_bysite.wide[,1:3])
-stopifnot(dat_fish_averages_bysite.wide[,1:3]==dat_macroinvert_averages_bysite.wide[,1:3])
+dat_kelp_averages_bysite.wide <- dcast(dat_kelp_long_density_removezeros, Region + Site + DepthZone ~ BenthicReefSpecies, value.var = "mean_density_m2", fun = mean, fill = 0)
 
-#Merge for all species visualization
-dat_averages_bysite.wide <- cbind(dat_fish_averages_bysite.wide,
-                                  dat_kelp_averages_bysite.wide[,4:ncol(dat_kelp_averages_bysite.wide)],
-                                  dat_macroinvert_averages_bysite.wide[,4:ncol(dat_macroinvert_averages_bysite.wide)])
+#Merge for all density data tables for species visualization (biomass of fish kept separate)
+dat_averages_bysite.wide <- dat_fish_averages_bysite.wide[dat_macroinvert_averages_bysite.wide, on = c("Region","Site","DepthZone")]
+dat_averages_bysite.wide <- dat_kelp_averages_bysite.wide[dat_averages_bysite.wide, on = c("Region","Site","DepthZone")]
+
+#there are some sites that have no kelp, and these come up as NAs, change to 0 
+dat_averages_bysite.wide[is.na(dat_averages_bysite.wide)] <- 0
 
 ####Add variables to single data table
 #for all
 dat_averages_bysite.wide.envir <- all_env_lat_lon[dat_averages_bysite.wide, on = c("Site","DepthZone")]
 #for fish abun only
-dat_averages_bysite.wide.envir <- all_env_lat_lon[dat_averages_bysite.wide, on = c("Site","DepthZone")]
+dat_averages_fishdensity_bysite.wide.envir <- all_env_lat_lon[dat_fish_averages_bysite.wide, on = c("Site","DepthZone")]
 #for fish biomass only
-dat_averages_bysite.wide.envir <- all_env_lat_lon[dat_averages_bysite.wide, on = c("Site","DepthZone")]
+dat_averages_fishbiomass_bysite.wide.envir <- all_env_lat_lon[dat_fish_biomass_averages_bysite.wide, on = c("Site","DepthZone")]
 #for kelp only
-dat_averages_bysite.wide.envir <- all_env_lat_lon[dat_averages_bysite.wide, on = c("Site","DepthZone")]
+dat_averages_kelpdensity_bysite.wide.envir <- all_env_lat_lon[dat_kelp_averages_bysite.wide, on = c("Site","DepthZone")]
 #for macroinvert only
-dat_averages_bysite.wide.envir <- all_env_lat_lon[dat_averages_bysite.wide, on = c("Site","DepthZone")]
-
-
-
-#add mainland island at some point
+dat_averages_macroinvertdensity_bysite.wide.envir <- all_env_lat_lon[dat_macroinvert_averages_bysite.wide, on = c("Site","DepthZone")]
 
 #ALTERNATIVELY, to match gllvm package example
 #species only
@@ -234,21 +230,32 @@ y <- as.matrix(site_spp)
 x <- as.matrix(site_env.f)
 
 fitp <- gllvm(y, family = poisson()) #takes a few minutes
+par(mfrow = c(3, 2), mar = c(4, 4, 2, 1)) #set up full plot space
+plot(fitp, var.colors = 1) #visualize model performance
+saveRDS(fitp, file.path("model_output","fitp.rds"))
+#fitp <- readRDS(file.path("model_output","fitp.rds"))
+#Warning message:
+#  In gllvm(y, family = poisson()) : There are responses full of zeros. (not sure what that means)
 
-fitvm <- gllvm(y, family = "negative binomial")
+fitvm <- gllvm(y, family = "negative.binomial")
+par(mfrow = c(3, 2), mar = c(4, 4, 2, 1)) #set up full plot space
+plot(fitvm, var.colors = 1) #visualize model performance
+saveRDS(fitvm, file.path("model_output","fitvm.rds"))
+
 
 #check AIC to see which is a better model
+#poisson is better model!
+
 #note that latent variables provide some capacity to account for overdispersion, so overdispersed counts do not always require us to move beyond Poisson
 
 #visualize!
-ordiplot(fit_ord, biplot = T, ind.spp = 20)
+ordiplot(fitp, biplot = T, ind.spp = 20, xlim = c(-3,4.5), ylim = c(-0.0005,0.0005)) #for some reason the ordination can't be visualized right
 
 #Including environmental variables
 
 #example
 library(mvabund)
 data(antTraits)
-
 
 
 #####################
