@@ -1,0 +1,16 @@
+https://spg-satdata.ucsd.edu/2016/C2016_chl_month/
+https://spg-satdata.ucsd.edu/2017/C2017_chl_month/
+https://spg-satdata.ucsd.edu/2018/C2018_chl_month/
+https://spg-satdata.ucsd.edu/2019/C2019_chl_month/
+https://spg-satdata.ucsd.edu/2020/C2020_chl_month/
+https://spg-satdata.ucsd.edu/2021/C2021_chl_month/
+https://spg-satdata.ucsd.edu/2022/C2022_chl_month/
+https://spg-satdata.ucsd.edu/2023/C2023_chl_month/
+https://spg-satdata.ucsd.edu/2016/M2016_sst_month/
+https://spg-satdata.ucsd.edu/2017/M2017_sst_month/
+https://spg-satdata.ucsd.edu/2018/M2018_sst_month/
+https://spg-satdata.ucsd.edu/2019/M2019_sst_month/
+https://spg-satdata.ucsd.edu/2020/M2020_sst_month/
+https://spg-satdata.ucsd.edu/2021/M2021_sst_month/
+https://spg-satdata.ucsd.edu/2022/M2022_sst_month/
+https://spg-satdata.ucsd.edu/2023/M2023_sst_month/

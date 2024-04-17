@@ -96,6 +96,10 @@ dat_macroinvert <- dat_macroinvert |>
   filter(!(str_detect(Site, "PVR") & SampleYear < 2021 )) |> 
   droplevels()
 
+dat_UPC_VRG <- dat_UPC_VRG |>
+  filter(!(str_detect(Site, "PVR") & SampleYear < 2021 )) |> 
+  droplevels()
+
 dat_macroinvert <- dat_macroinvert |>
   filter(!Site %in% c("Leucadia", "Old 18th")) |> #some depth zones were way out there in nMDS (probably very few species?)
   droplevels() 
@@ -107,6 +111,11 @@ dat_kelp <- dat_kelp |>
 dat_kelp <- dat_kelp |>
   filter(!Site %in% c("Leucadia", "Old 18th")) |> #some depth zones were way out there in nMDS (probably very few species?)
   droplevels() 
+
+dat_UPC_VRG <- dat_UPC_VRG |>
+  filter(!Site %in% c("Leucadia", "Old 18th")) |> #some depth zones were way out there in nMDS (probably very few species?)
+  droplevels() 
+
 
  ########WHAT DOES HE MEAN BY THIS
 
@@ -172,6 +181,12 @@ dat_macroinvert.r <- dat_macroinvert.r[Project != "TBF2016",]
 dat_kelp.r <- dat_kelp.r[Project != "TBF2016",]
 
 ########################
+##Save full UPC output (so we can calculate UPC relief/substrate metrics)
+########################
+
+saveRDS(UPC_complete, file.path("data","full_crane","UPC_complete.rds"))
+
+########################
 ##Take average values across all years of sampling (avg density and avg biomass of each species at site)
 ########################
 
@@ -186,7 +201,7 @@ dat_kelp_site_averages <- dat_kelp.r[,.(mean_density_m2=mean(Abundance/area.m2))
 unique(dat_event.r$Region)
 
 ########################
-##Save output
+##Save average output
 ########################
 saveRDS(dat_event.r, file.path("data","processed_crane", "dat_event.r.rds"))
 saveRDS(dat_fish_site_averages, file.path("data","processed_crane", "dat_fish_site_averages.rds"))
