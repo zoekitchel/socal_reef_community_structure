@@ -67,7 +67,7 @@ species_key[,common_name_final := ifelse(!is.na(common_name), common_name, #from
                                                 ifelse(!is.na(Species_common),Species_common, #from manual additions of most common macro and kelp species
                                                 NA)))]
 
-species_key <- species_key[,.(worms_id,taxa,common_name_final,kingdom, phylum, class, order, family, genus, rank)]
+species_key <- species_key[,.(worms_id,query,taxa,common_name_final,kingdom, phylum, class, order, family, genus, rank)]
 
 fwrite(species_key, file.path("keys","species_key.csv"))
 

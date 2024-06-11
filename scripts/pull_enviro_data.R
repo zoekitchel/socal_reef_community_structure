@@ -223,7 +223,7 @@ for(i in 1:length(folder_urls)){
 lat_lon_site_variable_full <- data.table()
 
 #load up hdf key with lat lon
-hdf_key <- stack("/Users/kitchel/Downloads/cal_aco_3840_Latitude_Longitude.hdf")
+hdf_key <- stack(file.path("data","enviro_predictors","cal_aco_3840_Latitude_Longitude.hdf"))
 
 #trim to study area
 crop_ext <- extent(1617,2069,1727,2204)

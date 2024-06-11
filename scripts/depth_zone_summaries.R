@@ -1,8 +1,9 @@
-# CREATION DATE 28 Jan 2023
+# CREATION DATE 28 Jan 2024
+# MODIFIED DATE 17 Apr 2024
 
 # AUTHOR: kitchel@oxy.edu
 
-# PURPOSE: Create depth zone summaries
+# PURPOSE: Create depth zone summaries (feed into first figure in paper)
 
 #############################
 ##Setup
@@ -11,8 +12,6 @@ library(ggplot2)
 library(data.table)
 library(cowplot)
 library(ggpattern) #patterned bars
-
-source(file.path("functions","return_spptaxonomy_function.R"))
 
 ########################
 ##Load data
@@ -25,13 +24,8 @@ dat_kelp_site_averages <- readRDS(file.path("data","processed_crane", "dat_kelp_
 #included giant kelp stipes for in situ habitat data, but DELETE for community analyses
   dat_kelp_site_averages <- dat_kelp_site_averages[BenthicReefSpecies != "Macrocystis pyrifera stipes",] 
 
-#Pull in lat lon from priority sites (I use 2022 list here)
-VRG_priority_lat_lon <- fread(file.path("VRG_sites","2022_DiveSitePriority_Coor_List.csv"))
-
-#take average lat and lon across matching sites
-VRG_priority_lat_lon[,Latitude:= mean(Lat),.(Site)][,Longitude := mean(Lon),.(Site)]
-
-VRG_priority_lat_lon.r <- unique(VRG_priority_lat_lon[,.(Site,Latitude, Longitude, ARM)])
+#pull in spp taxonomy info
+species_key <- fread(file.path("keys","species_key.csv"))
 
 ########################
 ##Species, label, color key
@@ -234,8 +228,7 @@ ggsave(kelp_density_top5_stacked, path = file.path("figures"), filename = "kelp_
 ############################################################
 
 #link spp names to spp taxonomy
-fish_list <- get_taxa(taxon_list = unique(dat_fish_averages$Species)) #CHECK WEIRD ORDER
-fish_list[,Species := query]
+dat_fish_averages <- dat_fish_averages[species_key, on = c("Species" = "taxa")]
 
 #some strange order identification, will specify for following species
 fish_list[taxa == "Anisotremus davidsonii", order := "Perciformes"]
@@ -260,7 +253,6 @@ fish_list[taxa == "Rhacochilus toxotes", order := "Perciformes"]
 fish_list[taxa == "Zalembius rosaceus", order := "Perciformes"]
 fish_list[taxa == "Phanerodon vacca", order := "Perciformes"]
 
-dat_fish_averages <- dat_fish_averages[fish_list, on = "Species"]
 
 #Sum density across orders
 dat_fish_summed_order <- dat_fish_averages[,.(mean_depthzone_density_m2_summed_by_order = sum(mean_depthzone_density_m2),

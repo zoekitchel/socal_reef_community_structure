@@ -19,7 +19,6 @@ library(labdsv)
 library(cowplot)
 library(ggnewscale)
 library(ggrepel)
-library(gllvm) #latent variable modeling
 
 source(file.path("functions","return_spptaxonomy_function.R"))
 
@@ -31,6 +30,9 @@ dat_event.r <- readRDS(file.path("data","processed_crane", "dat_event.r.rds"))
 dat_fish_site_averages <- readRDS(file.path("data","processed_crane", "dat_fish_site_averages.rds"))
 dat_macroinvert_site_averages <- readRDS(file.path("data","processed_crane", "dat_macroinvert_site_averages.rds"))
 dat_kelp_site_averages <- readRDS(file.path("data","processed_crane", "dat_kelp_site_averages.rds"))
+
+#included giant kelp stipes for in situ habitat data, but DELETE for community analyses
+dat_kelp_site_averages <- dat_kelp_site_averages[BenthicReefSpecies != "Macrocystis pyrifera stipes",] 
 
 #environmental
 all_env_lat_lon <- fread(file.path("data","enviro_predictors","all_env_lat_lon.csv"))
@@ -203,11 +205,15 @@ dat_averages_kelpdensity_bysite.wide.envir <- all_env_lat_lon[dat_kelp_averages_
 #for macroinvert only
 dat_averages_macroinvertdensity_bysite.wide.envir <- all_env_lat_lon[dat_macroinvert_averages_bysite.wide, on = c("Site","DepthZone")]
 
-#ALTERNATIVELY, to match gllvm package example
-#species only
-site_spp <- dat_averages_bysite.wide.envir[,c(21:234)] #check these #s
-site_env <- dat_averages_bysite.wide.envir[,c(2:7,9:17)] #check these #s, AND NOTE I EXCLUDED DEPTH ZONE
-site_env.s <- scale(site_env)
-#merge with depth zone
-site_env.f <- cbind(site_env.s, site_depth)
-site_depth <- dat_averages_bysite.wide.envir[,8]
+
+####################
+#save outputs
+####################
+
+saveRDS(dat_averages_bysite.wide.envir, file.path("data","processed_crane","community_matrices","dat_averages_bysite.wide.envir.rds"))
+saveRDS(dat_averages_fishdensity_bysite.wide.envir, file.path("data","processed_crane","community_matrices","dat_averages_fishdensity_bysite.wide.envir.rds"))
+saveRDS(dat_averages_fishbiomass_bysite.wide.envir, file.path("data","processed_crane","community_matrices","dat_averages_fishbiomass_bysite.wide.envir.rds"))
+saveRDS(dat_averages_kelpdensity_bysite.wide.envir, file.path("data","processed_crane","community_matrices","dat_averages_kelpdensity_bysite.wide.envir.rds"))
+saveRDS(dat_averages_macroinvertdensity_bysite.wide.envir, file.path("data","processed_crane","community_matrices","dat_averages_macroinvertdensity_bysite.wide.envir.rds"))
+
+
