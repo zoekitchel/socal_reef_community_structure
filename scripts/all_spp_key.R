@@ -51,12 +51,12 @@ spp_top_macro_kelp_key <- data.table(Species = c("Anthopleura sola", "Apostichop
                                                  "Megastraea undosa", "Mesocentrotus franciscanus", "Muricea californica","Muricea fruticosa", "Pachycerianthus fimbriatus","Panulirus interruptus",
                                                  "Patiria miniata","Strongylocentrotus purpuratus",
                                                  "Agarum fimbriatum", "Egregia menziesii","Eisenia arborea", "Laminaria farlowii", "Macrocystis pyrifera",
-                                                 "Pterygophora californica", "Sargassum horneri","Sargassum muticum","Sargassum palmeri","Sargassum sp", "Stephanocystis spp."),
+                                                 "Pterygophora californica", "Sargassum horneri","Sargassum muticum","Sargassum palmeri","Sargassum sp", "Stephanocystis spp.", "Styela montereyensis"),
                                      Species_common =c("starburst anenome", "warty sea cucumber", "crowned urchin","Haliotis fulgens", "Kellet's whelk", "red gorgonian",
                                                        "wavy turban snail", "red urchin", "golden gregorian","brown gregorian", "tube dwelling anenome",
                                                        "CA spiny lobster", "bat star","purple urchin",
                                                        "fringed sieve kelp","feather boa kelp", "southern sea palm", "golden kombu", "giant kelp",
-                                                       "stalked kelp", "S. horneri","S. muticum","S. palmeri","Sargassum sp", "chainbladder kelp"))
+                                                       "stalked kelp", "S. horneri","S. muticum","S. palmeri","Sargassum sp", "chainbladder kelp", "stalked tunicate"))
 
 species_key <- spp_top_macro_kelp_key[species_key, on = c("Species" = "Taxa")]
 
@@ -67,10 +67,7 @@ species_key[,common_name_final := ifelse(!is.na(common_name), common_name, #from
                                                 ifelse(!is.na(Species_common),Species_common, #from manual additions of most common macro and kelp species
                                                 NA)))]
 
-species_key <- species_key[,.(worms_id,query,taxa,common_name_final,kingdom, phylum, class, order, family, genus, rank)]
+species_key <- species_key[,.(worms_id,taxa,common_name_final,kingdom, phylum, class, order, family, genus, rank)]
 
 fwrite(species_key, file.path("keys","species_key.csv"))
-
-#color for each species
-#maybe to do later
 
