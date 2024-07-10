@@ -1,4 +1,5 @@
-# CREATION DATE 28 Jan 2023
+# CREATION DATE 28 Jan 2024
+# MODIFICATION DATE 8 July 2024
 
 # AUTHOR: kitchel@oxy.edu
 
@@ -25,46 +26,79 @@ source(file.path("functions","return_spptaxonomy_function.R"))
 ########################
 ##Load data
 ########################
-#biotic
 dat_event.r <- readRDS(file.path("data","processed_crane", "dat_event.r.rds"))
 dat_fish_site_averages <- readRDS(file.path("data","processed_crane", "dat_fish_site_averages.rds"))
 dat_macroinvert_site_averages <- readRDS(file.path("data","processed_crane", "dat_macroinvert_site_averages.rds"))
 dat_kelp_site_averages <- readRDS(file.path("data","processed_crane", "dat_kelp_site_averages.rds"))
 
-#environmental
-all_env_lat_lon <- fread(file.path("data","enviro_predictors","all_env_lat_lon.csv"))
+#included giant kelp stipes for in situ habitat data, but DELETE for community analyses
+dat_kelp_site_averages <- dat_kelp_site_averages[BenthicReefSpecies != "Macrocystis pyrifera stipes",] 
+
+#pull in spp taxonomy info
+species_key <- fread(file.path("keys","species_key.csv"))
+#capitalize California
+species_key[, common_name_final := gsub("california sheephead", "California sheephead", common_name_final)]
+
+#find and replace Semicossyphus pulcher with Bodianus pulcher in VRG data
+dat_fish_site_averages[, Species := gsub("Semicossyphus pulcher", "Bodianus pulcher", Species)]
+
+#link site averaged data with species key
+dat_fish_site_averages <- species_key[dat_fish_site_averages, on = c("taxa" = "Species")]
+dat_macroinvert_site_averages <- species_key[dat_macroinvert_site_averages, on = c("taxa" = "BenthicReefSpecies")]
+dat_kelp_site_averages <- species_key[dat_kelp_site_averages, on = c("taxa" = "BenthicReefSpecies")]
+
+#New Column Identifying ARM vs Island vs Natural Coast
+dat_fish_site_averages[,type := ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Natural mainland"))]
+dat_macroinvert_site_averages[,type := ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Natural mainland"))]
+dat_kelp_site_averages[,type := ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Natural mainland"))]
 
 
 ##################################################
 #Long data to wide data for vegan analyses
 ##################################################
-#fish
-dat_fish_long_density <- dat_fish_site_averages[,.(Species,Region,Site,DepthZone, mean_density_m2)]
-dat_fish_long_density[,mean_density_m2 := mean(mean_density_m2),.(Species,Region,Site,DepthZone)]
-dat_fish_long_density <- unique(dat_fish_long_density[,.(Species,Region,Site,DepthZone,mean_density_m2)])
+#environmental predictors
+#pull environmental data
+all_env_lat_lon <- fread(file.path("data","enviro_predictors","all_env_lat_lon.csv"))
 
-dat_fish_long_biomass <- dat_fish_site_averages[,.(Species,Region,Site,DepthZone, mean_wt_density_g_m2)]
-dat_fish_long_biomass[,mean_wt_density_g_m2 := mean(mean_wt_density_g_m2),.(Species,Region,Site,DepthZone)]
-dat_fish_long_biomass <- unique(dat_fish_long_biomass[,.(Species,Region,Site,DepthZone,mean_wt_density_g_m2)])
+#fish
+dat_fish_long_density <- dat_fish_site_averages[,.(taxa,Region,Site,DepthZone, mean_density_m2)]
+dat_fish_long_density[,mean_density_m2 := mean(mean_density_m2),.(taxa,Region,Site,DepthZone)]
+dat_fish_long_density <- unique(dat_fish_long_density[,.(taxa,Region,Site,DepthZone,mean_density_m2)])
+#merge with environmental
+dat_fish_long_density <- dat_fish_long_density[all_env_lat_lon, on = c("Site","DepthZone","Region")] #dropped rows, not sure why
+
+dat_fish_long_biomass <- dat_fish_site_averages[,.(taxa,Region,Site,DepthZone, mean_wt_density_g_m2)]
+dat_fish_long_biomass[,mean_wt_density_g_m2 := mean(mean_wt_density_g_m2),.(taxa,Region,Site,DepthZone)]
+dat_fish_long_biomass <- unique(dat_fish_long_biomass[,.(taxa,Region,Site,DepthZone,mean_wt_density_g_m2)])
+#merge with environmental
+dat_fish_long_biomass <- dat_fish_long_biomass[all_env_lat_lon, on = c("Site","DepthZone","Region")] #dropped rows, not sure why
 
 #macroinvert
-dat_macroinvert_long_density <- dat_macroinvert_site_averages[,.(BenthicReefSpecies,Region,Site,DepthZone, mean_density_m2)]
-dat_macroinvert_long_density[,mean_density_m2 := mean(mean_density_m2),.(BenthicReefSpecies,Region,Site,DepthZone)]
-dat_macroinvert_long_density <- unique(dat_macroinvert_long_density[,.(BenthicReefSpecies,Region,Site,DepthZone,mean_density_m2)])
+dat_macroinvert_long_density <- dat_macroinvert_site_averages[,.(taxa,Region,Site,DepthZone, mean_density_m2)]
+dat_macroinvert_long_density[,mean_density_m2 := mean(mean_density_m2),.(taxa,Region,Site,DepthZone)]
+dat_macroinvert_long_density <- unique(dat_macroinvert_long_density[,.(taxa,Region,Site,DepthZone,mean_density_m2)])
+#merge with environmental
+dat_macroinvert_long_density <- dat_macroinvert_long_density[all_env_lat_lon, on = c("Site","DepthZone","Region")] #dropped rows, not sure why
+
+
 
 #kelp
-dat_kelp_long_density <- dat_kelp_site_averages[,.(BenthicReefSpecies,Region,Site,DepthZone, mean_density_m2)]
-dat_kelp_long_density[,mean_density_m2 := mean(mean_density_m2),.(BenthicReefSpecies,Region,Site,DepthZone)]
-dat_kelp_long_density <- unique(dat_kelp_long_density[,.(BenthicReefSpecies,Region,Site,DepthZone,mean_density_m2)])
+dat_kelp_long_density <- dat_kelp_site_averages[,.(taxa,Region,Site,DepthZone, mean_density_m2)]
+dat_kelp_long_density[,mean_density_m2 := mean(mean_density_m2),.(taxa,Region,Site,DepthZone)]
+dat_kelp_long_density <- unique(dat_kelp_long_density[,.(taxa,Region,Site,DepthZone,mean_density_m2)])
+#merge with environmental
+dat_kelp_long_density <- dat_kelp_long_density[all_env_lat_lon, on = c("Site","DepthZone","Region")] #dropped rows, not sure why, check later
+
+
 
 #melt long to wide
-dat_fish_wide_density <- dcast(dat_fish_long_density, Region + Site + DepthZone ~ Species, value.var = "mean_density_m2", fun = mean)
+dat_fish_wide_density <- dcast(dat_fish_long_density, Region + Site + DepthZone + mean_chl_mg_m3 + max_chl_mg_m3 + min_chl_mg_m3 + mean_sst_C + max_sst_C + min_sst_C + dist_200m_bath +  giantkelp_stipe_density_m2 + Relief_index + Relief_SD + Substrate_index + Substrate_SD + Latitude ~ taxa, value.var = "mean_density_m2", fun = mean)
 
-dat_fish_wide_biomass <- dcast(dat_fish_long_biomass, Region + Site + DepthZone ~ Species, value.var = "mean_wt_density_g_m2", fun = mean)
+dat_fish_wide_biomass <- dcast(dat_fish_long_biomass, Region + Site + DepthZone + mean_chl_mg_m3 + max_chl_mg_m3 + min_chl_mg_m3 + mean_sst_C + max_sst_C + min_sst_C + dist_200m_bath +  giantkelp_stipe_density_m2 + Relief_index + Relief_SD + Substrate_index + Substrate_SD + Latitude ~ taxa, value.var = "mean_wt_density_g_m2", fun = mean)
 
-dat_macroinvert_wide_density <- dcast(dat_macroinvert_long_density, Region + Site + DepthZone ~ BenthicReefSpecies, value.var = "mean_density_m2", fun = mean)
+dat_macroinvert_wide_density <- dcast(dat_macroinvert_long_density, Region + Site + DepthZone + mean_chl_mg_m3 + max_chl_mg_m3 + min_chl_mg_m3 + mean_sst_C + max_sst_C + min_sst_C + dist_200m_bath +  giantkelp_stipe_density_m2 + Relief_index + Relief_SD + Substrate_index + Substrate_SD + Latitude ~ taxa, value.var = "mean_density_m2", fun = mean)
 
-dat_kelp_wide_density <- dcast(dat_kelp_long_density, Region + Site + DepthZone ~ BenthicReefSpecies, value.var = "mean_density_m2", fun = mean)
+dat_kelp_wide_density <- dcast(dat_kelp_long_density, Region + Site + DepthZone + mean_chl_mg_m3 + max_chl_mg_m3 + min_chl_mg_m3 + mean_sst_C + max_sst_C + min_sst_C + dist_200m_bath +  giantkelp_stipe_density_m2 + Relief_index + Relief_SD + Substrate_index + Substrate_SD + Latitude ~ taxa, value.var = "mean_density_m2", fun = mean)
 
 #spp per depthzone
 dat_fish_long_density_removezeros <- dat_fish_long_density[mean_density_m2>0,]
@@ -73,7 +107,7 @@ dat_macroinvert_long_density_removezeros <- dat_macroinvert_long_density[mean_de
 dat_kelp_long_density_removezeros <- dat_kelp_long_density[mean_density_m2>0,]
 
 
-#number of species per depth zone?
+#number of taxa per depth zone?
 fish_depthzone_site_richness_abun <- dat_fish_long_density_removezeros[,.(count_spp = .N,sum_abun = sum(mean_density_m2)),.(Site, DepthZone, Region)]
 fish_depthzone_site_richness_abun[,category:="fish"]
 fish_depthzone_site_biomass <- dat_fish_long_biomass_removezeros[,.(sum_biomass = sum(mean_wt_density_g_m2)),.(Site, DepthZone, Region)]
@@ -175,13 +209,13 @@ ggsave(depthzone_site_type_biomass_abun_boxplot_merge, path = "figures", filenam
 ##################################################################################################
 
 #melt long to wide
-dat_fish_averages_bysite.wide <- dcast(dat_fish_long_density_removezeros, Region + Site + DepthZone ~ Species, value.var = "mean_density_m2", fun = mean, fill = 0)
+dat_fish_averages_bysite.wide <- dcast(dat_fish_long_density_removezeros, Region + Site + DepthZone + mean_chl_mg_m3 + max_chl_mg_m3 + min_chl_mg_m3 + mean_sst_C + max_sst_C + min_sst_C + dist_200m_bath +  giantkelp_stipe_density_m2 + Relief_index + Relief_SD + Substrate_index + Substrate_SD + Latitude ~ taxa, value.var = "mean_density_m2", fun = mean, fill = 0)
 
-dat_fish_biomass_averages_bysite.wide <- dcast(dat_fish_long_biomass_removezeros, Region + Site + DepthZone ~ Species, value.var = "mean_wt_density_g_m2", fun = mean, fill = 0)
+dat_fish_biomass_averages_bysite.wide <- dcast(dat_fish_long_biomass_removezeros, Region + Site + DepthZone ~ taxa, value.var = "mean_wt_density_g_m2", fun = mean, fill = 0)
 
-dat_macroinvert_averages_bysite.wide <- dcast(dat_macroinvert_long_density_removezeros, Region + Site + DepthZone ~ BenthicReefSpecies, value.var = "mean_density_m2", fun = mean, fill = 0)
+dat_macroinvert_averages_bysite.wide <- dcast(dat_macroinvert_long_density_removezeros, Region + Site + DepthZone ~ taxa, value.var = "mean_density_m2", fun = mean, fill = 0)
 
-dat_kelp_averages_bysite.wide <- dcast(dat_kelp_long_density_removezeros, Region + Site + DepthZone ~ BenthicReefSpecies, value.var = "mean_density_m2", fun = mean, fill = 0)
+dat_kelp_averages_bysite.wide <- dcast(dat_kelp_long_density_removezeros, Region + Site + DepthZone ~ taxa, value.var = "mean_density_m2", fun = mean, fill = 0)
 
 #Merge for all density data tables for species visualization (biomass of fish kept separate)
 dat_averages_bysite.wide <- dat_fish_averages_bysite.wide[dat_macroinvert_averages_bysite.wide, on = c("Region","Site","DepthZone")]
@@ -190,27 +224,8 @@ dat_averages_bysite.wide <- dat_kelp_averages_bysite.wide[dat_averages_bysite.wi
 #there are some sites that have no kelp, and these come up as NAs, change to 0 
 dat_averages_bysite.wide[is.na(dat_averages_bysite.wide)] <- 0
 
-####Add variables to single data table
-#for all
-dat_averages_bysite.wide.envir <- all_env_lat_lon[dat_averages_bysite.wide, on = c("Site","DepthZone")]
-#for fish abun only
-dat_averages_fishdensity_bysite.wide.envir <- all_env_lat_lon[dat_fish_averages_bysite.wide, on = c("Site","DepthZone")]
-#for fish biomass only
-dat_averages_fishbiomass_bysite.wide.envir <- all_env_lat_lon[dat_fish_biomass_averages_bysite.wide, on = c("Site","DepthZone")]
-#for kelp only
-dat_averages_kelpdensity_bysite.wide.envir <- all_env_lat_lon[dat_kelp_averages_bysite.wide, on = c("Site","DepthZone")]
-#for macroinvert only
-dat_averages_macroinvertdensity_bysite.wide.envir <- all_env_lat_lon[dat_macroinvert_averages_bysite.wide, on = c("Site","DepthZone")]
 
-#ALTERNATIVELY, to match gllvm package example
-#species only
-site_spp <- dat_averages_bysite.wide.envir[,c(21:234)] #check these #s
-site_env <- dat_averages_bysite.wide.envir[,c(2:7,9:17)] #check these #s, AND NOTE I EXCLUDED DEPTH ZONE
-site_env.s <- scale(site_env)
-#merge with depth zone
-site_env.f <- cbind(site_env.s, site_depth)
-site_depth <- dat_averages_bysite.wide.envir[,8]
-
+#SKIP FOR NOW
 ########################
 #Latent variable modeling
 #########################
@@ -1166,7 +1181,54 @@ geom_path(data=df_ell, aes(x=MDS1, y=MDS2,color=group), size=1, linetype=2) +
 ##repeat for fish, fish biomass, macro, kelp, and all species clumped together (maybe do this one by presence absence only)
 ##Integrate environmental data (distance to 200m isobath, insitu: depth, temp, rugosity or whatever)
 
+#START HERE
+#GENERALIZED LINEAR LATENT VARIABLE MODELS (glvvm)
+library(gllvm)
+col_keep <- c(4:23,37:ncol(dat_averages_bysite.wide))
+
+dat_averages_bysite.wide.bio <- dat_averages_bysite.wide[,..col_keep][complete.cases(dat_averages_bysite.wide)]
+dat_averages_bysite.wide.envnum <- dat_averages_bysite.wide[,24:36][complete.cases(dat_averages_bysite.wide)]
+dat_averages_bysite.wide.envcat <- dat_averages_bysite.wide[,1:3][complete.cases(dat_averages_bysite.wide)]
+
+dat_averages_bysite.wide.envnum <- scale(dat_averages_bysite.wide.envnum) #centered and scaled
+
+#fit model
+fitp <- gllvm(dat_averages_bysite.wide.bio, family = poisson())
+fit_ord <- gllvm(dat_averages_bysite.wide.bio, family = poisson())
+
+#equally good fit for both, stick with Poisson
+ordiplot(fitp, biplot = T, ind.spp = 15, 
+         xlim = c(-5,3), ylim = c(-0.0000012,0.0000020))
+points(fitp, biplot = T, col = dat_averages_bysite.wide.envcat$DepthZone)
+
+rbPal <- c("#83752D", "#EAC4AA", "#D38EB6", "#F6D798","#76A6B8", "#2F624E")
+
+for(i in 1:ncol(X)){
+  Col <- rbPal[as.numeric(cut(X[,i], breaks = 20))]
+  ordiplot(fitnb, symbols = T, s.colors = Col, main = colnames(X)[i], 
+           biplot = TRUE)
+
+cr <- getResidualCor(fitp)
+
+ggsave(cr, path = file.path("figures"), file = "correlation.pdf", width = 20, height = 20, unit = "in")
+
+library(corrplot); library(gclus)
+
+pdf(file = file.path("figures","correlation_gllvm.pdf"))
+corrplot(cr, diag = FALSE, type = "lower", method = "square", tl.srt = 25, tl.cex = 0.2, addgrid.col = NA)
+dev.off()
 
 
+data("antTraits")
+antTraits[1]
+#can take long data
+gllvm()
 
+ordiplot(fitp, biplot = TRUE)
+abline(h = 0, v = 0, lty=2)
 
+#assess model fit
+par(mfrow = c(1,2))
+plot(fitp, which = 1:2)
+
+#
