@@ -444,4 +444,28 @@ distance_200_site_map <- autoplot.bathy(bathy_VRG, geom=c("raster"
 ggsave(distance_200_site_map, filename = "distance_200_site_map.jpg", path = file.path("figures"), width = 10, height = 7, units = "in")
 
 
+#How does substrate and relief vary by depth zone, and ARM vs natural reef?
+ggplot(all_env_lat_lon) +
+  geom_boxplot(aes(x = DepthZone, y = Relief_index))+
+  theme_classic()
 
+#Artificial reefs vary less in relief index over sites
+
+ggplot(all_env_lat_lon) +
+  geom_boxplot(aes(x = DepthZone, y = Relief_SD))+
+  theme_classic()
+
+#Artificial reefs vary less in relief within sites as well
+
+
+ggplot(all_env_lat_lon) +
+  geom_boxplot(aes(x = DepthZone, y = Substrate_index))+
+  theme_classic()
+
+#All reefs have roughly similar average substrate indices of 3-4
+
+ggplot(all_env_lat_lon) +
+  geom_boxplot(aes(x = DepthZone, y = Substrate_SD))+
+  theme_classic()
+
+#Inner reefs vary less in Substrate within a site than other reefs

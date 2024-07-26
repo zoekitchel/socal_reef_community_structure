@@ -1,5 +1,5 @@
 # CREATION DATE 7 July 2024
-# MODIFIED DATE 7 July 2024
+# MODIFIED DATE 11 July 2024
 
 # AUTHOR: kitchel@oxy.edu
 
@@ -16,6 +16,9 @@ library(RColorBrewer)
 library(nlme)
 library(MuMIn)
 library(ggpattern)
+library(multcompView)
+
+source(file.path("functions","add_tukey_letter_boxplot.R"))
 
 ########################
 ##Load data
@@ -42,8 +45,8 @@ dat_macroinvert_site_averages <- species_key[dat_macroinvert_site_averages, on =
 dat_kelp_site_averages <- species_key[dat_kelp_site_averages, on = c("taxa" = "BenthicReefSpecies")]
 
 #New Column Identifying ARM vs Island vs Natural Coast
-dat_fish_site_averages[,type := ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Natural mainland"))]
-dat_macroinvert_site_averages[,type := ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Natural mainland"))]
+dat_fish_site_averages[,type := factor(ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Natural mainland")))]
+dat_macroinvert_site_averages[,type := factor(ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Natural mainland")))]
 dat_kelp_site_averages[,type := ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Natural mainland"))]
 
 
@@ -74,7 +77,7 @@ fish_abundance_depthzone <- ggplot(dat_fish_total_abundances) +
                        pattern_density = 0.01, 
                        pattern_fill    = 'black',
                        pattern_colour  = 'black',
-                       pattern_spacing = 0.05
+                       pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2,
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
@@ -88,14 +91,7 @@ fish_abundance_depthzone <- ggplot(dat_fish_total_abundances) +
 
 ggsave(fish_abundance_depthzone, path = file.path("figures"), filename ="fish_abundance_depthzone.jpg", height = 4.5, width = 5, units = "in")
 
-summary(lm(data = dat_fish_total_abundances[type != "ARM"], total_abundance_depthzone_site~DepthZone))
-
-#Fish density is similar at inner and middle sites, but significantly higher at outer and deep sites
-
-summary(lm(data = dat_fish_total_abundances[type != "ARM"], total_abundance_depthzone_site~DepthZone*type))
-
-#Fish density at island sites is consistently higher than fish density at mainland sites, and island sites exhibit larger changes in density across depths than mainland sites
-
+(fish_abundance_depthzone_tukey <- generate_boxplot_tukey_labels(dat_fish_total_abundances, "total_abundance_depthzone_site", fish_abundance_depthzone))
 
 #visualize all fish biomass
 
@@ -105,7 +101,7 @@ fish_biomass_depthzone <- ggplot(dat_fish_total_abundances) +
                        pattern_density = 0.01, 
                        pattern_fill    = 'black',
                        pattern_colour  = 'black',
-                       pattern_spacing = 0.05
+                       pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
@@ -118,11 +114,7 @@ fish_biomass_depthzone <- ggplot(dat_fish_total_abundances) +
 
 ggsave(fish_biomass_depthzone, path = file.path("figures"), filename ="fish_biomass_depthzone.jpg", height = 4.5, width = 5, units = "in")
 
-summary(lm(data = dat_fish_total_abundances[type != "ARM"], total_biomass_depthzone_site~DepthZone*type))
-
-summary(lm(data = dat_fish_total_abundances[type != "ARM"], total_biomass_depthzone_site~DepthZone))
-
-#Fish biomass varies less than density, with inner, middle, and deep sites exhibiting similar densities and only outer exhibiting significnatly higher densities.
+(fish_biomass_depthzone_tukey <- generate_boxplot_tukey_labels(dat_fish_total_abundances, "total_biomass_depthzone_site", fish_biomass_depthzone, divide_var_1000 = T))
 
 #visualize all macroinvertebrate density
 macroinvert_abundance_depthzone <- ggplot(dat_macroinvert_total_abundances) +
@@ -131,7 +123,7 @@ macroinvert_abundance_depthzone <- ggplot(dat_macroinvert_total_abundances) +
                        pattern_density = 0.01, 
                        pattern_fill    = 'black',
                        pattern_colour  = 'black',
-                       pattern_spacing = 0.05
+                       pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
@@ -144,13 +136,7 @@ macroinvert_abundance_depthzone <- ggplot(dat_macroinvert_total_abundances) +
 
 ggsave(macroinvert_abundance_depthzone, path = file.path("figures"), filename ="macroinvert_abundance_depthzone.jpg", height = 4.5, width = 5, units = "in")
 
-summary(lm(data = dat_macroinvert_total_abundances[type != "ARM"], total_abundance_depthzone_site~DepthZone))
-
-#Macro invert density is similar at inner and middle sites, but significantly higher at outer and deep sites
-
-summary(lm(data = dat_macroinvert_total_abundances[type != "ARM"], total_abundance_depthzone_site~DepthZone*type))
-
-#Patterns in density across depths are similar for macroinvertebrates for mainland and island sites.
+macroinvert_abundance_depthzone_tukey <- generate_boxplot_tukey_labels(dat_macroinvert_total_abundances, "total_abundance_depthzone_site", macroinvert_abundance_depthzone)
 
 #visualize all kelp density
 kelp_abundance_depthzone <- ggplot(dat_kelp_total_abundances) +
@@ -159,7 +145,7 @@ kelp_abundance_depthzone <- ggplot(dat_kelp_total_abundances) +
                        pattern_density = 0.01, 
                        pattern_fill    = 'black',
                        pattern_colour  = 'black',
-                       pattern_spacing = 0.05
+                       pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
@@ -173,25 +159,19 @@ kelp_abundance_depthzone <- ggplot(dat_kelp_total_abundances) +
 
 ggsave(kelp_abundance_depthzone, path = file.path("figures"), filename ="kelp_abundance_depthzone.jpg", height = 4.5, width = 5, units = "in")
 
-
-summary(lm(data = dat_kelp_total_abundances[type != "ARM"], total_abundance_depthzone_site~DepthZone))
-
-#Macro invert density is similar at inner and middle sites, but significantly lower at outer and deep sites
-
-summary(lm(data = dat_kelp_total_abundances[type != "ARM"], total_abundance_depthzone_site~DepthZone*type))
-
-#mainland reefs tend to support less kelp than island sites, but not significantly.
+kelp_abundance_depthzone_tukey <- generate_boxplot_tukey_labels(dat_kelp_total_abundances, "total_abundance_depthzone_site", kelp_abundance_depthzone)
 
 #Merge plots
 #first, stack fish biomass and density
-fish_abundance_merge <- cowplot::plot_grid(fish_abundance_depthzone + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()), 
-                                           fish_biomass_depthzone + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
+fish_abundance_merge <- cowplot::plot_grid(fish_abundance_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()), 
+                                           fish_biomass_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
                                                                           ncol = 1, align = "v", labels = c("a.","b."), label_y = c(1,1.1))
 
 abundance_depthzone_merge <- cowplot::plot_grid(fish_abundance_merge,
-                                                macroinvert_abundance_depthzone + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
-                                                kelp_abundance_depthzone + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
-                                                nrow = 1, labels = c("","c.", "d."), align = "h", rel_widths = c(1.1,1,1))
+                                                kelp_abundance_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
+                                                macroinvert_abundance_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
+                                                
+                                                                                                nrow = 1, labels = c("","c.", "d."), align = "h", rel_widths = c(1.1,1,1))
 
 ########################
 ##Total richness (summed # of taxa, summed biomass of all taxa) by depth zone
@@ -219,7 +199,7 @@ fish_richness_depthzone <- ggplot(dat_fish_richness_depthzone_site) +
                        pattern_density = 0.01, 
                        pattern_fill    = 'black',
                        pattern_colour  = 'black',
-                       pattern_spacing = 0.05
+                       pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
@@ -232,13 +212,7 @@ fish_richness_depthzone <- ggplot(dat_fish_richness_depthzone_site) +
 
 ggsave(fish_richness_depthzone, path = file.path("figures"), filename ="fish_richness_depthzone.jpg", height = 4.5, width = 5, units = "in")
 
-summary(lm(data = dat_fish_richness_depthzone_site[type != "ARM"], total_richness_depthzone_site~DepthZone))
-
-#Fish richness is similar at inner and middle sites, but significantly higher at outer and deep sites
-
-summary(lm(data = dat_fish_richness_depthzone_site[type != "ARM"], total_richness_depthzone_site~DepthZone*type))
-
-#mainland reefs tend to support more species of fish than island sites, but not significantly.
+fish_richness_depthzone_tukey <- generate_boxplot_tukey_labels(dat_fish_richness_depthzone_site, "total_richness_depthzone_site", fish_richness_depthzone, richness = T)
 
 #visualize all macroinvertebrate richness
 macroinvert_richness_depthzone <- ggplot(dat_macroinvert_richness_depthzone_site) +
@@ -247,7 +221,7 @@ macroinvert_richness_depthzone <- ggplot(dat_macroinvert_richness_depthzone_site
                        pattern_density = 0.01, 
                        pattern_fill    = 'black',
                        pattern_colour  = 'black',
-                       pattern_spacing = 0.05
+                       pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
@@ -260,15 +234,7 @@ macroinvert_richness_depthzone <- ggplot(dat_macroinvert_richness_depthzone_site
 
 ggsave(macroinvert_richness_depthzone, path = file.path("figures"), filename ="macroinvert_richness_depthzone.jpg", height = 4.5, width = 5, units = "in")
 
-ggsave(fish_richness_depthzone, path = file.path("figures"), filename ="fish_richness_depthzone.jpg", height = 4.5, width = 5, units = "in")
-
-summary(lm(data = dat_macroinvert_richness_depthzone_site[type != "ARM"], total_richness_depthzone_site~DepthZone))
-
-#Macroinvert richness is distinct across depth zones, with inner sites with the fewest species and deep sites with the most species
-
-summary(lm(data = dat_macroinvert_richness_depthzone_site[type != "ARM"], total_richness_depthzone_site~DepthZone*type))
-
-#Mainland reefs support more species of invertebrates than island sites, with this distinction most prominant for outer and deep sites
+macroinvert_richness_depthzone_tukey <- generate_boxplot_tukey_labels(dat_macroinvert_richness_depthzone_site, "total_richness_depthzone_site", macroinvert_richness_depthzone, richness = T)
 
 #visualize all kelp richness
 kelp_richness_depthzone <- ggplot(dat_kelp_richness_depthzone_site) +
@@ -277,7 +243,7 @@ kelp_richness_depthzone <- ggplot(dat_kelp_richness_depthzone_site) +
                        pattern_density = 0.01, 
                        pattern_fill    = 'black',
                        pattern_colour  = 'black',
-                       pattern_spacing = 0.05
+                       pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
@@ -291,19 +257,15 @@ kelp_richness_depthzone <- ggplot(dat_kelp_richness_depthzone_site) +
 ggsave(kelp_richness_depthzone, path = file.path("figures"), filename ="kelp_richness_depthzone.jpg", height = 4.5, width = 5, units = "in")
 
 
-summary(lm(data = dat_kelp_richness_depthzone_site[type != "ARM"], total_richness_depthzone_site~DepthZone))
+kelp_richness_depthzone_tukey <- generate_boxplot_tukey_labels(dat_kelp_richness_depthzone_site, "total_richness_depthzone_site", kelp_richness_depthzone, richness = T)
 
-#Kelp richness decreases significantly depth zones
-
-summary(lm(data = dat_kelp_richness_depthzone_site[type != "ARM"], total_richness_depthzone_site~DepthZone*type))
-
-#There are no significant differences in kelp richness between island and mainland sites across depth zones
 
 #Merge plots
-richness_depthzone_merge <- cowplot::plot_grid(fish_richness_depthzone + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
-                                                macroinvert_richness_depthzone + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
-                                                kelp_richness_depthzone + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
-                                                nrow = 1, labels = c("e.","f.", "g."), align = "h")
+richness_depthzone_merge <- cowplot::plot_grid(fish_richness_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
+                                                kelp_richness_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
+                                               macroinvert_richness_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
+                                               
+                                                                                               nrow = 1, labels = c("e.","f.", "g."), align = "h")
 
 ########################
 ##Simpson diversity index
@@ -345,7 +307,7 @@ fish_simpson_depthzone_density <- ggplot(dat_fish_simpson) +
                        pattern_density = 0.01, 
                        pattern_fill    = 'black',
                        pattern_colour  = 'black',
-                       pattern_spacing = 0.05
+                       pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
@@ -357,13 +319,7 @@ fish_simpson_depthzone_density <- ggplot(dat_fish_simpson) +
 
 ggsave(fish_simpson_depthzone_density, path = file.path("figures"), filename ="fish_simpson_depthzone_density.jpg", height = 4.5, width = 6, units = "in")
 
-summary(lm(data = dat_fish_simpson[type != "ARM"], Simpson_index_density~DepthZone))
-
-#Fish simpson is similar at inner and middle sites, but significantly lower at outer and deep sites where blacksmith tends to dominate
-
-summary(lm(data = dat_fish_simpson[type != "ARM"], Simpson_index_density~DepthZone*type))
-
-#Similar trend between island and mainland reefs, but island reefs experience a decline in fish diversity more rapidly due to a more significant increase in blacksmith and blue banded gobies that dominate the community
+fish_simpson_depthzone_density_tukey <- generate_boxplot_tukey_labels(dat_fish_simpson, "Simpson_index_density", fish_simpson_depthzone_density)
 
 #same but for fish biomass
 
@@ -373,7 +329,7 @@ fish_simpson_depthzone_biomass <- ggplot(dat_fish_simpson) +
                        pattern_density = 0.01, 
                        pattern_fill    = 'black',
                        pattern_colour  = 'black',
-                       pattern_spacing = 0.05
+                       pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
@@ -392,6 +348,9 @@ summary(lm(data = dat_fish_simpson[type != "ARM"], Simpson_index_biomass~DepthZo
 
 summary(lm(data = dat_fish_simpson[type != "ARM"], Simpson_index_biomass~DepthZone*type))
 
+fish_simpson_depthzone_biomass_tukey <- generate_boxplot_tukey_labels(dat_fish_simpson, "Simpson_index_biomass", fish_simpson_depthzone_biomass)
+
+
 #visualize macroinvert diversity (calculated with density)
 macroinvert_simpson_depthzone_density <- ggplot(dat_macroinvert_simpson) +
   geom_boxplot_pattern(aes(x = DepthZone, y = Simpson_index_density, fill = type, pattern = type), position = position_dodge2(preserve = "single"),
@@ -399,7 +358,7 @@ macroinvert_simpson_depthzone_density <- ggplot(dat_macroinvert_simpson) +
                        pattern_density = 0.01, 
                        pattern_fill    = 'black',
                        pattern_colour  = 'black',
-                       pattern_spacing = 0.05
+                       pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
@@ -409,15 +368,8 @@ macroinvert_simpson_depthzone_density <- ggplot(dat_macroinvert_simpson) +
     legend.position = c(0.87, 0.15)
   )
 
-ggsave(macroinvert_simpson_depthzone_density, path = file.path("figures"), filename ="macroinvert_simpson_depthzone_density.jpg", height = 4.5, width = 6, units = "in")
+macroinvert_simpson_depthzone_tukey <- generate_boxplot_tukey_labels(dat_macroinvert_simpson, "Simpson_index_density", macroinvert_simpson_depthzone_density)
 
-summary(lm(data = dat_macroinvert_simpson[type != "ARM"], Simpson_index_density~DepthZone))
-
-#macroinvert simpson is similar at inner and middle sites, but significantly higher at outer and deep sites
-
-summary(lm(data = dat_macroinvert_simpson[type != "ARM"], Simpson_index_density~DepthZone*type))
-
-#Similar trend between island and mainland reefs, but island reefs tend to exhibit more variability in general 
 
 #visualize kelp diversity (calculated with density)
 kelp_simpson_depthzone_density <- ggplot(dat_kelp_simpson) +
@@ -426,7 +378,7 @@ kelp_simpson_depthzone_density <- ggplot(dat_kelp_simpson) +
                        pattern_density = 0.01, 
                        pattern_fill    = 'black',
                        pattern_colour  = 'black',
-                       pattern_spacing = 0.05
+                       pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
@@ -438,62 +390,57 @@ kelp_simpson_depthzone_density <- ggplot(dat_kelp_simpson) +
 
 ggsave(kelp_simpson_depthzone_density, path = file.path("figures"), filename ="kelp_simpson_depthzone_density.jpg", height = 4.5, width = 6, units = "in")
 
-summary(lm(data = dat_kelp_simpson[type != "ARM"], Simpson_index_density~DepthZone))
-
-#kelp simpson is similar at inner and middle sites, but significantly higher at outer and deep sites
-
-summary(lm(data = dat_kelp_simpson[type != "ARM"], Simpson_index_density~DepthZone*type))
-
-#Similar trend between island and mainland reefs, but island reefs tend to exhibit more variability in general 
+kelp_simpson_depthzone_density_tukey <- generate_boxplot_tukey_labels(dat_kelp_simpson, "Simpson_index_density", kelp_simpson_depthzone_density)
 
 #Merge plots
 #first, stack fish biomass and density
-fish_diversity_merge <- cowplot::plot_grid(fish_simpson_depthzone_density  + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()), 
-                                           fish_simpson_depthzone_biomass + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
+fish_diversity_merge <- cowplot::plot_grid(fish_simpson_depthzone_density_tukey  + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()), 
+                                           fish_simpson_depthzone_biomass_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
                                            ncol = 1, align = "v", labels = c("h.","i."), label_y = c(1,1.1))
 
 diversity_depthzone_merge <- cowplot::plot_grid(fish_diversity_merge,
-                                                macroinvert_simpson_depthzone_density + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
-                                                kelp_simpson_depthzone_density + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
-                                                nrow = 1, labels = c("","j.", "k."), align = "h", rel_widths = c(1.1,1,1))
+                                                kelp_simpson_depthzone_density_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
+                                                macroinvert_simpson_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
+                                                
+                                                                                                nrow = 1, labels = c("","j.", "k."), align = "h", rel_widths = c(1.1,1,1))
 
 #mega-merge
-depthzone_abun_rich_div_merge <- cowplot::plot_grid(abundance_depthzone_merge, richness_depthzone_merge, diversity_depthzone_merge, ncol = 1)
+depthzone_abun_rich_div_merge_tukey <- cowplot::plot_grid(abundance_depthzone_merge, richness_depthzone_merge, diversity_depthzone_merge, ncol = 1, align = "hv")
 
 #save
-ggsave(depthzone_abun_rich_div_merge, path = file.path("figures"), filename = "depthzone_abun_rich_div_merge.jpg", height = 11, width = 9.5, unit = "in")
+ggsave(depthzone_abun_rich_div_merge_tukey, path = file.path("figures"), filename = "depthzone_abun_rich_div_merge_tukey.jpg", height = 9, width = 10, unit = "in")
 
 
 
 
 
-#as an alternate route for plotting, try to merge all data tables and then flip from wide to long
+#as an alternate route for plotting (facet), try to merge all data tables and then flip from wide to long
 
 #link together
 #abundance/density
 dat_fish_total_abundances[, taxa_type := "Fish"]
-dat_fish_total_abundances.l <- melt(dat_fish_total_abundances, id.vars = c("taxa_type","Site","DepthZone","type"), variable.name = "metric",value.name = "value")
+dat_fish_total_abundances.l <- melt(dat_fish_total_abundances, id.vars = c("taxa_type","Site","DepthZone","type"),measure.vars = c("total_abundance_depthzone_site","total_biomass_depthzone_site"), variable.name = "metric",value.name = "value")
 dat_macroinvert_total_abundances[, taxa_type := "Macroinvertebrate"]
-dat_macroinvert_total_abundances.l <- melt(dat_macroinvert_total_abundances, id.vars = c("taxa_type","Site","DepthZone","type"), variable.name = "metric",value.name = "value")
+dat_macroinvert_total_abundances.l <- melt(dat_macroinvert_total_abundances, id.vars = c("taxa_type","Site","DepthZone","type"),measure.vars = c("total_abundance_depthzone_site"), variable.name = "metric",value.name = "value")
 dat_kelp_total_abundances[, taxa_type := "Macroalgae"]
-dat_kelp_total_abundances.l <- melt(dat_kelp_total_abundances, id.vars = c("taxa_type","Site","DepthZone","type"), variable.name = "metric",value.name = "value")
+dat_kelp_total_abundances.l <- melt(dat_kelp_total_abundances, id.vars = c("taxa_type","Site","DepthZone","type"), variable.name = "metric",measure.vars = c("total_abundance_depthzone_site"), value.name = "value")
 
 
 #richness
 dat_fish_richness_depthzone_site[,taxa_type := "Fish"]
-dat_fish_richness_depthzone_site.l <- melt(dat_fish_richness_depthzone_site, id.vars = c("taxa_type","Site","DepthZone","type"), variable.name = "metric",value.name = "value")
+dat_fish_richness_depthzone_site.l <- melt(dat_fish_richness_depthzone_site, id.vars = c("taxa_type","Site","DepthZone","type"),measure.vars = c("total_richness_depthzone_site"), variable.name = "metric",value.name = "value")
 dat_macroinvert_richness_depthzone_site[,taxa_type := "Macroinvertebrate"]
-dat_macroinvert_richness_depthzone_site.l <- melt(dat_macroinvert_richness_depthzone_site, id.vars = c("taxa_type","Site","DepthZone","type"), variable.name = "metric",value.name = "value")
+dat_macroinvert_richness_depthzone_site.l <- melt(dat_macroinvert_richness_depthzone_site, id.vars = c("taxa_type","Site","DepthZone","type"),measure.vars = c("total_richness_depthzone_site"), variable.name = "metric",value.name = "value")
 dat_kelp_richness_depthzone_site[,taxa_type := "Macroalgae"]
-dat_kelp_richness_depthzone_site.l <- melt(dat_kelp_richness_depthzone_site, id.vars = c("taxa_type","Site","DepthZone","type"), variable.name = "metric",value.name = "value")
+dat_kelp_richness_depthzone_site.l <- melt(dat_kelp_richness_depthzone_site, id.vars = c("taxa_type","Site","DepthZone","type"),measure.vars = c("total_richness_depthzone_site"), variable.name = "metric",value.name = "value")
 
 #simpson diversity index
 dat_fish_simpson[,taxa_type := "Fish"]
-dat_fish_simpson.l <- melt(dat_fish_simpson, id.vars = c("taxa_type","Site","DepthZone","type"), variable.name = "metric",value.name = "value")
+dat_fish_simpson.l <- melt(dat_fish_simpson, id.vars = c("taxa_type","Site","DepthZone","type"),measure.vars = c("Simpson_index_density","Simpson_index_biomass"), variable.name = "metric",value.name = "value")
 dat_macroinvert_simpson[,taxa_type := "Macroinvertebrate"]
-dat_macroinvert_simpson.l <- melt(dat_macroinvert_simpson, id.vars = c("taxa_type","Site","DepthZone","type"), variable.name = "metric",value.name = "value")
+dat_macroinvert_simpson.l <- melt(dat_macroinvert_simpson, id.vars = c("taxa_type","Site","DepthZone","type"),measure.vars = c("Simpson_index_density"), variable.name = "metric",value.name = "value")
 dat_kelp_simpson[,taxa_type := "Macroalgae"]
-dat_kelp_simpson.l <- melt(dat_kelp_simpson, id.vars = c("taxa_type","Site","DepthZone","type"), variable.name = "metric",value.name = "value")
+dat_kelp_simpson.l <- melt(dat_kelp_simpson, id.vars = c("taxa_type","Site","DepthZone","type"),measure.vars = c("Simpson_index_density"), variable.name = "metric",value.name = "value")
 
 #rbind all above
 
@@ -521,7 +468,7 @@ depthzone_density_abundance_richness <- ggplot(merged_abundance_richness_diversi
                        pattern_density = 0.01, 
                        pattern_fill    = 'black',
                        pattern_colour  = 'black',
-                       pattern_spacing = 0.05
+                       pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
@@ -546,9 +493,10 @@ depthzone_density_abundance_richness <- ggplot(merged_abundance_richness_diversi
 
 ggsave(depthzone_density_abundance_richness, path = "figures",filename = "depthzone_density_abundance_richness.jpg", height = 10, width = 8.5, units = "in")
 
-  #################################################################################
-#Mixed effect models to predict Abundance, richness, and diversity at a given site
 #################################################################################
+#How do the predictors of abundance, richness, and diversity vary by depth zone
+#################################################################################
+
 #pull environmental data
 all_env_lat_lon <- fread(file.path("data","enviro_predictors","all_env_lat_lon.csv"))
 
@@ -557,36 +505,186 @@ all_env_lat_lon <- fread(file.path("data","enviro_predictors","all_env_lat_lon.c
 #link
 #abundance/density
 dat_fish_total_abundances.env <- all_env_lat_lon[dat_fish_total_abundances, on = c("Site","DepthZone")]
+dat_fish_total_abundances.env <- dat_fish_total_abundances.env[complete.cases(dat_fish_total_abundances.env)]
 dat_macroinvert_total_abundances.env <- all_env_lat_lon[dat_macroinvert_total_abundances, on = c("Site","DepthZone")]
+dat_macroinvert_total_abundances.env <- dat_macroinvert_total_abundances.env[complete.cases(dat_macroinvert_total_abundances.env)]
 dat_kelp_total_abundances.env <- all_env_lat_lon[dat_kelp_total_abundances, on = c("Site","DepthZone")]
+dat_kelp_total_abundances.env <- dat_kelp_total_abundances.env[complete.cases(dat_kelp_total_abundances.env)]
 #remove ARM from these analyses
-dat_fish_total_abundances.env <- dat_fish_total_abundances.env[type != "ARM"]
-dat_macroinvert_total_abundances.env <- dat_macroinvert_total_abundances.env[type != "ARM"]
-dat_kelp_total_abundances.env <- dat_kelp_total_abundances.env[type != "ARM"]
+#dat_fish_total_abundances.env <- dat_fish_total_abundances.env[type != "ARM"]
+#dat_macroinvert_total_abundances.env <- dat_macroinvert_total_abundances.env[type != "ARM"]
+#dat_kelp_total_abundances.env <- dat_kelp_total_abundances.env[type != "ARM"]
 
 #richness
 dat_fish_richness_depthzone_site.env <- all_env_lat_lon[dat_fish_richness_depthzone_site, on = c("Site","DepthZone")]
+dat_fish_richness_depthzone_site.env <- dat_fish_richness_depthzone_site.env[complete.cases(dat_fish_richness_depthzone_site.env)]
 dat_macroinvert_richness_depthzone_site.env <- all_env_lat_lon[dat_macroinvert_richness_depthzone_site, on = c("Site","DepthZone")]
+dat_macroinvert_richness_depthzone_site.env <- dat_macroinvert_richness_depthzone_site.env[complete.cases(dat_macroinvert_richness_depthzone_site.env)]
 dat_kelp_richness_depthzone_site.env <- all_env_lat_lon[dat_kelp_richness_depthzone_site, on = c("Site","DepthZone")]
+dat_kelp_richness_depthzone_site.env <- dat_kelp_richness_depthzone_site.env[complete.cases(dat_kelp_richness_depthzone_site.env)]
 #remove ARM from these analyses
-dat_fish_richness_depthzone_site.env <- dat_fish_richness_depthzone_site.env[type != "ARM"]
-dat_macroinvert_richness_depthzone_site.env <- dat_macroinvert_richness_depthzone_site.env[type != "ARM"]
-dat_kelp_richness_depthzone_site.env <- dat_kelp_richness_depthzone_site.env[type != "ARM"]
+#dat_fish_richness_depthzone_site.env <- dat_fish_richness_depthzone_site.env[type != (#)
+#dat_macroinvert_richness_depthzone_site.env <- dat_macroinvert_richness_depthzone_site.env[type != (#)
+#dat_kelp_richness_depthzone_site.env <- dat_kelp_richness_depthzone_site.env[type != (#)
 
 #simpson diversity index
 dat_fish_simpson.env <- all_env_lat_lon[dat_fish_simpson, on = c("Site","DepthZone")]
+dat_fish_simpson.env <- dat_fish_simpson.env[complete.cases(dat_fish_simpson.env)]
 dat_macroinvert_simpson.env <- all_env_lat_lon[dat_macroinvert_simpson, on = c("Site","DepthZone")]
+dat_macroinvert_simpson.env <- dat_macroinvert_simpson.env[complete.cases(dat_macroinvert_simpson.env)]
 dat_kelp_simpson.env <- all_env_lat_lon[dat_kelp_simpson, on = c("Site","DepthZone")]
+dat_kelp_simpson.env <- dat_kelp_simpson.env[complete.cases(dat_kelp_simpson.env)]
 #remove ARM from these analyses
-dat_fish_simpson.env <- dat_fish_simpson.env[type != "ARM"]
-dat_macroinvert_simpson.env <- dat_macroinvert_simpson.env[type != "ARM"]
-dat_kelp_simpson.env <- dat_kelp_simpson.env[type != "ARM"]
+#dat_fish_simpson.env <- dat_fish_simpson.env[type != "ARM"]
+#dat_macroinvert_simpson.env <- dat_macroinvert_simpson.env[type != "ARM"]
+#dat_kelp_simpson.env <- dat_kelp_simpson.env[type != "ARM"]
 
-#MODEL FISH ABUNDANCE/DENSITY
+library(ggcorrplot)
+
+data.table <- dat_fish_total_abundances.env
+taxa <- "Fish"
+metric_input <- "density"
+metric <- "abundance"
+metric_name <- "total_abundance_depthzone_site"
+
+#Spearman correlation plots by variable
+make_spearman_cor_plot <- function(taxa, metric_input, metric, metric_name, data.table){
+  
+  data.table <- data.table(data.table)
+  
+  metric_data <- data.table[[metric_name]]
+  
+  data.table[,metric_named := metric_data]
+  
+  #deep
+  data.table.deep <- data.table[DepthZone == "Deep",.(metric_named,Latitude, dist_200m_bath, min_sst_C, mean_sst_C, max_sst_C, min_chl_mg_m3, mean_chl_mg_m3, max_chl_mg_m3, giantkelp_stipe_density_m2, Relief_index, Relief_SD, Substrate_index, Substrate_SD)]
+  
+  cor_d <- cor(y = data.table.deep$metric_named, x = data.table.deep[,2:14], use = "everything", method = "spearman")
+  colnames(cor_d) <- "Deep"
+  
+  
+  #outer
+  data.table.outer <- data.table[DepthZone == "Outer",.(metric_named,Latitude, dist_200m_bath, min_sst_C, mean_sst_C, max_sst_C, min_chl_mg_m3, mean_chl_mg_m3, max_chl_mg_m3, giantkelp_stipe_density_m2, Relief_index, Relief_SD, Substrate_index, Substrate_SD)]
+  
+  
+  cor_o <- cor(y = data.table.outer$metric_named, x = data.table.outer[,2:14], use = "everything", method = "spearman")
+  colnames(cor_o) <- "Outer"
+  
+  
+  #middle
+  data.table.middle <- data.table[DepthZone == "Middle",.(metric_named,Latitude, dist_200m_bath, min_sst_C, mean_sst_C, max_sst_C, min_chl_mg_m3, mean_chl_mg_m3, max_chl_mg_m3, giantkelp_stipe_density_m2, Relief_index, Relief_SD, Substrate_index, Substrate_SD)]
+  
+  
+  cor_m <- cor(y = data.table.middle$metric_named, x = data.table.middle[,2:14], use = "everything", method = "spearman")
+  colnames(cor_m) <- "Middle"
+  
+  
+  #inner
+  data.table.inner <- data.table[DepthZone == "Inner",.(metric_named,Latitude, dist_200m_bath, min_sst_C, mean_sst_C, max_sst_C, min_chl_mg_m3, mean_chl_mg_m3, max_chl_mg_m3, giantkelp_stipe_density_m2, Relief_index, Relief_SD, Substrate_index, Substrate_SD)]
+  
+  
+  cor_i <- cor(y = data.table.inner$metric_named, x = data.table.inner[,2:14], use = "everything", method = "spearman")
+  colnames(cor_i) <- "Inner"
+  
+  #merge
+  cor_merge <- cbind(cor_d, cor_o,cor_m, cor_i)
+  cor_merge.dt <- data.table(cor_merge)
+  cor_merge.dt[,env_variable := rownames(cor_merge)]
+  
+  #Plot
+  
+  #flip wide to long
+  #add identifying columns
+  cor_merge.dt[,taxa  := taxa][,metric_input := metric_input][,metric := metric]
+  cor_merge.l <- melt(cor_merge.dt, id.vars = c("taxa","metric_input","metric", "env_variable"), variable.name = "DepthZone",value.name = "coefficient")
+  
+  cor_merge.l[,DepthZone := factor(DepthZone, levels = c("Deep","Outer","Middle","Inner"))]
+  
+  #add better labels and order for environmental variables
+cor_merge.l[,env_variable := factor(env_variable, levels = c(
+                                                 "Latitude", "dist_200m_bath", "min_sst_C","mean_sst_C", "max_sst_C","min_chl_mg_m3" ,
+                                                 "mean_chl_mg_m3" ,"max_chl_mg_m3","giantkelp_stipe_density_m2", "Relief_index", "Relief_SD","Substrate_index" ,
+                                                 "Substrate_SD"),
+                                    labels = c("Latitude", "Distance to 200 m isobath", "Minimum SST","Mean SST", "Maximum SST","Minimum chlorophyll" ,
+                                               "Mean chlorophyll" ,"Maximum chlorophyll","Giant kelp stipe density", "Relief index", "Relief SD","Substrate index" ,
+                                               "Substrate SD"))]
+
+plot_title <- paste(taxa, metric_input, metric, sep = " ")  
+
+  single_plot <- ggplot(cor_merge.l) +
+    geom_tile(aes(y = DepthZone, x = env_variable, fill = coefficient)) +
+    geom_text(aes(y = DepthZone, x = env_variable, label = round(coefficient,2)), size = 2) +
+    scale_fill_gradient2(low = "red", mid = "white", high = "blue", midpoint = 0, limits = c(-1,1)) +
+    scale_x_discrete(position = "top", expand = c(0, 0)) +
+    scale_y_discrete(expand = c(0, 0)) +
+    labs(x = "Habitat characteristic", y = "Depth zone", fill = "Spearman's\ncorrelation\ncoefficient", title = plot_title) +
+    theme_classic() +
+    theme(axis.text.x = element_text(angle = 45, hjust = -0.1), axis.title.x = element_blank(), plot.title = element_text(face = "bold"))
+
+plot_name <- paste0(taxa,"_",metric_input,"_", metric,"_spearmans_corr_heatmap")
+
+ggsave(path = file.path("figures","spearman_corr"), filename = paste0(plot_name,".jpg"), height = 5, width = 5, unit = "in")
+
+return(cor_merge.l)
+}
+
+#fish
+   #fish abundance density
+fish_abundance_abundensity_corr.l <- make_spearman_cor_plot(taxa = "Fish",metric_input = "count density",metric = "abundance",metric_name = "total_abundance_depthzone_site",data.table = dat_fish_total_abundances.env)
+   #fish abundance biomass
+fish_abundance_biodensity_corr.l <- make_spearman_cor_plot(taxa = "Fish",metric_input = "biomass density",metric = "abundance",metric_name = "total_biomass_depthzone_site",data.table = dat_fish_total_abundances.env)
+   #fish richness
+fish_richness_corr.l <- make_spearman_cor_plot(taxa = "Fish",metric_input = "",metric = "richness",metric_name = "total_richness_depthzone_site",data.table = dat_fish_richness_depthzone_site.env)
+   #fish diversity density
+fish_simpson_abundensity_corr.l <- make_spearman_cor_plot(taxa = "Fish",metric_input = "count density",metric = "Simpson diversity",metric_name = "Simpson_index_density",data.table = dat_fish_simpson.env)
+   #fish diversity biomass
+fish_simpson_biodensity_corr.l <- make_spearman_cor_plot(taxa = "Fish",metric_input = "biomass density",metric = "Simpson diversity",metric_name = "Simpson_index_biomass",data.table = dat_fish_simpson.env)
+
+#macroinvertebrates
+   #macroinvert abundance density
+macroinvert_abundance_abundensity_corr.l <- make_spearman_cor_plot(taxa = "Macroinvertebrate",metric_input = "",metric = "abundance",metric_name = "total_abundance_depthzone_site",data.table = dat_macroinvert_total_abundances.env)
+
+   #macroinvert richness
+macroinvert_richness_corr.l <- make_spearman_cor_plot(taxa = "Macroinvertebrate",metric_input = "",metric = "richness",metric_name = "total_richness_depthzone_site",data.table = dat_macroinvert_richness_depthzone_site.env)
+
+   #macroinvert diversity density
+macroinvert_simpson_abundensity_corr.l <- make_spearman_cor_plot(taxa = "Macroinvertebrate",metric_input = "",metric = "Simpson diversity",metric_name = "Simpson_index_density",data.table = dat_fish_simpson.env)
+
+
+#kelp
+#kelp abundance density
+kelp_abundance_abundensity_corr.l <- make_spearman_cor_plot(taxa = "Macroalgae",metric_input = "",metric = "abundance",metric_name = "total_abundance_depthzone_site",data.table = dat_kelp_total_abundances.env)
+
+#kelp richness
+kelp_richness_corr.l <- make_spearman_cor_plot(taxa = "Macroalgae",metric_input = "",metric = "richness",metric_name = "total_richness_depthzone_site",data.table = dat_kelp_richness_depthzone_site.env)
+
+#kelp diversity density
+kelp_simpson_abundensity_corr.l <- make_spearman_cor_plot(taxa = "Macroalgae",metric_input = "",metric = "Simpson diversity",metric_name = "Simpson_index_density",data.table = dat_kelp_simpson.env)
+
+#Merge long data tables
+all_spearman_correlations_list <- mget(ls(pattern = ".*_"))
+#merge this list into one
+#merge these individual objects
+all_spearman_correlations <- rbindlist(all_spearman_correlations_list)
+
+#Make facet plot
+all_spearman_correlations_plot <- ggplot(all_spearman_correlations) +
+  geom_tile(aes(y = DepthZone, x = env_variable, fill = coefficient)) +
+#  geom_text(aes(y = DepthZone, x = env_variable, label = round(coefficient,2)), size = 2) +
+  scale_fill_gradient2(low = "red", mid = "white", high = "blue", midpoint = 0, limits = c(-1,1)) +
+  scale_x_discrete(position = "top", expand = c(0, 0)) +
+  scale_y_discrete(expand = c(0, 0)) +
+  labs(x = "Habitat characteristic", y = "Depth zone", fill = "Spearman's\ncorrelation\ncoefficient", title = plot_title) +
+  facet_wrap(~ taxa + metric + metric_input) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = -0.1), axis.title.x = element_blank(), plot.title = element_text(face = "bold"))
+
+
+#MODEL FISH ABUNDANCE/DENSITY BY DEPTH ZONE
 
 #scale all variables
 # Identify numeric columns
-numeric_cols <- names(dat_fish_total_abundances.env)[sapply(dat_fish_total_abundances.env, is.numeric) & names(dat_fish_total_abundances.env) != "ID"]
+numeric_cols <- names(dat_fish_total_abundances.env)[sapply(dat_fish_total_abundances.env, is.numeric) & !(names(dat_fish_total_abundances.env) %in% c("ID", "true_label"))]
 
 # Scale numeric columns and create new columns with .s appended
 dat_fish_total_abundances.env[, (paste0(numeric_cols, ".s")) := lapply(.SD, scale), .SDcols = numeric_cols]
@@ -596,17 +694,19 @@ dat_fish_total_abundances.env <- dat_fish_total_abundances.env[complete.cases(da
 
 options(na.action = "na.fail")
 
+#DEEP
+dat_fish_total_abundances.env.deep <- dat_fish_total_abundances.env[DepthZone == "Deep",]
+
 #dredge
-global.model <- lme(data = dat_fish_total_abundances.env, total_abundance_depthzone_site ~ 
-                    #  DepthZone + 
+global.fish.model_deep <- lm(data = dat_fish_total_abundances.env.deep, total_abundance_depthzone_site ~ 
                       type + 
                       mean_chl_mg_m3.s + max_chl_mg_m3.s + min_chl_mg_m3.s +
                       mean_sst_C.s + max_sst_C.s + min_sst_C.s +
                       dist_200m_bath.s + giantkelp_stipe_density_m2 + Relief_index.s + Relief_SD.s +
-                      Substrate_index.s + Substrate_SD.s + Latitude.s, random = ~1|Site)
+                      Substrate_index.s + Substrate_SD.s + Latitude.s)
 
 #subset to only include one temperature variable and one chlorophyll variable
-dredge_fish_density <- dredge(global.model, subset = !(mean_chl_mg_m3.s && max_chl_mg_m3.s && min_chl_mg_m3.s ) &
+dredge_fish_density_deep <- dredge(global.fish.model_deep, m.lim = c(NA,1) ,subset = !(mean_chl_mg_m3.s && max_chl_mg_m3.s && min_chl_mg_m3.s ) &
          !(mean_chl_mg_m3.s && max_chl_mg_m3.s) &
         !(max_chl_mg_m3.s && min_chl_mg_m3.s) &
          !(mean_chl_mg_m3.s && min_chl_mg_m3.s) &
@@ -616,33 +716,296 @@ dredge_fish_density <- dredge(global.model, subset = !(mean_chl_mg_m3.s && max_c
          !(mean_sst_C.s && min_sst_C.s))
 
 #table with top models
-dredge_fish_density.dt <- data.table(dredge_fish_density)
+dredge_fish_density_deep.dt <- data.table(dredge_fish_density_deep)
 
-dredge_fish_density.dt <- dredge_fish_density.dt[delta < 2]
+dredge_fish_density_deep.dt <- dredge_fish_density_deep.dt[delta < 10]
 
-#best model
-best_fish_density_lme <- lme(data = dat_fish_total_abundances.env, total_abundance_depthzone_site ~ 
-                      type + 
-                      Substrate_index.s +
-                      Relief_index.s + Relief_SD.s +
-                      mean_sst_C.s +
-                     Latitude.s, random = ~1|Site)
+#model average
+dredge_fish_density_deep.modavg <- model.avg(dredge_fish_density_deep, subset = delta < 10)
+dredge_fish_density_deep.modavg.coefs <- transpose(data.table(dredge_fish_density_deep.modavg$coefficients[2,]))
+colnames(dredge_fish_density_deep.modavg.coefs) <- colnames(dredge_fish_density_deep.modavg$coefficients)
 
-summary(best_fish_density_lme)    
-r.squaredGLMM(best_fish_density_lme)
+#output row of data table that will make correlation matrix
+fish_density_deep_output <- data.table(metric_category = "abundance", taxa = "fish", metric = "density", DepthZone = "Deep")
+fish_density_deep_output <- cbind(fish_density_deep_output, dredge_fish_density_deep.modavg.coefs)
 
-#R^2 = 0.45, with random effect = 0.74
-#baseline natural mainland has lower density
-#density decreases with substrate size
-#density increases with relief and with SD of relief
-#density increases with SST
-#density increases wtih latitude
+#Fish OUTER
 
+dat_fish_total_abundances.env.outer <- dat_fish_total_abundances.env[DepthZone == "Outer",]
+
+#dredge
+global.fish.model_outer <- lm(data = dat_fish_total_abundances.env.outer, total_abundance_depthzone_site ~ 
+                          type + 
+                          mean_chl_mg_m3.s + max_chl_mg_m3.s + min_chl_mg_m3.s +
+                          mean_sst_C.s + max_sst_C.s + min_sst_C.s +
+                          dist_200m_bath.s + giantkelp_stipe_density_m2 + Relief_index.s + Relief_SD.s +
+                          Substrate_index.s + Substrate_SD.s + Latitude.s)
+
+#subset to only include one temperature variable and one chlorophyll variable
+dredge_fish_density_outer <- dredge(global.fish.model_outer, m.lim = c(NA,1) ,subset = !(mean_chl_mg_m3.s && max_chl_mg_m3.s && min_chl_mg_m3.s ) &
+                                     !(mean_chl_mg_m3.s && max_chl_mg_m3.s) &
+                                     !(max_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                     !(mean_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                     !(mean_sst_C.s && max_sst_C.s && min_sst_C.s) &
+                                     !(max_sst_C.s && min_sst_C.s) &
+                                     !(mean_sst_C.s && max_sst_C.s) &
+                                     !(mean_sst_C.s && min_sst_C.s))
+
+#table with top models
+dredge_fish_density_outer.dt <- data.table(dredge_fish_density_outer)
+
+dredge_fish_density_outer.dt <- dredge_fish_density_outer.dt[delta < 10]
+
+#model average
+dredge_fish_density_outer.modavg <- model.avg(dredge_fish_density_outer, subset = delta < 10)
+dredge_fish_density_outer.modavg.coefs <- transpose(data.table(dredge_fish_density_outer.modavg$coefficients[2,]))
+colnames(dredge_fish_density_outer.modavg.coefs) <- colnames(dredge_fish_density_outer.modavg$coefficients)
+
+#output row of data table that will make correlation matrix
+fish_density_outer_output <- data.table(metric_category = "abundance", taxa = "fish", metric = "density", DepthZone = "Outer")
+fish_density_outer_output <- cbind(fish_density_outer_output, dredge_fish_density_outer.modavg.coefs)
+
+#Fish MIDDLE
+
+dat_fish_total_abundances.env.middle <- dat_fish_total_abundances.env[DepthZone == "Middle",]
+
+#dredge
+global.fish.model_middle <- lm(data = dat_fish_total_abundances.env.middle, total_abundance_depthzone_site ~ 
+                           type + 
+                           mean_chl_mg_m3.s + max_chl_mg_m3.s + min_chl_mg_m3.s +
+                           mean_sst_C.s + max_sst_C.s + min_sst_C.s +
+                           dist_200m_bath.s + giantkelp_stipe_density_m2 + Relief_index.s + Relief_SD.s +
+                           Substrate_index.s + Substrate_SD.s + Latitude.s)
+
+#subset to only include one temperature variable and one chlorophyll variable
+dredge_fish_density_middle <- dredge(global.fish.model_middle, m.lim = c(NA,1) ,subset = !(mean_chl_mg_m3.s && max_chl_mg_m3.s && min_chl_mg_m3.s ) &
+                                      !(mean_chl_mg_m3.s && max_chl_mg_m3.s) &
+                                      !(max_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                      !(mean_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                      !(mean_sst_C.s && max_sst_C.s && min_sst_C.s) &
+                                      !(max_sst_C.s && min_sst_C.s) &
+                                      !(mean_sst_C.s && max_sst_C.s) &
+                                      !(mean_sst_C.s && min_sst_C.s))
+
+#table with top models
+dredge_fish_density_middle.dt <- data.table(dredge_fish_density_middle)
+
+dredge_fish_density_middle.dt <- dredge_fish_density_middle.dt[delta < 10]
+
+#model average
+dredge_fish_density_middle.modavg <- model.avg(dredge_fish_density_middle, subset = delta < 10)
+dredge_fish_density_middle.modavg.coefs <- transpose(data.table(dredge_fish_density_middle.modavg$coefficients[2,]))
+colnames(dredge_fish_density_middle.modavg.coefs) <- colnames(dredge_fish_density_middle.modavg$coefficients)
+
+#output row of data table that will make correlation matrix
+fish_density_middle_output <- data.table(metric_category = "abundance", taxa = "fish", metric = "density", DepthZone = "Middle")
+fish_density_middle_output <- cbind(fish_density_middle_output, dredge_fish_density_middle.modavg.coefs)
+
+#Fish INNER
+
+dat_fish_total_abundances.env.inner <- dat_fish_total_abundances.env[DepthZone == "Inner",]
+
+#dredge
+global.fish.model_inner <- lm(data = dat_fish_total_abundances.env.inner, total_abundance_depthzone_site ~ 
+                            type + 
+                            mean_chl_mg_m3.s + max_chl_mg_m3.s + min_chl_mg_m3.s +
+                            mean_sst_C.s + max_sst_C.s + min_sst_C.s +
+                            dist_200m_bath.s + giantkelp_stipe_density_m2 + Relief_index.s + Relief_SD.s +
+                            Substrate_index.s + Substrate_SD.s + Latitude.s)
+
+#subset to only include one temperature variable and one chlorophyll variable
+dredge_fish_density_inner <- dredge(global.fish.model_inner, m.lim = c(NA,1) ,subset = !(mean_chl_mg_m3.s && max_chl_mg_m3.s && min_chl_mg_m3.s ) &
+                                       !(mean_chl_mg_m3.s && max_chl_mg_m3.s) &
+                                       !(max_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                       !(mean_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                       !(mean_sst_C.s && max_sst_C.s && min_sst_C.s) &
+                                       !(max_sst_C.s && min_sst_C.s) &
+                                       !(mean_sst_C.s && max_sst_C.s) &
+                                       !(mean_sst_C.s && min_sst_C.s))
+
+#table with top models
+dredge_fish_density_inner.dt <- data.table(dredge_fish_density_inner)
+
+dredge_fish_density_inner.dt <- dredge_fish_density_inner.dt[delta < 10]
+
+#model average
+dredge_fish_density_inner.modavg <- model.avg(dredge_fish_density_inner, subset = delta < 10)
+dredge_fish_density_inner.modavg.coefs <- transpose(data.table(dredge_fish_density_inner.modavg$coefficients[2,]))
+colnames(dredge_fish_density_inner.modavg.coefs) <- colnames(dredge_fish_density_inner.modavg$coefficients)
+
+#output row of data table that will make correlation matrix
+fish_density_inner_output <- data.table(metric_category = "abundance", taxa = "fish", metric = "density", DepthZone = "Inner")
+fish_density_inner_output <- cbind(fish_density_inner_output, dredge_fish_density_inner.modavg.coefs)
+
+#merge density output
+fish_density_output_list <- mget(ls(pattern = "fish_density_.*_output"))
+
+#merge these individual objects
+fish_density_output_final <- rbindlist(fish_density_output_list, use.names = T, fill = T)
+
+#################
+#FISH BIOMASS
+#################
+
+#DEEP
+#dredge
+global.fish.model_deep_biomass <- lm(data = dat_fish_total_abundances.env.deep, total_biomass_depthzone_site ~ 
+                          type + 
+                          mean_chl_mg_m3.s + max_chl_mg_m3.s + min_chl_mg_m3.s +
+                          mean_sst_C.s + max_sst_C.s + min_sst_C.s +
+                          dist_200m_bath.s + giantkelp_stipe_density_m2 + Relief_index.s + Relief_SD.s +
+                          Substrate_index.s + Substrate_SD.s + Latitude.s)
+
+#subset to only include one temperature variable and one chlorophyll variable
+dredge_fish_density_deep_biomass <- dredge(global.fish.model_deep_biomass, m.lim = c(NA,1) ,subset = !(mean_chl_mg_m3.s && max_chl_mg_m3.s && min_chl_mg_m3.s ) &
+                                     !(mean_chl_mg_m3.s && max_chl_mg_m3.s) &
+                                     !(max_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                     !(mean_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                     !(mean_sst_C.s && max_sst_C.s && min_sst_C.s) &
+                                     !(max_sst_C.s && min_sst_C.s) &
+                                     !(mean_sst_C.s && max_sst_C.s) &
+                                     !(mean_sst_C.s && min_sst_C.s))
+
+#table with top models
+dredge_fish_density_deep_biomass.dt <- data.table(dredge_fish_density_deep_biomass)
+
+dredge_fish_density_deep_biomass.dt <- dredge_fish_density_deep_biomass.dt[delta < 20]
+
+#model average
+dredge_fish_density_deep_biomass.modavg <- model.avg(dredge_fish_density_deep_biomass, subset = delta < 20)
+dredge_fish_density_deep_biomass.modavg.coefs <- transpose(data.table(dredge_fish_density_deep_biomass.modavg$coefficients[2,]))
+colnames(dredge_fish_density_deep_biomass.modavg.coefs) <- colnames(dredge_fish_density_deep_biomass.modavg$coefficients)
+
+#output row of data table that will make correlation matrix
+fish_density_deep_biomass_output <- data.table(metric_category = "abundance", taxa = "fish", metric = "biomass", DepthZone = "Deep")
+fish_density_deep_biomass_output <- cbind(fish_density_deep_biomass_output, dredge_fish_density_deep_biomass.modavg.coefs)
+
+#Fish OUTER
+
+#dredge
+global.fish.model_outer_biomass <- lm(data = dat_fish_total_abundances.env.outer, total_biomass_depthzone_site ~ 
+                           type + 
+                           mean_chl_mg_m3.s + max_chl_mg_m3.s + min_chl_mg_m3.s +
+                           mean_sst_C.s + max_sst_C.s + min_sst_C.s +
+                           dist_200m_bath.s + giantkelp_stipe_density_m2 + Relief_index.s + Relief_SD.s +
+                           Substrate_index.s + Substrate_SD.s + Latitude.s)
+
+#subset to only include one temperature variable and one chlorophyll variable
+dredge_fish_density_outer_biomass <- dredge(global.fish.model_outer_biomass, m.lim = c(NA,1) ,subset = !(mean_chl_mg_m3.s && max_chl_mg_m3.s && min_chl_mg_m3.s ) &
+                                      !(mean_chl_mg_m3.s && max_chl_mg_m3.s) &
+                                      !(max_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                      !(mean_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                      !(mean_sst_C.s && max_sst_C.s && min_sst_C.s) &
+                                      !(max_sst_C.s && min_sst_C.s) &
+                                      !(mean_sst_C.s && max_sst_C.s) &
+                                      !(mean_sst_C.s && min_sst_C.s))
+
+#table with top models
+dredge_fish_density_outer_biomass.dt <- data.table(dredge_fish_density_outer_biomass)
+
+dredge_fish_density_outer_biomass.dt <- dredge_fish_density_outer_biomass.dt[delta < 20]
+
+#model average
+dredge_fish_density_outer_biomass.modavg <- model.avg(dredge_fish_density_outer_biomass, subset = delta < 20)
+dredge_fish_density_outer_biomass.modavg.coefs <- transpose(data.table(dredge_fish_density_outer_biomass.modavg$coefficients[2,]))
+colnames(dredge_fish_density_outer_biomass.modavg.coefs) <- colnames(dredge_fish_density_outer_biomass.modavg$coefficients)
+
+#output row of data table that will make correlation matrix
+fish_density_outer_biomass_output <- data.table(metric_category = "abundance", taxa = "fish", metric = "biomass", DepthZone = "Outer")
+fish_density_outer_biomass_output <- cbind(fish_density_outer_biomass_output, dredge_fish_density_outer_biomass.modavg.coefs)
+
+#Fish MIDDLE
+#dredge
+global.fish.model_middle_biomass <- lm(data = dat_fish_total_abundances.env.middle, total_biomass_depthzone_site ~ 
+                            type + 
+                            mean_chl_mg_m3.s + max_chl_mg_m3.s + min_chl_mg_m3.s +
+                            mean_sst_C.s + max_sst_C.s + min_sst_C.s +
+                            dist_200m_bath.s + giantkelp_stipe_density_m2 + Relief_index.s + Relief_SD.s +
+                            Substrate_index.s + Substrate_SD.s + Latitude.s)
+
+#subset to only include one temperature variable and one chlorophyll variable
+dredge_fish_density_middle_biomass <- dredge(global.fish.model_middle_biomass, m.lim = c(NA,1) ,subset = !(mean_chl_mg_m3.s && max_chl_mg_m3.s && min_chl_mg_m3.s ) &
+                                       !(mean_chl_mg_m3.s && max_chl_mg_m3.s) &
+                                       !(max_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                       !(mean_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                       !(mean_sst_C.s && max_sst_C.s && min_sst_C.s) &
+                                       !(max_sst_C.s && min_sst_C.s) &
+                                       !(mean_sst_C.s && max_sst_C.s) &
+                                       !(mean_sst_C.s && min_sst_C.s))
+
+#table with top models
+dredge_fish_density_middle_biomass.dt <- data.table(dredge_fish_density_middle_biomass)
+
+dredge_fish_density_middle_biomass.dt <- dredge_fish_density_middle_biomass.dt[delta < 20]
+
+#model average
+dredge_fish_density_middle_biomass.modavg <- model.avg(dredge_fish_density_middle_biomass, subset = delta < 20)
+dredge_fish_density_middle_biomass.modavg.coefs <- transpose(data.table(dredge_fish_density_middle_biomass.modavg$coefficients[2,]))
+colnames(dredge_fish_density_middle_biomass.modavg.coefs) <- colnames(dredge_fish_density_middle_biomass.modavg$coefficients)
+
+#output row of data table that will make correlation matrix
+fish_density_middle_biomass_output <- data.table(metric_category = "abundance", taxa = "fish", metric = "biomass", DepthZone = "Middle")
+fish_density_middle_biomass_output <- cbind(fish_density_middle_biomass_output, dredge_fish_density_middle_biomass.modavg.coefs)
+
+#Fish INNER
+
+#dredge
+global.fish.model_inner_biomass <- lm(data = dat_fish_total_abundances.env.inner, total_biomass_depthzone_site ~ 
+                           type + 
+                           mean_chl_mg_m3.s + max_chl_mg_m3.s + min_chl_mg_m3.s +
+                           mean_sst_C.s + max_sst_C.s + min_sst_C.s +
+                           dist_200m_bath.s + giantkelp_stipe_density_m2 + Relief_index.s + Relief_SD.s +
+                           Substrate_index.s + Substrate_SD.s + Latitude.s)
+
+#subset to only include one temperature variable and one chlorophyll variable
+dredge_fish_density_inner_biomass <- dredge(global.fish.model_inner_biomass, m.lim = c(NA,1) ,subset = !(mean_chl_mg_m3.s && max_chl_mg_m3.s && min_chl_mg_m3.s ) &
+                                      !(mean_chl_mg_m3.s && max_chl_mg_m3.s) &
+                                      !(max_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                      !(mean_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                      !(mean_sst_C.s && max_sst_C.s && min_sst_C.s) &
+                                      !(max_sst_C.s && min_sst_C.s) &
+                                      !(mean_sst_C.s && max_sst_C.s) &
+                                      !(mean_sst_C.s && min_sst_C.s))
+
+#table with top models
+dredge_fish_density_inner_biomass.dt <- data.table(dredge_fish_density_inner_biomass)
+
+dredge_fish_density_inner_biomass.dt <- dredge_fish_density_inner_biomass.dt[delta < 20]
+
+#model average
+dredge_fish_density_inner_biomass.modavg <- model.avg(dredge_fish_density_inner_biomass, subset = delta < 20)
+dredge_fish_density_inner_biomass.modavg.coefs <- transpose(data.table(dredge_fish_density_inner_biomass.modavg$coefficients[2,]))
+colnames(dredge_fish_density_inner_biomass.modavg.coefs) <- colnames(dredge_fish_density_inner_biomass.modavg$coefficients)
+
+#output row of data table that will make correlation matrix
+fish_density_inner_biomass_output <- data.table(metric_category = "abundance", taxa = "fish", metric = "biomass", DepthZone = "Inner")
+fish_density_inner_biomass_output <- cbind(fish_density_inner_biomass_output, dredge_fish_density_inner_biomass.modavg.coefs)
+
+#merge density output
+fish_density_biomass_output_list <- mget(ls(pattern = "fish_density_.*biomass_output"))
+
+#merge these individual objects
+fish_density_biomass_output_final <- rbindlist(fish_density_biomass_output_list, use.names = T, fill = T)
+
+#flip wide to long
+fish_density_biomass_output_final.l <- melt(fish_density_biomass_output_final, id.vars = c("metric_category","taxa","metric","DepthZone"), variable.name = "model_parameter",value.name = "coefficient")
+
+fish_density_biomass_output_final.l[,DepthZone := factor(DepthZone, levels = c("Deep","Outer","Middle","Inner"))]
+
+ggplot(fish_density_biomass_output_final.l) +
+  geom_tile(aes(y = DepthZone, x = model_parameter, fill = coefficient)) +
+  scale_fill_gradient2(low = "red", mid = "white", high = "blue", midpoint = 0) +
+  scale_x_discrete(position = "top", labels = c("Intercept: Island","Intercept: Mainland","Mean chlorophyll","Relief","Maximum chlorophyll","Substrate SD","Relief SD","Distance from 200m isobath","Minimum chlorophyll","Substrate","Giant kelp stipe density","Minimum SST","Latitude","Mean SST","Maximum SST"), expand = c(0, 0)) +
+  scale_y_discrete(expand = c(0, 0)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = -0.1))
+
+#################################
 #MODEL MACROINVERT ABUNDANCE/DENSITY
-
+#################################
 #scale all variables
 # Identify numeric columns
-numeric_cols <- names(dat_macroinvert_total_abundances.env)[sapply(dat_macroinvert_total_abundances.env, is.numeric) & names(dat_macroinvert_total_abundances.env) != "ID"]
+numeric_cols <- names(dat_macroinvert_total_abundances.env)[sapply(dat_macroinvert_total_abundances.env, is.numeric) & !(names(dat_macroinvert_total_abundances.env) %in% c("ID", "true_label"))]
 
 # Scale numeric columns and create new columns with .s appended
 dat_macroinvert_total_abundances.env[, (paste0(numeric_cols, ".s")) := lapply(.SD, scale), .SDcols = numeric_cols]
@@ -697,7 +1060,7 @@ r.squaredGLMM(best_macroinvert_density_lme)
 
 #scale all variables
 # Identify numeric columns
-numeric_cols <- names(dat_kelp_total_abundances.env)[sapply(dat_kelp_total_abundances.env, is.numeric) & names(dat_kelp_total_abundances.env) != "ID"]
+numeric_cols <- names(dat_kelp_total_abundances.env)[sapply(dat_kelp_total_abundances.env, is.numeric) & !(names(dat_kelp_total_abundances.env)  %in% c("ID", "true_label"))]
 
 # Scale numeric columns and create new columns with .s appended
 dat_kelp_total_abundances.env[, (paste0(numeric_cols, ".s")) := lapply(.SD, scale), .SDcols = numeric_cols]
@@ -751,7 +1114,7 @@ r.squaredGLMM(best_kelp_density_lme)
 
 #scale all variables
 # Identify numeric columns
-numeric_cols <- names(dat_fish_richness_depthzone_site.env)[sapply(dat_fish_richness_depthzone_site.env, is.numeric) & names(dat_fish_richness_depthzone_site.env) != "ID"]
+numeric_cols <- names(dat_fish_richness_depthzone_site.env)[sapply(dat_fish_richness_depthzone_site.env, is.numeric) & !(names(dat_fish_richness_depthzone_site.env) %in% c("ID", "true_label"))]
 
 # Scale numeric columns and create new columns with .s appended
 dat_fish_richness_depthzone_site.env[, (paste0(numeric_cols, ".s")) := lapply(.SD, scale), .SDcols = numeric_cols]
@@ -809,7 +1172,7 @@ r.squaredGLMM(best_fish_richness_lme)
 
 #scale all variables
 # Identify numeric columns
-numeric_cols <- names(dat_macroinvert_richness_depthzone_site.env)[sapply(dat_macroinvert_richness_depthzone_site.env, is.numeric) & names(dat_macroinvert_richness_depthzone_site.env) != "ID"]
+numeric_cols <- names(dat_macroinvert_richness_depthzone_site.env)[sapply(dat_macroinvert_richness_depthzone_site.env, is.numeric) & !(names(dat_macroinvert_richness_depthzone_site.env) %in% c("ID", "true_label"))]
 
 # Scale numeric columns and create new columns with .s appended
 dat_macroinvert_richness_depthzone_site.env[, (paste0(numeric_cols, ".s")) := lapply(.SD, scale), .SDcols = numeric_cols]
@@ -869,7 +1232,7 @@ r.squaredGLMM(best_macroinvert_richness_lme)
 
 #scale all variables
 # Identify numeric columns
-numeric_cols <- names(dat_kelp_richness_depthzone_site.env)[sapply(dat_kelp_richness_depthzone_site.env, is.numeric) & names(dat_kelp_richness_depthzone_site.env) != "ID"]
+numeric_cols <- names(dat_kelp_richness_depthzone_site.env)[sapply(dat_kelp_richness_depthzone_site.env, is.numeric) & !(names(dat_kelp_richness_depthzone_site.env) %in% c("ID", "true_label"))]
 
 # Scale numeric columns and create new columns with .s appended
 dat_kelp_richness_depthzone_site.env[, (paste0(numeric_cols, ".s")) := lapply(.SD, scale), .SDcols = numeric_cols]
@@ -922,7 +1285,7 @@ r.squaredGLMM(best_kelp_richness_lme)
 
 #scale all variables
 # Identify numeric columns
-numeric_cols <- names(dat_fish_simpson.env)[sapply(dat_fish_simpson.env, is.numeric) & names(dat_fish_simpson.env) != "ID"]
+numeric_cols <- names(dat_fish_simpson.env)[sapply(dat_fish_simpson.env, is.numeric) & !(names(dat_fish_simpson.env)  %in% c("ID", "true_label"))]
 
 # Scale numeric columns and create new columns with .s appended
 dat_fish_simpson.env[, (paste0(numeric_cols, ".s")) := lapply(.SD, scale), .SDcols = numeric_cols]
@@ -975,7 +1338,7 @@ r.squaredGLMM(best_fish_diversity_lme)
 
 #scale all variables
 # Identify numeric columns
-numeric_cols <- names(dat_macroinvert_simpson.env)[sapply(dat_macroinvert_simpson.env, is.numeric) & names(dat_macroinvert_simpson.env) != "ID"]
+numeric_cols <- names(dat_macroinvert_simpson.env)[sapply(dat_macroinvert_simpson.env, is.numeric) & !(names(dat_macroinvert_simpson.env) %in% c("ID", "true_label"))]
 
 # Scale numeric columns and create new columns with .s appended
 dat_macroinvert_simpson.env[, (paste0(numeric_cols, ".s")) := lapply(.SD, scale), .SDcols = numeric_cols]
@@ -1030,7 +1393,7 @@ r.squaredGLMM(best_macroinvert_diversity_lme)
 
 #scale all variables
 # Identify numeric columns
-numeric_cols <- names(dat_kelp_simpson.env)[sapply(dat_kelp_simpson.env, is.numeric) & names(dat_kelp_simpson.env) != "ID"]
+numeric_cols <- names(dat_kelp_simpson.env)[sapply(dat_kelp_simpson.env, is.numeric) & !(names(dat_kelp_simpson.env)  %in% c("ID", "true_label"))]
 
 # Scale numeric columns and create new columns with .s appended
 dat_kelp_simpson.env[, (paste0(numeric_cols, ".s")) := lapply(.SD, scale), .SDcols = numeric_cols]
