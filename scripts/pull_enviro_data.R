@@ -44,7 +44,7 @@ dat_event.r <- readRDS(file.path("data","processed_crane", "dat_event.r.rds"))
 flat_rock_outer <- dat_event.r[Site == "Flat Rock North" & DepthZone == "Outer",.(Latitude, Longitude)][1]
 
 #reduce to unique lat, lon, site, depth zone
-lat_lon_site_orig <- unique(dat_event.r[,.(Region, Site, DepthZone)]) #243 sites
+lat_lon_site_orig <- unique(dat_event.r[,.(Site, DepthZone)]) #243 sites
 
 #merge event data with fixed lat and lon from dive site priority list
 lat_lon_site_fix <- dive_site_priority_list.r[lat_lon_site_orig, on = c("Site","DepthZone")] #249 sites
@@ -53,17 +53,10 @@ lat_lon_site_fix <- dive_site_priority_list.r[lat_lon_site_orig, on = c("Site","
 lat_lon_site_fix[Site == "Flat Rock North" & DepthZone == "Outer",Latitude:= flat_rock_outer[,1]]
 lat_lon_site_fix[Site == "Flat Rock North" & DepthZone == "Outer",Longitude:= flat_rock_outer[,2]]
 
-#add column for mainlandisland
-lat_lon_site_fix[,main_isl := ifelse(Region %in% c("San Clemente Island","Santa Barbara Island","Santa Catalina Island"), "island","mainland")]
-lat_lon_site_fix[,nat_art := ifelse(DepthZone == "ARM", "art","nat")]
-
-
 #convert to spatial points
 lat_lon_site.sf <- st_as_sf(lat_lon_site_fix,
                             coords = c("Longitude","Latitude"),
                             crs = 4326)
-
-#note, right now, all AR sites are coded AR region. I'll need to fix this
 
 #save csv
 fwrite(lat_lon_site_fix, file.path("data","processed_crane","lat_lon_site_fix.csv"))

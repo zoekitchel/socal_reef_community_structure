@@ -1,9 +1,9 @@
 # CREATION DATE 28 Jan 2024
-# MODIFICATION DATE 8 July 2024
+# MODIFICATION DATE 29 July 2024
 
 # AUTHOR: kitchel@oxy.edu
 
-# PURPOSE: Create depth zone summaries
+# PURPOSE: Community visualizations and analyses
 
 #NOTE: SOME SITES SURVEYED MULTIPLE TIMES A YEAR FOR ONE PROJECT, NOT SURE HOW TO DEAL WITH THIS, TAKING MEAN FOR NOW
 
@@ -60,25 +60,38 @@ dat_kelp_site_averages[,type := ifelse(DepthZone == "ARM","ARM",ifelse(Region %i
 #pull environmental data
 all_env_lat_lon <- fread(file.path("data","enviro_predictors","all_env_lat_lon.csv"))
 
+keep <- colnames(all_env_lat_lon)
+keep <- keep[!(keep %in% c("Region"))]
+
+#remove region, and lat lon (FOR SOME REASON EXTRA ROWS FOR UNIQUE DEPTHZONE and SITE COMBOS, NEED TO FIX in pull_enviro_data once CDFW bathymetry link is back up)
+all_env_lat_lon <- all_env_lat_lon[,..keep]
+
+nrow(unique(all_env_lat_lon[,.(DepthZone, Site)]))
+
+nrow(unique(all_env_lat_lon[,.(DepthZone, Site, Substrate_SD, Relief_SD, mean_sst_C, dist_200m_bath)]))
+
+all_env_lat_lon <- all_env_lat_lon[, lapply(.SD, mean, na.rm=TRUE), by=c("Site","DepthZone")] 
+#temporary fix above
+
 #fish
 dat_fish_long_density <- dat_fish_site_averages[,.(taxa,Region,Site,DepthZone, mean_density_m2)]
 dat_fish_long_density[,mean_density_m2 := mean(mean_density_m2),.(taxa,Region,Site,DepthZone)]
 dat_fish_long_density <- unique(dat_fish_long_density[,.(taxa,Region,Site,DepthZone,mean_density_m2)])
 #merge with environmental
-dat_fish_long_density <- dat_fish_long_density[all_env_lat_lon, on = c("Site","DepthZone","Region")] #dropped rows, not sure why
+dat_fish_long_density <- dat_fish_long_density[all_env_lat_lon, on = c("Site","DepthZone")] #dropped rows, not sure why
 
 dat_fish_long_biomass <- dat_fish_site_averages[,.(taxa,Region,Site,DepthZone, mean_wt_density_g_m2)]
 dat_fish_long_biomass[,mean_wt_density_g_m2 := mean(mean_wt_density_g_m2),.(taxa,Region,Site,DepthZone)]
 dat_fish_long_biomass <- unique(dat_fish_long_biomass[,.(taxa,Region,Site,DepthZone,mean_wt_density_g_m2)])
 #merge with environmental
-dat_fish_long_biomass <- dat_fish_long_biomass[all_env_lat_lon, on = c("Site","DepthZone","Region")] #dropped rows, not sure why
+dat_fish_long_biomass <- dat_fish_long_biomass[all_env_lat_lon, on = c("Site","DepthZone")] #dropped rows, not sure why
 
 #macroinvert
 dat_macroinvert_long_density <- dat_macroinvert_site_averages[,.(taxa,Region,Site,DepthZone, mean_density_m2)]
 dat_macroinvert_long_density[,mean_density_m2 := mean(mean_density_m2),.(taxa,Region,Site,DepthZone)]
 dat_macroinvert_long_density <- unique(dat_macroinvert_long_density[,.(taxa,Region,Site,DepthZone,mean_density_m2)])
 #merge with environmental
-dat_macroinvert_long_density <- dat_macroinvert_long_density[all_env_lat_lon, on = c("Site","DepthZone","Region")] #dropped rows, not sure why
+dat_macroinvert_long_density <- dat_macroinvert_long_density[all_env_lat_lon, on = c("Site","DepthZone")] #dropped rows, not sure why
 
 
 
@@ -87,7 +100,7 @@ dat_kelp_long_density <- dat_kelp_site_averages[,.(taxa,Region,Site,DepthZone, m
 dat_kelp_long_density[,mean_density_m2 := mean(mean_density_m2),.(taxa,Region,Site,DepthZone)]
 dat_kelp_long_density <- unique(dat_kelp_long_density[,.(taxa,Region,Site,DepthZone,mean_density_m2)])
 #merge with environmental
-dat_kelp_long_density <- dat_kelp_long_density[all_env_lat_lon, on = c("Site","DepthZone","Region")] #dropped rows, not sure why, check later
+dat_kelp_long_density <- dat_kelp_long_density[all_env_lat_lon, on = c("Site","DepthZone")] #dropped rows, not sure why, check later
 
 
 
@@ -118,91 +131,8 @@ macroinvert_depthzone_site_richness[,category:="macroinvert"]
 kelp_depthzone_site_richness <- dat_kelp_long_density_removezeros[,.(count_spp = .N, sum_abun = sum(mean_density_m2)),.(Site, DepthZone, Region)]
 kelp_depthzone_site_richness[,category:="kelp"]
 
-#rbind these to make a single figure
+#rbind these
 depthzone_site_richness <- rbind(fish_depthzone_site_richness_abun_biomass, macroinvert_depthzone_site_richness, kelp_depthzone_site_richness, fill = TRUE)
-
-##################################################
-#Diversity metric visualizations
-##################################################
-
-depthzone_site_richness[,category := factor(category, labels = c("Fish","Macroalgae","Macroinvertebrates"))]
-
-#boxplot
-pal_5 <- c("lightsalmon1", "gold1", "palegreen4","mediumpurple1","skyblue")
-
-depthzone_site_richness_boxplot <- ggplot(depthzone_site_richness, aes(x = DepthZone, y = count_spp, fill = DepthZone)) +
-  geom_boxplot() +
-  scale_fill_manual(values = pal_5) +
-  scale_x_discrete(labels = c("Inner \n (n = 64)", "Middle \n (n = 63)", "Outer \n (n = 55)", "Deep \n (n = 25)", "ARM \n (n = 25)")) +
-  labs(x = "Depth Zone",
-       y = "No taxa") +
-  facet_grid(~category)+
-  theme_classic()+
-  theme(legend.position = "none")
-
-ggsave(depthzone_site_richness_boxplot, path = "figures", filename = "depthzone_site_richness_boxplot.jpg", height = 6, width = 8, unit = "in")
-
-#alternatively, box plot also split by ARM, island, mainland
-depthzone_site_richness[,type := ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Mainland")]
-
-depthzone_site_type_richness_boxplot <- ggplot(depthzone_site_richness, aes(x = DepthZone, y = count_spp, fill = type)) +
-  geom_boxplot(outlier.size = 1, position = position_dodge(preserve = "single")) + #the median, two hinges and two whiskers, and all "outlying" points individually
-  scale_fill_manual(values = c("grey","white"), ) +
-  scale_x_discrete(labels = c("Inner", "Middle", "Outer", "Deep", "ARM")) +
-  labs(x = "Depth Zone",
-       y = "No taxa",
-       fill = "Site location") +
-  facet_grid(~category)+
-  theme_classic()+
-  theme()
-
-ggsave(depthzone_site_type_richness_boxplot, path = "figures", filename = "depthzone_site_type_richness_boxplot.jpg", height = 5, width = 8, unit = "in")
-
-#biomass and abundance boxplots
-#abundance macro kelp
-depthzone_site_type_abundance_macro_kelp_boxplot <- ggplot(depthzone_site_richness[category != "Fish"], aes(x = DepthZone, y = sum_abun, fill = type)) +
-  geom_boxplot(outlier.size = 1, position = position_dodge(preserve = "single")) + #the median, two hinges and two whiskers, and all "outlying" points individually
-  scale_fill_manual(values = c("grey","white"), ) +
-  scale_x_discrete(labels = c("Inner", "Middle", "Outer", "Deep", "ARM")) +
-  labs(x = "Depth Zone",
-       y = "Abundance summed across all taxa\n(count per m^2)",
-       fill = "Site location") +
-  facet_wrap(~category, scales = "free_y")+
-  theme_classic()+
-  theme(legend.position = "bottom", legend.justification = "center", legend.direction = "horizontal", panel.spacing = unit(3, "lines"), axis.line = element_line())  +
-  scale_y_continuous(limits=c(0,6.5))
-
-#abundance fish
-depthzone_site_type_abundance_fish_boxplot <- ggplot(depthzone_site_richness[category == "Fish"], aes(x = DepthZone, y = sum_abun, fill = type)) +
-  geom_boxplot(outlier.size = 1, position = position_dodge(preserve = "single")) + #the median, two hinges and two whiskers, and all "outlying" points individually
-  scale_fill_manual(values = c("grey","white"), ) +
-  scale_x_discrete(labels = c("Inner", "Middle", "Outer", "Deep", "ARM")) +
-  labs(x = "Depth Zone",
-       y = "Abundance summed across all taxa\n(count per m^2)",
-       fill = "Site location") +
-  facet_grid(~category)+
-  theme_classic()+
-  theme(legend.position = "null")
-
-#biomass
-depthzone_site_type_biomass_boxplot <- ggplot(depthzone_site_richness[category == "Fish"], aes(x = DepthZone, y = sum_biomass/1000, fill = type)) +
-  geom_boxplot(outlier.size = 1, position = position_dodge(preserve = "single")) + #the median, two hinges and two whiskers, and all "outlying" points individually
-  scale_fill_manual(values = c("grey","white"), ) +
-  scale_x_discrete(labels = c("Inner", "Middle", "Outer", "Deep", "ARM")) +
-  labs(x = "Depth Zone",
-       y = "Biomass summed across all taxa\n(kg per m^2)",
-       fill = "Site location") +
-  facet_grid(~category)+
-  theme_classic()+
-  theme(legend.position = "null")
-
-depthzone_site_type_fish_biomass_abun_boxplot_merge <- plot_grid(depthzone_site_type_abundance_fish_boxplot,
-                                                                 depthzone_site_type_biomass_boxplot, ncol = 2)
-
-depthzone_site_type_biomass_abun_boxplot_merge <- plot_grid(depthzone_site_type_fish_biomass_abun_boxplot_merge,
-                                                            depthzone_site_type_abundance_macro_kelp_boxplot , ncol = 1)
-
-ggsave(depthzone_site_type_biomass_abun_boxplot_merge, path = "figures", filename = "depthzone_site_type_biomass_abun_boxplot_merge.jpg", height = 8, width = 9, unit = "in")
 
 ##################################################################################################
 #Long data to wide data for multivariate community visualizations and analyses
@@ -223,6 +153,153 @@ dat_averages_bysite.wide <- dat_kelp_averages_bysite.wide[dat_averages_bysite.wi
 
 #there are some sites that have no kelp, and these come up as NAs, change to 0 
 dat_averages_bysite.wide[is.na(dat_averages_bysite.wide)] <- 0
+
+
+##################################################################################################
+#Visualize full PcoA (all species, colored by Depth Zone, no ARM yet)
+##################################################################################################
+#CHECK FOR NUMBERS IN 165
+stopifnot(colnames(dat_averages_bysite.wide[,c(1:3,24,36)]) == c("Region","Site","DepthZone","mean_chl_mg_m3","Latitude"))
+          
+#species only
+dat_averages_bysite.wide.spp <- dat_averages_bysite.wide[,c(4:23,37:210)]
+
+#log base 2 transform (Jonathan F. Jupke, Ralf B. Schäfer)
+dat_averages_bysite.wide.spp.l <- log2(1+dat_averages_bysite.wide.spp)
+
+#distance matrix (distance = bray curtis)
+dat_averages_bysite.dist <- vegdist(dat_averages_bysite.wide.spp.l, distance = "bray")
+
+#PCoA
+allspp_PCoA <- wcmdscale(dat_averages_bysite.dist, eig = TRUE)
+
+allspp_PCoA.pnts <- data.table(allspp_PCoA$points)
+
+#add env and group variables
+PCoA_logtrans_env <- cbind(dat_averages_bysite.wide[,c(1:3,24:36)],allspp_PCoA.pnts[,1:2])
+
+#adjust factor order
+PCoA_logtrans_env[,DepthZone := factor(DepthZone,
+                                       levels = c("Inner","Middle","Outer","Deep","ARM"),
+                                       labels = c("Inner","Middle","Outer","Deep","AR"))]
+
+#add mainland versus island designation
+PCoA_logtrans_env[,type := factor(ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Mainland")))]
+
+
+#visualize
+PCoA_allspp_allsite <- ggplot(PCoA_logtrans_env) +
+  stat_ellipse(geom = "polygon", aes(Dim1, Dim2, fill = DepthZone), color = NA,alpha = 0.4) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100","black"), guide = guide_legend(reverse = TRUE)) +
+  geom_point(aes(Dim1, Dim2, color = DepthZone, shape = DepthZone), size = 4, fill = "#FE6100") +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100","black"), guide = guide_legend(reverse = TRUE)) +
+ # lims(x = c(-0.5,0.45),y = c(-0.5,0.35)) +
+  scale_shape_manual(values = c(15,17,19,23,7), guide = guide_legend(reverse = TRUE)) +
+  theme_classic()
+
+#central point for each
+PCoA_logtrans_env.centroid <- PCoA_logtrans_env[, lapply(.SD, mean, na.rm=TRUE), by=c("DepthZone"), .SDcols = c("Dim1","Dim2")] 
+
+PCoA_allspp_centroids <- ggplot() +
+  stat_ellipse(data = PCoA_logtrans_env, geom = "polygon", aes(Dim1, Dim2, fill = DepthZone), color = "white",alpha = 0.2) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100","black"), guide = guide_legend(reverse = TRUE)) +
+  geom_point(data = PCoA_logtrans_env.centroid, aes(Dim1, Dim2, color = DepthZone, shape = DepthZone), size = 6, fill = "#FE6100") +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100","black"), guide = guide_legend(reverse = TRUE)) +
+  scale_shape_manual(values = c(15,17,19,23,7), guide = guide_legend(reverse = TRUE)) +
+  labs(x = "PCoA 1",y = "PCoA 2")+
+  theme_classic() +
+  theme(legend.position = "top", legend.justification = "center", legend.title = element_blank(),
+        legend.text = element_text(size = 18, face = "bold"),   # Increase legend text size
+        legend.key.size = unit(1.5, "lines"))     # Increase legend key size
+
+#plot each depth zone independently, as this is how we will do variable analysis
+#DEEP
+PCoA_allspp_deep <- ggplot(PCoA_logtrans_env[DepthZone == "Deep"]) +
+  geom_point(aes(Dim1, Dim2, shape = type, fill = type),color = "darkgrey", size = 4) +
+  scale_fill_manual(values = c("#F3C393","#FE6100")) +
+  scale_shape_manual(values = c(24,25)) +
+  lims(y = c(-0.6,0.4),x = c(-0.65,0.35)) +
+  labs(fill = "Reef type", shape = "Reef type", x = "PCoA 1",y = "PCoA 2")+
+  theme_classic()
+
+#Outer
+PCoA_allspp_outer <- ggplot(PCoA_logtrans_env[DepthZone == "Outer"]) +
+  geom_point(aes(Dim1, Dim2, shape = type, fill = type),color = "darkgrey", size = 4) +
+  scale_fill_manual(values = c("#E0D1F1","#785EF0")) +
+  scale_shape_manual(values = c(24,25)) +
+  lims(y = c(-0.65,0.35),x = c(-0.6,0.4)) +
+  labs(fill = "Reef type", shape = "Reef type", x = "PCoA 1",y = "PCoA 2")+
+  theme_classic()
+
+#Middle
+PCoA_allspp_middle <- ggplot(PCoA_logtrans_env[DepthZone == "Middle"]) +
+  geom_point(aes(Dim1, Dim2, shape = type, fill = type),color = "darkgrey", size = 4) +
+  scale_fill_manual(values = c("#F3E0F3","#DC277F")) +
+  scale_shape_manual(values = c(24,25)) +
+  lims(y = c(-0.6,0.4),x = c(-0.5,0.5)) +
+  labs(fill = "Reef type", shape = "Reef type", x = "PCoA 1",y = "PCoA 2")+
+  theme_classic()
+
+#Inner
+PCoA_allspp_inner <- ggplot(PCoA_logtrans_env[DepthZone == "Inner"]) +
+  geom_point(aes(Dim1, Dim2, shape = type, fill = type),color = "darkgrey", size = 4) +
+  scale_fill_manual(values = c("#ADD4F5","#015AB5")) +
+  scale_shape_manual(values = c(24,25)) +
+  lims(y = c(-0.7,0.3),x = c(-0.4,0.6)) +
+  labs(fill = "Reef type", shape = "Reef type", x = "PCoA 1",y = "PCoA 2")+
+  theme_classic()
+
+#Artificial reef
+PCoA_allspp_AR <- ggplot(PCoA_logtrans_env[DepthZone == "AR"]) +
+  geom_point(aes(Dim1, Dim2),color = "darkgrey", size = 4, shape = 25, fill = "black") +
+  scale_shape_manual(values = c(24,25)) +
+  lims(y = c(-0.45,0.55),x = c(-0.7,0.3)) +
+  labs(fill = "Reef type", shape = "Reef type", x = "PCoA 1",y = "PCoA 2")+
+  theme_classic()
+
+#DUMMY FOR LEGEND
+PCoA_allspp_legend <- get_legend(ggplot(PCoA_logtrans_env[DepthZone == "Inner"]) +
+  geom_point(aes(Dim1, Dim2, shape = type, fill = type),color = "darkgrey", size = 8) +
+  scale_fill_manual(values = c("lightgrey","black")) +
+  scale_shape_manual(values = c(24,25)) +
+  labs(fill = "Reef type", shape = "Reef type", x = "PCoA 1",y = "PCoA 2")+
+  theme_classic() +
+    theme(  legend.title = element_text(size = 20),  # Increase legend title size
+            legend.text = element_text(size = 16),   # Increase legend text size
+            legend.key.size = unit(1.5, "lines")     # Increase legend key size
+    ))
+
+#merge all plots
+PCoA_allspp_zones <- plot_grid(PCoA_allspp_inner+theme(legend.position = "null"),
+          PCoA_allspp_outer+theme(legend.position = "null"),
+          PCoA_allspp_middle+theme(legend.position = "null"),
+          PCoA_allspp_deep+theme(legend.position = "null"),
+          PCoA_allspp_AR + theme(legend.position = "null"),
+          PCoA_allspp_legend,  ncol = 2, labels = c(" Inner","Middle"," Outer"," Deep","   AR"), label_x = 0.09)
+
+PCoA_allspp_full <- plot_grid(PCoA_allspp_centroids, PCoA_allspp_zones, ncol = 1, rel_heights = c(0.8,1))
+
+ggsave(PCoA_allspp_full, path = "figures", filename = "PCoA_allspp_full.jpg",height = 11, width = 7, unit = "in" )
+
+##################################################################################################
+#Distance-based ReDundancy Analysis (dbRDA)
+##################################################################################################
+
+#base 2 log-transformed data
+
+#first step of a dbRDA is to apply a PCoA to the distance matrix and to keep all principal coordinates
+
+#
+
+
+
+
+
+
+
+
+
+
 
 
 #SKIP FOR NOW
