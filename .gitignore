@@ -5,4 +5,6 @@
 model_output/
 community_matrices_visualization.R
 cal_aco_3840_Latitude_Longitude.hdf
-*.DS_Store
+**/.DS_Store
+**.ppt
+**.pptx

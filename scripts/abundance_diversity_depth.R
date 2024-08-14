@@ -1,5 +1,5 @@
 # CREATION DATE 7 July 2024
-# MODIFIED DATE 11 July 2024
+# MODIFIED DATE 14 August 2024
 
 # AUTHOR: kitchel@oxy.edu
 
@@ -17,6 +17,7 @@ library(nlme)
 library(MuMIn)
 library(ggpattern)
 library(multcompView)
+library(grid)
 
 source(file.path("functions","add_tukey_letter_boxplot.R"))
 
@@ -450,10 +451,10 @@ merged_abundance_richness_diversity_datatables <- rbind(dat_fish_total_abundance
 
 # Custom labels for the 'metric' variable
 metric_labels <- c(
-  total_richness_depthzone_site = "Richness",
-  total_abundance_depthzone_site = "Density (count)",
+  total_abundance_depthzone_site = "Density (#)",
   total_biomass_depthzone_site = "Density (kg)",
-  Simpson_index_density = "Simpson index (count)",
+  total_richness_depthzone_site = "Richness",
+  Simpson_index_density = "Simpson index (#)",
   Simpson_index_biomass = "Simpson index (kg)"
 )
 
@@ -511,31 +512,56 @@ ggsave(depthzone_density_abundance_richness, path = "figures",filename = "depthz
 #pull environmental data
 all_env_lat_lon <- fread(file.path("data","enviro_predictors","all_env_lat_lon.csv"))
 
+#make list of predictors
+predictors <- c(
+  #"Latitude",
+                "dist_200m_bath",
+                "min_sst_C",
+                "mean_sst_C",
+                "max_sst_C",
+                "min_chl_mg_m3",
+                "mean_chl_mg_m3",
+                "max_chl_mg_m3",
+                "giantkelp_stipe_density_m2",
+                "Relief_index",
+                "Relief_SD",
+                "Substrate_index",
+                "Substrate_SD")
+
 
 #link abundance/richness/diversity calculations with environmental data for each site
 #abundance/density
 dat_fish_total_abundances.env <- all_env_lat_lon[dat_fish_total_abundances, on = c("Site","DepthZone")]
 dat_fish_total_abundances.env <- dat_fish_total_abundances.env[complete.cases(dat_fish_total_abundances.env)]
+dat_fish_total_abundances.env[, (paste0(predictors, ".s")) := lapply(.SD, scale), .SDcols = predictors]
 dat_macroinvert_total_abundances.env <- all_env_lat_lon[dat_macroinvert_total_abundances, on = c("Site","DepthZone")]
 dat_macroinvert_total_abundances.env <- dat_macroinvert_total_abundances.env[complete.cases(dat_macroinvert_total_abundances.env)]
+dat_macroinvert_total_abundances.env[, (paste0(predictors, ".s")) := lapply(.SD, scale), .SDcols = predictors]
 dat_kelp_total_abundances.env <- all_env_lat_lon[dat_kelp_total_abundances, on = c("Site","DepthZone")]
 dat_kelp_total_abundances.env <- dat_kelp_total_abundances.env[complete.cases(dat_kelp_total_abundances.env)]
+dat_kelp_total_abundances.env[, (paste0(predictors, ".s")) := lapply(.SD, scale), .SDcols = predictors]
 
 #richness
 dat_fish_richness_depthzone_site.env <- all_env_lat_lon[dat_fish_richness_depthzone_site, on = c("Site","DepthZone")]
 dat_fish_richness_depthzone_site.env <- dat_fish_richness_depthzone_site.env[complete.cases(dat_fish_richness_depthzone_site.env)]
+dat_fish_richness_depthzone_site.env[, (paste0(predictors, ".s")) := lapply(.SD, scale), .SDcols = predictors]
 dat_macroinvert_richness_depthzone_site.env <- all_env_lat_lon[dat_macroinvert_richness_depthzone_site, on = c("Site","DepthZone")]
 dat_macroinvert_richness_depthzone_site.env <- dat_macroinvert_richness_depthzone_site.env[complete.cases(dat_macroinvert_richness_depthzone_site.env)]
+dat_macroinvert_richness_depthzone_site.env[, (paste0(predictors, ".s")) := lapply(.SD, scale), .SDcols = predictors]
 dat_kelp_richness_depthzone_site.env <- all_env_lat_lon[dat_kelp_richness_depthzone_site, on = c("Site","DepthZone")]
 dat_kelp_richness_depthzone_site.env <- dat_kelp_richness_depthzone_site.env[complete.cases(dat_kelp_richness_depthzone_site.env)]
+dat_kelp_richness_depthzone_site.env[, (paste0(predictors, ".s")) := lapply(.SD, scale), .SDcols = predictors]
 
 #simpson diversity index
 dat_fish_simpson.env <- all_env_lat_lon[dat_fish_simpson, on = c("Site","DepthZone")]
+dat_fish_simpson.env[, (paste0(predictors, ".s")) := lapply(.SD, scale), .SDcols = predictors]
 dat_fish_simpson.env <- dat_fish_simpson.env[complete.cases(dat_fish_simpson.env)]
 dat_macroinvert_simpson.env <- all_env_lat_lon[dat_macroinvert_simpson, on = c("Site","DepthZone")]
 dat_macroinvert_simpson.env <- dat_macroinvert_simpson.env[complete.cases(dat_macroinvert_simpson.env)]
+dat_macroinvert_simpson.env[, (paste0(predictors, ".s")) := lapply(.SD, scale), .SDcols = predictors]
 dat_kelp_simpson.env <- all_env_lat_lon[dat_kelp_simpson, on = c("Site","DepthZone")]
 dat_kelp_simpson.env <- dat_kelp_simpson.env[complete.cases(dat_kelp_simpson.env)]
+dat_kelp_simpson.env[, (paste0(predictors, ".s")) := lapply(.SD, scale), .SDcols = predictors]
 
 
 #Function to make Kendall correlation plots and data tables of correlations for each taxa and metric
@@ -547,21 +573,6 @@ make_kendall_cor_plot <- function(taxa, metric_input, metric, metric_name, data.
   
   data.table[,metric_named := metric_data]
   
-  
-  #make list of predictors
-  predictors <- c("Latitude",
-                  "dist_200m_bath",
-                  "min_sst_C",
-                  "mean_sst_C",
-                  "max_sst_C",
-                  "min_chl_mg_m3",
-                  "mean_chl_mg_m3",
-                  "max_chl_mg_m3",
-                  "giantkelp_stipe_density_m2",
-                  "Relief_index",
-                  "Relief_SD",
-                  "Substrate_index",
-                  "Substrate_SD")
   
   #deep
   data.table.deep <- data.table[DepthZone == "Deep",.(metric_named,Latitude, dist_200m_bath, min_sst_C, mean_sst_C, max_sst_C, min_chl_mg_m3, mean_chl_mg_m3, max_chl_mg_m3, giantkelp_stipe_density_m2, Relief_index, Relief_SD, Substrate_index, Substrate_SD)]
@@ -754,5 +765,246 @@ all_kendall_correlations[,metric := factor(metric,levels = c("Species richness",
 #save plot
 ggsave(all_kendall_correlations_plot, path = file.path("figures","kendall_corr"), filename = "all_kendall_correlations_plot.jpg",
        width = 13, height = 8, units = "in")
+
+#Influence of habitat on abundance and species richness NATURAL REEFS ONLY, and should exclude giant kelp cover for kelp analyses
+
+#GLMMs are used for identifying species-habitat associates
+#used to assess the influence of reef habitat factors on the abundance, richness, and diversity of assemblages
+#include site as random effect which accounts for population sample bias within a site
+#this assumes that most correlation occurs at the within-site scale, and not at the between-site scale (not necessarily true for us)
+#Don't include co-linear variables in the same model
+#evaluate for overdispersion using ratio of Pearson statistic and residual degrees of freedom to make sure parameter is <1.5, if not, use MCMCglmm
+#full GLMMs run, but vary the inclusion of single variables from sets of collinear variables
+#models ranked according to AIC
+
+#I calculate relative variable importance for each taxa ~ parameter combo (table or plot)
+
+#dredge
+options(na.action = "na.fail")
+
+#function that will output row of data table that will make matrix of coefficients and akaike weights
+#output row of data table that will make correlation matrix
+depthzones <- c("Inner","Middle","Outer","Deep")
+
+rank_mod_output_coef_akaike <- function(dt, response_var, metric_category, taxa, metric){
+  
+  #empty data table for output
+  output <- data.table()
+
+  for (i in 1:length(depthzones)) {
+    
+    dt.bydepth <- dt[DepthZone == depthzones[i]]
+    
+    
+    global.mod <- lm(data =dt.bydepth, get(response_var) ~ 
+                                                     mean_chl_mg_m3.s + max_chl_mg_m3.s + min_chl_mg_m3.s +
+                                                     mean_sst_C.s + max_sst_C.s + min_sst_C.s +
+                                                     dist_200m_bath.s + giantkelp_stipe_density_m2.s + Relief_index.s + Relief_SD.s +
+                                                     Substrate_index.s + Substrate_SD.s)
+    
+    #subset to only include only one variable at a time
+    dredge_output <- dredge(global.mod, m.lim = c(NA,1) ,subset = !(mean_chl_mg_m3.s && max_chl_mg_m3.s && min_chl_mg_m3.s ) &
+                                         !(mean_chl_mg_m3.s && max_chl_mg_m3.s) &
+                                         !(max_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                         !(mean_chl_mg_m3.s && min_chl_mg_m3.s) &
+                                         !(mean_sst_C.s && max_sst_C.s && min_sst_C.s) &
+                                         !(max_sst_C.s && min_sst_C.s) &
+                                         !(mean_sst_C.s && max_sst_C.s) &
+                                         !(mean_sst_C.s && min_sst_C.s))
+    
+    #table with top models
+    dredge_output.dt <- data.table(dredge_output)
+
+#extract coefficient value from all model
+for(j in 1:length(predictors)) {
+  mod <- lm(data = dt.bydepth, get(response_var) ~ get(paste0(predictors[j],".s")))
+  
+  #Extract r_squared
+  r_squared <- summary(mod)$r.squared
+  
+  #Extract coefficient
+  coefficient <- mod$coefficients[[2]]
+  
+  #Make row in data table
+  row.dt <- data.table(metric_category = metric_category,
+                       taxa = taxa,
+                       metric = metric,
+                       DepthZone = depthzones[i],
+                       env_var = predictors[j],
+                       coefficient = coefficient,
+                       akaike_weight = dredge_output.dt[!is.na(get(paste0(predictors[j],".s"))),weight],
+                       r_squared = r_squared)
+  
+  output <- rbind(output,row.dt)
+}
+  }
+  return(output)
+}
+
+#execute function on fish abundance
+fish_abundance_env_model_rank_output <- rank_mod_output_coef_akaike(dt = dat_fish_total_abundances.env,
+                                                     response_var = "total_abundance_depthzone_site",
+                                                     metric_category = "abundance",
+                                                     metric = "density",
+                                                     taxa = "fish")
+
+#execute function on fish abundance (biomass)
+fish_abundance_biomass_env_model_rank_output <- rank_mod_output_coef_akaike(dt = dat_fish_total_abundances.env,
+                                                     response_var = "total_biomass_depthzone_site",
+                                                     metric_category = "abundance",
+                                                     metric = "biomass",
+                                                     taxa = "fish")
+
+#execute function on kelp abundance
+kelp_abundance_env_model_rank_output <- rank_mod_output_coef_akaike(dt = dat_kelp_total_abundances.env,
+                                                     response_var = "total_abundance_depthzone_site",
+                                                     metric_category = "abundance",
+                                                     metric = "density",
+                                                     taxa = "kelp")
+#execute function on macroinvert abundance
+kelp_macroinvert_env_model_rank_output <- rank_mod_output_coef_akaike(dt = dat_macroinvert_total_abundances.env,
+                                                     response_var = "total_abundance_depthzone_site",
+                                                     metric_category = "abundance",
+                                                     metric = "density",
+                                                     taxa = "macroinvert")
+
+#execute function on fish richness
+fish_richness_env_model_rank_output <- rank_mod_output_coef_akaike(dt = dat_fish_richness_depthzone_site.env,
+                                                                    response_var = "total_richness_depthzone_site",
+                                                                    metric_category = "richness",
+                                                                    metric = "density",
+                                                                    taxa = "fish")
+#execute function on kelp richness
+kelp_richness_env_model_rank_output <- rank_mod_output_coef_akaike(dt = dat_kelp_richness_depthzone_site.env,
+                                                                   response_var = "total_richness_depthzone_site",
+                                                                   metric_category = "richness",
+                                                                   metric = "density",
+                                                                   taxa = "kelp")
+#execute function on macroinvert richness
+macroinvert_richness_env_model_rank_output <- rank_mod_output_coef_akaike(dt = dat_macroinvert_richness_depthzone_site.env,
+                                                                   response_var = "total_richness_depthzone_site",
+                                                                   metric_category = "richness",
+                                                                   metric = "density",
+                                                                   taxa = "macroinvert")
+
+#execute function on fish Simpson diversity
+fish_simpson_env_model_rank_output <- rank_mod_output_coef_akaike(dt = dat_fish_simpson.env,
+                                                                         response_var = "Simpson_index_density",
+                                                                         metric_category = "Simpson_diversity",
+                                                                         metric = "density",
+                                                                         taxa = "fish")
+#execute function on fish Simpson diversity (abundance)
+fish_simpson_biomass_env_model_rank_output <- rank_mod_output_coef_akaike(dt = dat_fish_simpson.env,
+                                                                         response_var = "Simpson_index_biomass",
+                                                                         metric_category = "Simpson_diversity",
+                                                                         metric = "biomass",
+                                                                         taxa = "fish")
+#execute function on kelp Simpson diversity
+kelp_simpson_env_model_rank_output <- rank_mod_output_coef_akaike(dt = dat_kelp_simpson.env,
+                                                                         response_var = "Simpson_index_density",
+                                                                         metric_category = "Simpson_diversity",
+                                                                         metric = "density",
+                                                                         taxa = "kelp")
+#execute function on macroinvert Simpson diversity
+macroinvert_simpson_env_model_rank_output <- rank_mod_output_coef_akaike(dt = dat_macroinvert_simpson.env,
+                                                                          response_var = "Simpson_index_density",
+                                                                          metric_category = "Simpson_diversity",
+                                                                          metric = "density",
+                                                                          taxa = "macroinvert")
+
+#Merge all
+#First, list all
+if(exists("all_taxa_env_model_rank_output.list")){
+  rm(all_taxa_env_model_rank_output.list) # do avoid including mega list in the list of dt names
+}
+
+all_taxa_env_model_rank_output.list <- ls(pattern = "*env_model_rank_output")
+
+#Then, merge data tables
+if(exists("all_taxa_env_model_rank_output")){
+  rm(all_taxa_env_model_rank_output) #if it exists, delete it
+}
+all_taxa_env_model_rank_output <- do.call(rbind, mget(all_taxa_env_model_rank_output.list))
+
+#Make factor edits to each 
+
+#Reorder depth zones
+all_taxa_env_model_rank_output[,DepthZone := factor(DepthZone, levels = c("Inner","Middle","Outer","Deep"))]
+
+#Rename taxa
+all_taxa_env_model_rank_output[,taxa := factor(taxa, levels = c("fish","kelp","macroinvert"), labels = c("Fish","Macroalgae","Macroinvertebrates"))]
+
+#Rename environmental variables and group by local vs. regional
+all_taxa_env_model_rank_output[,env_var := factor(env_var, levels = c(
+  "dist_200m_bath", "min_sst_C","mean_sst_C", "max_sst_C","min_chl_mg_m3" ,
+  "mean_chl_mg_m3" ,"max_chl_mg_m3","giantkelp_stipe_density_m2", "Relief_SD","Relief_index", 
+  "Substrate_SD","Substrate_index"),
+  labels = c("Distance to 200 m isobath", "Minimum SST","Mean SST", "Maximum SST","Minimum chlorophyll" ,
+             "Mean chlorophyll" ,"Maximum chlorophyll","Giant kelp stipe density", "Relief SD","Relief index","Substrate SD","Substrate index" 
+             ))]
+
+#Rename metrics
+all_taxa_env_model_rank_output[,metric := factor(metric, levels = c(
+  "density","biomass"),
+  labels = c("Density (count)", "Density (biomass)"))]
+
+#Rename metric categories
+all_taxa_env_model_rank_output[,metric_category := factor(metric_category, levels = c(
+  "abundance","richness","Simpson_diversity"),
+  labels = c("Abundance","Richness","Simpson diversity index"))]
+
+#test plot
+all_taxa_env_model_rank_plot <- ggplot() +
+  annotate(geom = 'rect', xmin=-Inf, xmax=Inf, ymin=8-0.5, ymax=Inf, alpha=0.4, fill = 'darkgrey')+ 
+  geom_point(data = all_taxa_env_model_rank_output , aes(x = DepthZone, y = env_var, fill = akaike_weight, size = akaike_weight), shape = 21) +
+  geom_text(data = all_taxa_env_model_rank_output[akaike_weight > 0.2], aes(x = DepthZone, y = env_var, label = round(coefficient,2)), size = 2) +
+  scale_size_continuous(range = c(0,10)) +
+  scale_fill_gradient(low = "white",high = "turquoise", guide = guide_colorbar(frame.colour = "black", ticks.colour = "black")) +
+  labs(x = "Depth zone", y = "Environmental variable", fill = "Akaike weight", size = "") +
+  facet_grid(metric_category + metric ~ taxa) +
+    #guides(size = FALSE) +
+  theme_classic() +
+  scale_y_discrete() + #this allows the grey box to shade where I want it to!!!
+  theme(legend.position = "top",
+        legend.justification = "left",
+        axis.text = element_text(size = 12),
+        strip.text = element_text(size = 12),
+        axis.title = element_text(size = 12),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12))
+
+#make rectangle
+rect1 <- rectGrob(
+  x = 0.62,
+  y = 0.99,
+  width = 0.06,
+  height = 0.018,
+  hjust = 0, vjust = 1,
+  gp = gpar(fill = "darkgrey", alpha = 0.4)
+)
+
+rect2 <- rectGrob(
+  x = 0.62,
+  y = 0.973,
+  width = 0.06,
+  height = 0.018,
+  hjust = 0, vjust = 1,
+  gp = gpar(fill = "white", alpha = 0.4)
+)
+
+all_taxa_env_model_rank_plot <- ggdraw(all_taxa_env_model_rank_plot) +
+  draw_grob(rect1) +
+  draw_grob(rect2) +
+  draw_text("Local", 
+            x = 0.65,
+            y = 0.983,
+            size = 12) +
+  draw_text("Regional", 
+            x = 0.65,
+              y = 0.963,
+            size = 12) 
+  
+
+ggsave(all_taxa_env_model_rank_plot, path = "figures", filename = "all_taxa_env_model_rank_plot.jpg", height = 14, width = 14, units = "in", dpi = 500)
 
 

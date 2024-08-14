@@ -167,6 +167,9 @@ dat_averages_bysite.wide.spp <- dat_averages_bysite.wide[,c(4:23,37:210)]
 #log base 2 transform (Jonathan F. Jupke, Ralf B. Schäfer)
 dat_averages_bysite.wide.spp.l <- log2(1+dat_averages_bysite.wide.spp)
 
+#transformed but with depth zone attached
+dat_averages_bysite.wide.spp.depthzone <- cbind(dat_averages_bysite.wide[,3], dat_averages_bysite.wide.spp.l)
+
 #distance matrix (distance = bray curtis)
 dat_averages_bysite.dist <- vegdist(dat_averages_bysite.wide.spp.l, distance = "bray")
 
@@ -187,6 +190,137 @@ PCoA_logtrans_env[,DepthZone := factor(DepthZone,
 PCoA_logtrans_env[,type := factor(ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Mainland")))]
 
 
+#no ellipses
+#visualize
+PCoA_allspp_allsite_points <- ggplot(PCoA_logtrans_env) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100","black"), guide = guide_legend(reverse = TRUE)) +
+  geom_point(aes(Dim1, Dim2, color = DepthZone, shape = DepthZone), size = 4, fill = "#FE6100") +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100","black"), guide = guide_legend(reverse = TRUE)) +
+  # lims(x = c(-0.5,0.45),y = c(-0.5,0.35)) +
+  scale_shape_manual(values = c(15,17,19,23,7), guide = guide_legend(reverse = TRUE)) +
+  theme_classic()
+
+#just natural sites
+PCoA_allspp_allsite_points_natural_only <- ggplot(PCoA_logtrans_env[DepthZone != "AR"]) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  geom_point(aes(Dim1, Dim2, color = DepthZone, shape = DepthZone), size = 4, fill = "#FE6100") +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  lims(x = c(-0.65,0.6),y = c(-0.75,0.57)) +
+  labs(x = paste0("PCoA Dim 1 (",round(allspp_PCoA$eig[1],1)," %)"),y = paste0("PCoA Dim 2 (",round(allspp_PCoA$eig[2],1)," %)"), shape = "Depth zone",color = "Depth zone") +
+  scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  theme_classic() +
+  theme(legend.position = c(0.5,0.9), legend.direction = "horizontal",
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16)) +
+  guides(
+    color = guide_legend(override.aes = list(size = 6), title.position = "top", title.hjust = 0.5, reverse = T),
+    shape = guide_legend(override.aes = list(size = 6), title.position = "top", title.hjust = 0.5, reverse = T),
+  )
+
+ggsave(PCoA_allspp_allsite_points_natural_only, path = "figures", filename = "PCoA_allspp_allsite_points_natural_only.jpg", height = 8, width = 12, unit = "in", dpi = 300)
+
+
+#mainland vs island
+#just natural sites
+PCoA_allspp_allsite_points_natural_only_island_mainland <- ggplot(PCoA_logtrans_env[DepthZone != "AR"]) +
+  geom_point(aes(Dim1, Dim2, fill = type), shape = 24, color = "black", size = 3) +
+  scale_fill_manual(values = c("black","white")) +
+  lims(x = c(-0.65,0.6),y = c(-0.75,0.57)) +
+  labs(x = "PCoA Dim 1",y = "PCoA Dim 2", fill = "Reef type") +
+  scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  theme_classic() +
+  theme(legend.direction = "horizontal",
+        legend.position = c(.45, .9),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16)) +
+  guides(
+    fill = guide_legend(override.aes = list(size = 6), title.position = "top",title.hjust = 0.5)
+  )
+
+ggsave(PCoA_allspp_allsite_points_natural_only_island_mainland, path = "figures", filename = "PCoA_allspp_allsite_points_natural_only_island_mainland.jpg", height = 8, width = 12, unit = "in", dpi = 300)
+
+
+##just natural sites
+PCoA_allspp_allsite_points_natural_only_highlight_mainland <- ggplot(PCoA_logtrans_env[DepthZone != "AR"]) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  geom_point(aes(Dim1, Dim2, color = DepthZone, shape = DepthZone, alpha = type), size = 4, fill = "#FE6100") +
+  labs(x = "PCoA Dim 1",y = "PCoA Dim2") +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  scale_alpha_manual(values = c(0.3,1), guide = "none") +
+  lims(x = c(-0.5,0.45),y = c(-0.5,0.35)) +
+  scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  theme_classic() +
+  labs(x = "PCoA Dim 1",y = "PCoA Dim2") +
+  theme(legend.position = "top", legend.direction = "horizontal",
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16)) +
+  guides(
+    color = guide_legend(override.aes = list(size = 6)),
+    shape = guide_legend(override.aes = list(size = 6)),
+  )
+
+ggsave(PCoA_allspp_allsite_points_natural_only_highlight_mainland, path = "figures", filename = "PCoA_allspp_allsite_points_natural_only_highlight_mainland.jpg", height = 8, width = 12, unit = "in", dpi = 300)
+
+
+#
+PCoA_allspp_allsite_points_natural_only_highlight_island <- ggplot(PCoA_logtrans_env[DepthZone != "AR"]) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  geom_point(aes(Dim1, Dim2, color = DepthZone, shape = DepthZone, alpha = type), size = 4, fill = "#FE6100") +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  scale_alpha_manual(values = c(1,0.3), guide = "none") +
+  lims(x = c(-0.5,0.45),y = c(-0.5,0.35)) +
+  scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  theme_classic()+
+  labs(x = "PCoA Dim 1",y = "PCoA Dim2") +
+  theme(legend.position = "top", legend.direction = "horizontal",
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16)) +
+  guides(
+    color = guide_legend(override.aes = list(size = 6)),
+    shape = guide_legend(override.aes = list(size = 6))
+  )
+
+ggsave(PCoA_allspp_allsite_points_natural_only_highlight_island, path = "figures", filename = "PCoA_allspp_allsite_points_natural_only_highlight_island.jpg", height = 8, width = 12, unit = "in", dpi = 300)
+
+#mark if it is PVR
+PCoA_logtrans_env[,PVR := ifelse(grepl("PVR",Site)==T,TRUE,FALSE)]
+
+#Add in Old and New AR reefs
+PCoA_allspp_allsite_points_withAR <- ggplot() +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  geom_point(data = PCoA_logtrans_env[DepthZone != "AR"], aes(Dim1, Dim2, color = DepthZone, shape = DepthZone), alpha = 0.6, size = 4, fill = "#FE6100") +
+  geom_point(data = PCoA_logtrans_env[DepthZone == "AR" & PVR == TRUE], aes(Dim1, Dim2), shape = 12, color = "black", size = 5) +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  lims(x = c(-0.5,0.45),y = c(-0.5,0.35)) +
+  scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  theme_classic()+
+  labs(x = paste0("PCoA Dim 1 (",round(allspp_PCoA$eig[1],1)," %)"),y = paste0("PCoA Dim 2 (",round(allspp_PCoA$eig[2],1)," %)")) +
+  theme(legend.position = "top", legend.direction = "horizontal",
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16)) +
+  guides(
+    color = guide_legend(override.aes = list(size = 6)),
+    shape = guide_legend(override.aes = list(size = 6))
+  )
+
+ggsave(PCoA_allspp_allsite_points_withAR, path = "figures", filename = "PCoA_allspp_allsite_points_withAR.jpg", height = 8, width = 12, unit = "in", dpi = 300)
+
+PCoA_allspp_allsite_points_withallAR <- PCoA_allspp_allsite_points_withAR +
+  geom_point(data = PCoA_logtrans_env[DepthZone == "AR" & PVR == FALSE], aes(Dim1, Dim2), shape = 8, color = "black", size = 5)
+  
+ggsave(PCoA_allspp_allsite_points_withallAR, path = "figures", filename = "PCoA_allspp_allsite_points_withallAR.jpg", height = 8, width = 12, unit = "in", dpi = 300)
+
+
 #visualize
 PCoA_allspp_allsite <- ggplot(PCoA_logtrans_env) +
   stat_ellipse(geom = "polygon", aes(Dim1, Dim2, fill = DepthZone), color = NA,alpha = 0.4) +
@@ -201,18 +335,36 @@ PCoA_allspp_allsite <- ggplot(PCoA_logtrans_env) +
 PCoA_logtrans_env.centroid <- PCoA_logtrans_env[, lapply(.SD, mean, na.rm=TRUE), by=c("DepthZone"), .SDcols = c("Dim1","Dim2")] 
 
 PCoA_allspp_centroids <- ggplot() +
-  stat_ellipse(data = PCoA_logtrans_env, geom = "polygon", aes(Dim1, Dim2, fill = DepthZone), color = "white",alpha = 0.2) +
-  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100","black"), guide = guide_legend(reverse = TRUE)) +
-  geom_point(data = PCoA_logtrans_env.centroid, aes(Dim1, Dim2, color = DepthZone, shape = DepthZone), size = 6, fill = "#FE6100") +
-  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100","black"), guide = guide_legend(reverse = TRUE)) +
-  scale_shape_manual(values = c(15,17,19,23,7), guide = guide_legend(reverse = TRUE)) +
-  labs(x = "PCoA 1",y = "PCoA 2")+
+  stat_ellipse(data = PCoA_logtrans_env[DepthZone != "AR"], geom = "polygon", aes(Dim1, Dim2, fill = DepthZone), color = "white",alpha = 0.2) +
+  stat_ellipse(data = PCoA_logtrans_env[DepthZone != "AR"], geom = "polygon", aes(Dim1, Dim2,linetype = type), color = "gray32",fill = NA) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+ # geom_point(data = PCoA_logtrans_env.centroid[DepthZone != "AR"], aes(Dim1, Dim2, color = DepthZone, shape = DepthZone), size = 6, fill = "#FE6100") +
+  geom_point(data = PCoA_logtrans_env[DepthZone == "AR"], aes(Dim1, Dim2),color = "black", size = 2) +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  lims(x = c(-0.65,0.6),y = c(-0.75,0.57)) +
+  labs(x = "PCoA Dim 1",y = "PCoA Dim 2", shape = "Depth zone",color = "Depth zone", fill = "Depth zone", linetype = "Reef type") +
   theme_classic() +
-  theme(legend.position = "top", legend.justification = "center", legend.title = element_blank(),
+  theme(legend.position = "top", legend.justification = "center",
         legend.text = element_text(size = 18, face = "bold"),   # Increase legend text size
-        legend.key.size = unit(1.5, "lines"))     # Increase legend key size
+        legend.key.size = unit(1.5, "lines"),
+              legend.title = element_text(size = 20),
+              axis.text = element_text(size = 16),
+              axis.title = element_text(size = 16))     # Increase legend key size
 
-#plot each depth zone independently, as this is how we will do variable analysis
+#plot natural reefs next to artificial reef highlight plot
+PCoA_allspp_allsite_AR_natural_merge <- plot_grid(PCoA_allspp_allsite_points_natural_only,
+                                                  PCoA_allspp_allsite_points_natural_only_island_mainland + theme(axis.title.y = element_blank(), axis.text.y = element_blank()),
+                                                  PCoA_allspp_centroids+theme(legend.position = "null",axis.title.y = element_blank(), axis.text.y = element_blank()), ncol = 3, align = "hv", labels = c("a.","b.","c."))
+
+
+ggsave(PCoA_allspp_allsite_AR_natural_merge, path = "figures", filename = "PCoA_allspp_allsite_AR_natural_merge.jpg", width =18, height = 6)
+  
+  
+  
+  
+  
+  #plot each depth zone independently, as this is how we will do variable analysis
 #DEEP
 PCoA_allspp_deep <- ggplot(PCoA_logtrans_env[DepthZone == "Deep"]) +
   geom_point(aes(Dim1, Dim2, shape = type, fill = type),color = "darkgrey", size = 4) +
@@ -289,7 +441,257 @@ ggsave(PCoA_allspp_full, path = "figures", filename = "PCoA_allspp_full.jpg",hei
 
 #first step of a dbRDA is to apply a PCoA to the distance matrix and to keep all principal coordinates
 
-#
+#scale and center environmental variables
+scaled_env <- PCoA_logtrans_env[,lapply(.SD, scale), .SDcols = c("mean_chl_mg_m3"       ,      "max_chl_mg_m3"   ,           "min_chl_mg_m3"      ,      
+"mean_sst_C"            ,     "max_sst_C"            ,      "min_sst_C"        ,          "dist_200m_bath"  ,          "giantkelp_stipe_density_m2" ,"Relief_index" ,             
+"Relief_SD"            ,     "Substrate_index"     ,       "Substrate_SD"      ,         "Latitude"      )]
+
+#scaled_env by depth zone
+scaled_env.depthzone <- cbind(dat_averages_bysite.wide[,3],scaled_env)
+
+
+#dbrda
+dbrda_full <- dbrda(formula = dat_averages_bysite.wide.spp.l ~ mean_chl_mg_m3.V1 + mean_sst_C.V1 + dist_200m_bath.V1 + giantkelp_stipe_density_m2.V1 + Relief_index.V1 + Relief_SD.V1 + Substrate_index.V1 + Substrate_SD.V1 + Latitude.V1,
+               data = scaled_env, distance = "bray")
+
+#inner
+dbrda_inner <- dbrda(formula = dat_averages_bysite.wide.spp.depthzone[DepthZone == "Inner",2:ncol(dat_averages_bysite.wide.spp.depthzone)] ~ mean_chl_mg_m3.V1 + mean_sst_C.V1 + dist_200m_bath.V1 + giantkelp_stipe_density_m2.V1 + Relief_index.V1 + Relief_SD.V1 + Substrate_index.V1 + Substrate_SD.V1 + Latitude.V1,
+               data = scaled_env.depthzone[DepthZone == "Inner",2:ncol(scaled_env.depthzone)], distance = "bray")
+#middle
+dbrda_middle <- dbrda(formula = dat_averages_bysite.wide.spp.depthzone[DepthZone == "Middle",2:ncol(dat_averages_bysite.wide.spp.depthzone)] ~ mean_chl_mg_m3.V1 + mean_sst_C.V1 + dist_200m_bath.V1 + giantkelp_stipe_density_m2.V1 + Relief_index.V1 + Relief_SD.V1 + Substrate_index.V1 + Substrate_SD.V1 + Latitude.V1,
+               data = scaled_env.depthzone[DepthZone == "Middle",2:ncol(scaled_env.depthzone)], distance = "bray")
+#outer
+dbrda_outer <- dbrda(formula = dat_averages_bysite.wide.spp.depthzone[DepthZone == "Outer",2:ncol(dat_averages_bysite.wide.spp.depthzone)] ~ mean_chl_mg_m3.V1 + mean_sst_C.V1 + dist_200m_bath.V1 + giantkelp_stipe_density_m2.V1 + Relief_index.V1 + Relief_SD.V1 + Substrate_index.V1 + Substrate_SD.V1 + Latitude.V1,
+               data = scaled_env.depthzone[DepthZone == "Outer",2:ncol(scaled_env.depthzone)], distance = "bray")
+#deep
+dbrda_deep <- dbrda(formula = dat_averages_bysite.wide.spp.depthzone[DepthZone == "Deep",2:ncol(dat_averages_bysite.wide.spp.depthzone)] ~ mean_chl_mg_m3.V1 + mean_sst_C.V1 + dist_200m_bath.V1 + giantkelp_stipe_density_m2.V1 + Relief_index.V1 + Relief_SD.V1 + Substrate_index.V1 + Substrate_SD.V1 + Latitude.V1,
+               data = scaled_env.depthzone[DepthZone == "Deep",2:ncol(scaled_env.depthzone)], distance = "bray")
+#AR
+dbrda_ARM <- dbrda(formula = dat_averages_bysite.wide.spp.depthzone[DepthZone == "ARM",2:ncol(dat_averages_bysite.wide.spp.depthzone)] ~ mean_chl_mg_m3.V1 + mean_sst_C.V1 + dist_200m_bath.V1 + giantkelp_stipe_density_m2.V1 + Relief_index.V1 + Relief_SD.V1 + Substrate_index.V1 + Substrate_SD.V1 + Latitude.V1,
+                    data = scaled_env.depthzone[DepthZone == "ARM",2:ncol(scaled_env.depthzone)], distance = "bray")
+
+
+print(dbrda_full)
+
+
+#35% of variance accounted for by constraining variables, 65% is still unconstrained
+
+summary(dbrda_full)$biplot
+
+
+plot(dbrda_full)
+
+summary(dbrda_full)
+
+#Note: dbrda begins with a multivariate linear regression linear model, it might be important to test for second-degree variables
+
+#Model testing = Borchard 2018
+
+
+
+
+
+
+#same plots as above but with dbRDA species site scores
+
+
+allspp_dbRDA.pnts <- data.table(summary(dbrda_full)$sites[,c(1:2)])
+allspp_dbRDA.pnts.inner <- data.table(summary(dbrda_inner)$sites[,c(1:2)])
+allspp_dbRDA.pnts.middle <- data.table(summary(dbrda_middle)$sites[,c(1:2)])
+allspp_dbRDA.pnts.outer <- data.table(summary(dbrda_outer)$sites[,c(1:2)])
+allspp_dbRDA.pnts.deep <- data.table(summary(dbrda_deep)$sites[,c(1:2)])
+allspp_dbRDA.pnts.ARM <- data.table(summary(dbrda_ARM)$sites[,c(1:2)])
+
+#add env and group variables
+dbRDA_logtrans_env <- cbind(dat_averages_bysite.wide[,c(1:3,24:36)],allspp_dbRDA.pnts)
+dbRDA_logtrans_env.inner <- cbind(dat_averages_bysite.wide[DepthZone=="Inner",c(1:3,24:36)],allspp_dbRDA.pnts.inner)
+dbRDA_logtrans_env.middle <- cbind(dat_averages_bysite.wide[DepthZone=="Middle",c(1:3,24:36)],allspp_dbRDA.pnts.middle)
+dbRDA_logtrans_env.outer <- cbind(dat_averages_bysite.wide[DepthZone=="Outer",c(1:3,24:36)],allspp_dbRDA.pnts.outer)
+dbRDA_logtrans_env.deep <- cbind(dat_averages_bysite.wide[DepthZone=="Deep",c(1:3,24:36)],allspp_dbRDA.pnts.deep)
+dbRDA_logtrans_env.ARM <- cbind(dat_averages_bysite.wide[DepthZone=="ARM",c(1:3,24:36)],allspp_dbRDA.pnts.ARM)
+
+#add environmental var locations
+dbRDA_biplot_envvar <- data.table(summary(dbrda_full)$biplot[,c(1:2)])
+dbRDA_biplot_envvar.inner <- data.table(summary(dbrda_inner)$biplot[,c(1:2)])
+dbRDA_biplot_envvar.middle <- data.table(summary(dbrda_middle)$biplot[,c(1:2)])
+dbRDA_biplot_envvar.outer <- data.table(summary(dbrda_outer)$biplot[,c(1:2)])
+dbRDA_biplot_envvar.deep <- data.table(summary(dbrda_deep)$biplot[,c(1:2)])
+dbRDA_biplot_envvar.ARM <- data.table(summary(dbrda_ARM)$biplot[,c(1:2)])
+
+dbRDA_biplot_envvar[,env_var := rownames(summary(dbrda_full)$biplot[,c(1:2)])]
+
+#better row names
+dbRDA_biplot_envvar[, env_var_name := c("Mean chlorophyll (C)"        ,     "Mean SST (SST)"     ,            "Distance to 200m\nisobath (d200m)"    ,         "Giant kelp\nstipe density (K)","Relief index (RI)"   ,           
+                                       "Relief SD (RSD)"              ,    "Substrate index (SI)"       ,     "Substrate\nSD (SSD)"           ,   "Latitude (Lat)"   )]
+dbRDA_biplot_envvar.inner[, env_var_name := c("C"        ,     "SST"     ,            "d200m"    ,         "K","RI"   ,           
+                                              "RSD"              ,    "SI"       ,     "SSD"           ,   "Lat"   )]
+dbRDA_biplot_envvar.middle[, env_var_name := c("C"        ,     "SST"     ,            "d200m"    ,         "K","RI"   ,           
+                                            "RSD"              ,    "SI"       ,     "SSD"           ,   "Lat"   )]
+dbRDA_biplot_envvar.outer[, env_var_name := c("C"        ,     "SST"     ,            "d200m"    ,         "K","RI"   ,           
+                                            "RSD"              ,    "SI"       ,     "SSD"           ,   "Lat"   )]
+dbRDA_biplot_envvar.deep[, env_var_name := c("C"        ,     "SST"     ,            "d200m"    ,         "K","RI"   ,           
+                                            "RSD"              ,    "SI"       ,     "SSD"           ,   "Lat"   )]
+dbRDA_biplot_envvar.ARM[, env_var_name := c("C"        ,     "SST"     ,            "d200m"    ,         "K","RI"   ,           
+                                            "RSD"              ,    "SI"       ,     "SSD"           ,   "Lat"   )]
+
+#adjust factor order
+dbRDA_logtrans_env[,DepthZone := factor(DepthZone,
+                                       levels = c("Inner","Middle","Outer","Deep","ARM"),
+                                       labels = c("Inner","Middle","Outer","Deep","AR"))]
+
+dbRDA_logtrans_env.inner[,DepthZone := factor(DepthZone,
+                                        levels = c("Inner","Middle","Outer","Deep","ARM"),
+                                        labels = c("Inner","Middle","Outer","Deep","AR"))]
+dbRDA_logtrans_env.middle[,DepthZone := factor(DepthZone,
+                                        levels = c("Inner","Middle","Outer","Deep","ARM"),
+                                        labels = c("Inner","Middle","Outer","Deep","AR"))]
+dbRDA_logtrans_env.outer[,DepthZone := factor(DepthZone,
+                                        levels = c("Inner","Middle","Outer","Deep","ARM"),
+                                        labels = c("Inner","Middle","Outer","Deep","AR"))]
+dbRDA_logtrans_env.deep[,DepthZone := factor(DepthZone,
+                                        levels = c("Inner","Middle","Outer","Deep","ARM"),
+                                        labels = c("Inner","Middle","Outer","Deep","AR"))]
+dbRDA_logtrans_env.ARM[,DepthZone := factor(DepthZone,
+                                        levels = c("Inner","Middle","Outer","Deep","ARM"),
+                                        labels = c("Inner","Middle","Outer","Deep","AR"))]
+
+#add mainland versus island designation
+dbRDA_logtrans_env[,type := factor(ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Mainland")))]
+dbRDA_logtrans_env.inner[,type := factor(ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Mainland")))]
+
+dbRDA_logtrans_env.middle[,type := factor(ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Mainland")))]
+
+dbRDA_logtrans_env.outer[,type := factor(ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Mainland")))]
+
+dbRDA_logtrans_env.deep[,type := factor(ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Mainland")))]
+
+dbRDA_logtrans_env.ARM[,type := factor(ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Mainland")))]
+
+
+
+#visualize
+dbRDA_allspp_allsite <- ggplot(dbRDA_logtrans_env) +
+  stat_ellipse(geom = "polygon", aes(dbRDA1, dbRDA2, fill = DepthZone), color = NA,alpha = 0.4) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100","black")) +
+  geom_point(aes(dbRDA1, dbRDA2, color = DepthZone, shape = DepthZone), size = 4, fill = "#FE6100") +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100","black")) +
+  # lims(x = c(-0.5,0.45),y = c(-0.5,0.35)) +
+  scale_shape_manual(values = c(15,17,19,23,7)) +
+  theme_classic() +
+  theme(legend.position = "top", legend.justification = "center", legend.title = element_blank(),
+        legend.text = element_text(size = 18, face = "bold"),   # Increase legend text size
+        legend.key.size = unit(1.5, "lines"))     # Increase legend key size
+
+#central point for each
+dbRDA_logtrans_env.centroid <- dbRDA_logtrans_env[, lapply(.SD, mean, na.rm=TRUE), by=c("DepthZone"), .SDcols = c("dbRDA1","dbRDA2")] 
+
+dbRDA_allspp_centroids <- ggplot() +
+  geom_hline(yintercept = 0, color = "grey", linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "grey", linetype = "dashed") +
+  stat_ellipse(data = dbRDA_logtrans_env, geom = "polygon", aes(dbRDA1, dbRDA2, fill = DepthZone), color = "white",alpha = 0.2) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100","black")) +
+  geom_point(data = dbRDA_logtrans_env.centroid, aes(dbRDA1, dbRDA2, color = DepthZone, shape = DepthZone), size = 6, fill = "#FE6100") +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100","black")) +
+  scale_shape_manual(values = c(15,17,19,23,7)) +
+  labs(x = "dbRDA 1",y = "dbRDA 2")+
+  theme_classic() +
+  theme(legend.position = "top", legend.justification = "center", legend.title = element_blank(),
+        legend.text = element_text(size = 18, face = "bold"),   # Increase legend text size
+        legend.key.size = unit(1.5, "lines"))     # Increase legend key size
+
+#plus environmental vars
+dbRDA_allspp_centroids_env <- dbRDA_allspp_centroids +
+  ggrepel::geom_text_repel(data = dbRDA_biplot_envvar, aes(dbRDA1, dbRDA2, label = env_var_name), fontface = "bold")
+
+#plot each depth zone independently, as this is how we will do variable analysis
+#DEEP
+dbRDA_allspp_deep <- ggplot() +
+  geom_hline(yintercept = 0, color = "grey", linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "grey", linetype = "dashed") +
+  geom_point(data =dbRDA_logtrans_env.deep,  aes(dbRDA1, dbRDA2, shape = type, fill = type),color = "darkgrey", size = 1.5) +
+  ggrepel::geom_text_repel(data = dbRDA_biplot_envvar.deep, aes(dbRDA1, dbRDA2, label = env_var_name), fontface = "bold") +
+  scale_fill_manual(values = c("#F3C393","#FE6100")) +
+  scale_shape_manual(values = c(24,25)) +
+  lims(y = c(-2,2),x = c(-2,2.5)) +
+  labs(fill = "Reef type", shape = "Reef type", x = "dbRDA 1",y = "dbRDA 2")+
+  theme_classic()
+
+#Outer
+dbRDA_allspp_outer <- ggplot() +
+  geom_hline(yintercept = 0, color = "grey", linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "grey", linetype = "dashed") +
+  geom_point(data =dbRDA_logtrans_env.outer,  aes(dbRDA1, dbRDA2, shape = type, fill = type),color = "darkgrey", size = 1.5) +
+  ggrepel::geom_text_repel(data = dbRDA_biplot_envvar.outer, aes(dbRDA1, dbRDA2, label = env_var_name), fontface = "bold") +
+  scale_fill_manual(values = c("#E0D1F1","#785EF0")) +
+  scale_shape_manual(values = c(24,25)) +
+  lims(y = c(-2,2),x = c(-2,2.5)) +
+  labs(fill = "Reef type", shape = "Reef type", x = "dbRDA 1",y = "dbRDA 2")+
+  theme_classic()
+
+#Middle
+dbRDA_allspp_middle <- ggplot() +
+  geom_hline(yintercept = 0, color = "grey", linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "grey", linetype = "dashed") +
+  geom_point(data =dbRDA_logtrans_env.middle,  aes(dbRDA1, dbRDA2, shape = type, fill = type),color = "darkgrey", size = 1.5) +
+  ggrepel::geom_text_repel(data = dbRDA_biplot_envvar.middle, aes(dbRDA1, dbRDA2, label = env_var_name), fontface = "bold") +
+  scale_fill_manual(values = c("#F3E0F3","#DC277F")) +
+  scale_shape_manual(values = c(24,25)) +
+  lims(y = c(-2,2),x = c(-2,2.5)) +
+  labs(fill = "Reef type", shape = "Reef type", x = "dbRDA 1",y = "dbRDA 2")+
+  theme_classic()
+
+#Inner
+dbRDA_allspp_inner <- ggplot() +
+  geom_hline(yintercept = 0, color = "grey", linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "grey", linetype = "dashed") +
+  geom_point(data =dbRDA_logtrans_env.inner,  aes(dbRDA1, dbRDA2, shape = type, fill = type),color = "darkgrey", size = 1.5) +
+  ggrepel::geom_text_repel(data = dbRDA_biplot_envvar.inner, aes(dbRDA1, dbRDA2, label = env_var_name), fontface = "bold") +
+  scale_fill_manual(values = c("#ADD4F5","#015AB5")) +
+  scale_shape_manual(values = c(24,25)) +
+  lims(y = c(-2,2),x = c(-2,2.5)) +
+  labs(fill = "Reef type", shape = "Reef type", x = "dbRDA 1",y = "dbRDA 2")+
+  theme_classic()
+
+#Artificial reef
+dbRDA_allspp_AR <- ggplot(dbRDA_logtrans_env[DepthZone == "AR"]) +
+  geom_point(aes(dbRDA1, dbRDA2),color = "darkgrey", size = 1.5, shape = 25, fill = "black") +
+  scale_shape_manual(values = c(24,25)) +
+  lims(y = c(-0.45,0.55),x = c(-0.7,0.3)) +
+  labs(fill = "Reef type", shape = "Reef type", x = "dbRDA 1",y = "dbRDA 2")+
+  theme_classic()
+
+dbRDA_allspp_ARM <- ggplot() +
+  geom_hline(yintercept = 0, color = "grey", linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "grey", linetype = "dashed") +
+  geom_point(data =dbRDA_logtrans_env.ARM,  aes(dbRDA1, dbRDA2),color = "darkgrey", size = 1.5,shape = 25, fill = "black") +
+  ggrepel::geom_text_repel(data = dbRDA_biplot_envvar.ARM, aes(dbRDA1, dbRDA2, label = env_var_name), fontface = "bold") +
+  lims(y = c(-2,2),x = c(-2,2.5)) +
+  labs(fill = "Reef type", shape = "Reef type", x = "dbRDA 1",y = "dbRDA 2")+
+  theme_classic()
+
+#DUMMY FOR LEGEND
+dbRDA_allspp_legend <- get_legend(ggplot(dbRDA_logtrans_env.inner) +
+                                   geom_point(aes(dbRDA1, dbRDA2, shape = type, fill = type),color = "darkgrey", size = 8) +
+                                   scale_fill_manual(values = c("lightgrey","black")) +
+                                   scale_shape_manual(values = c(24,25)) +
+                                   labs(fill = "Reef type", shape = "Reef type", x = "dbRDA 1",y = "dbRDA 2")+
+                                   theme_classic() +
+                                   theme(  legend.title = element_text(size = 1.50),  # Increase legend title size
+                                           legend.text = element_text(size = 16),   # Increase legend text size
+                                           legend.key.size = unit(1.5, "lines")     # Increase legend key size
+                                   ))
+
+#merge all plots
+dbRDA_allspp_zones <- plot_grid(dbRDA_allspp_inner+theme(legend.position = "null"),
+                               dbRDA_allspp_outer+theme(legend.position = "null"),
+                               dbRDA_allspp_middle+theme(legend.position = "null"),
+                               dbRDA_allspp_deep+theme(legend.position = "null"),
+                               dbRDA_allspp_ARM + theme(legend.position = "null"),
+                               dbRDA_allspp_legend,  ncol = 2, labels = c(" Inner","Middle"," Outer"," Deep","   AR"), label_x = 0.09)
+
+dbRDA_allspp_full <- plot_grid(dbRDA_allspp_centroids_env, dbRDA_allspp_zones, ncol = 1, rel_heights = c(0.8,1))
+
+ggsave(dbRDA_allspp_full, path = "figures", filename = "dbRDA_allspp_full.jpg",height = 11, width = 7, unit = "in" )
 
 
 
@@ -302,7 +704,13 @@ ggsave(PCoA_allspp_full, path = "figures", filename = "PCoA_allspp_full.jpg",hei
 
 
 
-#SKIP FOR NOW
+
+
+
+
+
+
+  #SKIP FOR NOW
 ########################
 #Latent variable modeling
 #########################
