@@ -146,17 +146,54 @@ dat_fishbiomass_averages_deep_ar.u[,full_label := factor(full_label, levels = c(
 ############################################################
 
 #Make color palettes
-color_palette <- c("#8DD3C7", "#CCCC8F", "#BEBADA" ,"#FB8072", "#80B1D3" ,"#FDB462" ,"#B3DE69" ,"#FCCDE5" ,"#BC80BD" ,"#CCEBC5" , "#D9D9D9")
-color_palette_fishbiomass <- c("#E16A86","#8DD3C7", "#BEBADA" ,"#FB8072","#FDB462","#BC80BD" ,"#CCEBC5" , "#00ABB4", "#D9D9D9")
+color_palette <- c("#80B1D3",#barred sand bass,
+                   "#CCCC8F",#California sheephead
+                   "#8DD3C7",#opaleye
+                   "#BEBADA" ,#rock wrasse
+                   "#FDB462", #garibaldi
+                   "forestgreen" ,#kelp bass
+                   "#FCCDE5",#senorita
+                   "#FB8072" ,#kelp perch
+                   "#BC80BD" ,#bluebanded goby
+                   "#CCEBC5" ,#blacksmith
+                    "#D9D9D9")
+color_palette_fishbiomass <- c("deepskyblue2",#sargo
+                               "#FDB462" ,#garibaldi
+                                "#E16A86",#giant sea bass
+                               "#80B1D3",#barred sand bass
+                               "#8DD3C7" ,#opaleye
+                               "#CCCC8F",#california sheephead
+                               "forestgreen",#kelp bass
+                               "#CCEBC5",#blacksmith
+                               "#D9D9D9" #other
+                               )
+
+
+color_palette_fishall <- c("#CCCC8F",#california sheephead
+                           "#FB8072",#kelp perch
+                           "#CCEBC5",#blacksmith
+                           "#8DD3C7" ,#opaleye
+                           "#BEBADA",#rock wrasse
+                           "#FDB462" ,#garibaldi
+                           "#BC80BD" ,#bluebanded goby
+                           "#FCCDE5" ,#senorita
+                           "forestgreen",#kelp bass
+                           "#80B1D3",#barred sand bass
+                           "deepskyblue2",#xantic sargo
+                           "#E16A86",#giant sea bass
+                           "#D9D9D9")#other
+
 color_palette_macroinvert <- c("#8DD3C7", "#CCCC8F", "#BEBADA" ,"#FB8072", "#80B1D3" ,"#FDB462" ,"#B3DE69" ,"#FCCDE5" ,"#BC80BD" , "#D9D9D9")
 color_palette_kelp <- c("#8DD3C7", "#CCCC8F", "#BEBADA" ,"#FB8072", "#80B1D3" ,"#FDB462" ,"#B3DE69" ,"#FCCDE5" , "#D9D9D9")
 
-
+#add new rank column
+dat_fishdensity_averages_deep_ar.u[,rank := ifelse(full_label == "Other",400,frank(summed_mean_depthzone_density_m2))]
 
 #fish density
-fish_density_top5_stacked <- ggplot(dat_fishdensity_averages_deep_ar.u, aes(fill=full_label, y=summed_mean_depthzone_density_m2*100, x=DepthZone)) + 
+fish_density_top5_stacked <- ggplot(dat_fishdensity_averages_deep_ar.u, aes(fill=reorder(full_label,rank), y=(summed_mean_depthzone_density_m2*100), x=DepthZone)) + 
   geom_bar(position="stack", stat="identity") +
   labs(x = "Depth zone", y = expression(paste("Average density per 100m" ^2)), fill = "Fish species") +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR")) +
   scale_fill_manual(values = color_palette) +
   scale_y_continuous(expand = c(0,0)) +
   theme_classic() +
@@ -165,9 +202,14 @@ fish_density_top5_stacked <- ggplot(dat_fishdensity_averages_deep_ar.u, aes(fill
 
 ggsave(fish_density_top5_stacked, path = file.path("figures"), filename = "fish_density_top5_stacked.jpg", height = 4, width = 6, units = "in")
 
+#add new rank column
+dat_fishbiomass_averages_deep_ar.u[,summed_mean_depthzone_biomass_kg_100m := (summed_mean_depthzone_biomass_m2*100/1000)]
+dat_fishbiomass_averages_deep_ar.u[,rank := ifelse(full_label == "Other",400,frank(summed_mean_depthzone_biomass_m2))]
+
 #fish biomass
-fish_biomass_top5_stacked <- ggplot(dat_fishbiomass_averages_deep_ar.u, aes(fill=full_label, y=summed_mean_depthzone_biomass_m2*100/1000, x=DepthZone)) + 
+fish_biomass_top5_stacked <- ggplot(dat_fishbiomass_averages_deep_ar.u, aes(fill=reorder(full_label,rank), y=(summed_mean_depthzone_biomass_m2*100/1000), x=DepthZone)) + 
   geom_bar(position="stack", stat="identity") +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR")) +
   labs(x = "Depth zone", y = expression(paste("Average biomass in kg per 100m" ^2)), fill = "Fish species") +
   scale_fill_manual(values = color_palette_fishbiomass) +
   scale_y_continuous(expand = c(0,0)) +
@@ -177,11 +219,50 @@ fish_biomass_top5_stacked <- ggplot(dat_fishbiomass_averages_deep_ar.u, aes(fill
 
 ggsave(fish_biomass_top5_stacked, path = file.path("figures"), filename = "fish_biomass_top5_stacked.jpg", height = 4, width = 6, units = "in")
 
+#merge fish plots
+#dummy data.table
+all_spp <-c("Bodianus pulcher\nCalifornia sheephead",     "Brachyistius frenatus\nkelp perch"    ,      "Chromis punctipinnis\nblacksmith",          
+"Girella nigricans\nopaleye",                 "Halichoeres semicinctus\nrock wrasse"  ,     "Hypsypops rubicundus\nGaribaldi damselfish",
+"Lythrypnus dalli\nbluebanded goby",          "Oxyjulis californica\nsenorita"        ,     "Paralabrax clathratus\nkelp bass"    ,      
+"Paralabrax nebulifer\nbarred sand bass",  "Anisotremus davidsonii\nxantic sargo"     , 
+"Stereolepis gigas\ngiant sea bass"  , "Other")
+
+dummy_fish_dt <- data.table(`Fish species` = factor(all_spp, levels = c("Bodianus pulcher\nCalifornia sheephead",     "Brachyistius frenatus\nkelp perch"    ,      "Chromis punctipinnis\nblacksmith",          
+                                                                        "Girella nigricans\nopaleye",                 "Halichoeres semicinctus\nrock wrasse"  ,     "Hypsypops rubicundus\nGaribaldi damselfish",
+                                                                        "Lythrypnus dalli\nbluebanded goby",          "Oxyjulis californica\nsenorita"        ,     "Paralabrax clathratus\nkelp bass"    ,      
+                                                                        "Paralabrax nebulifer\nbarred sand bass",  "Anisotremus davidsonii\nxantic sargo"     , 
+                                                                        "Stereolepis gigas\ngiant sea bass"  , "Other")), num = rep(1,13))
+
+fish_leg <- get_legend(ggplot(dummy_fish_dt) +
+                         geom_col(aes(x = `Fish species`, y = num, fill = `Fish species`)) +
+                         scale_fill_manual(values = color_palette_fishall) +
+                         theme_classic() +
+                         theme(legend.position = "top",legend.direction = "horizontal"))
+#merge w/o legends
+fish_abundance_top5_stacked <- plot_grid(fish_density_top5_stacked + theme(legend.position = "none"), fish_biomass_top5_stacked + theme(legend.position = "none"), ncol = 2, labels = c("a.","b."))
+
+#merge with legend
+fish_abundance_top5_stacked.l <- plot_grid(fish_leg,fish_abundance_top5_stacked,ncol = 1, rel_heights = c(1,10))
+
+ggsave(fish_abundance_top5_stacked.l, path = file.path("figures"), filename = "fish_abundance_top5_stacked.l.jpg", height = 8.5, width = 10, units = "in")
+
+
+#Surprised giant sea bass shows up as top! look into this quickly
+ggplot(dat_fish_site_averages[taxa == "Stereolepis gigas"]) +
+  geom_boxplot(aes(x = DepthZone, y = mean_density_m2)) +
+  theme_classic()
+
+ggplot(dat_fish_site_averages[taxa == "Stereolepis gigas"]) +
+  geom_boxplot(aes(x = DepthZone, y = mean_wt_density_g_m2)) +
+  theme_classic()
+  
+
 #macroinvert density
 macroinvert_density_top5_stacked <- ggplot(dat_macroinvertdensity_averages_deep_ar.u, aes(fill=full_label, y=summed_mean_depthzone_density_m2*100, x=DepthZone)) + 
   geom_bar(position="stack", stat="identity") +
   labs(x = "Depth zone", y = expression(paste("Average density per 100m" ^2)), fill = "Macroinvertebrate species") +
   scale_fill_manual(values = color_palette_macroinvert) +
+    scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR")) +
   scale_y_continuous(expand = c(0,0)) +
   theme_classic() +
   theme(legend.text = element_text(size = 8), legend.title = element_text(size = 9, face = "bold")) +
@@ -194,6 +275,7 @@ kelp_density_top5_stacked <- ggplot(dat_kelp_averages_deep_ar.u, aes(fill=full_l
   geom_bar(position="stack", stat="identity") +
   labs(x = "Depth zone", y = expression(paste("Average density per 100m" ^2)), fill = "Macroalgae species") +
   scale_fill_manual(values = color_palette_kelp) +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR")) +
   scale_y_continuous(expand = c(0,0)) +
   theme_classic() +
   theme(legend.text = element_text(size = 8), legend.title = element_text(size = 9, face = "bold")) +
