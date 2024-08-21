@@ -1,4 +1,5 @@
 # CREATION DATE 25 March 2024
+# MODIFIED DATE 19 August 2024
 
 # AUTHOR: kitchel@oxy.edu
 
@@ -63,15 +64,18 @@ lat_lon_site_fix[,`Reef type` := factor(
 #change col names
 colnames(lat_lon_site_fix) <- c("Site","DepthZone","Latitude","Longitude", "Reef type")
 
-#convert to spatial points
-lat_lon_site.sf <- st_as_sf(lat_lon_site_fix,
-                            coords = c("Longitude","Latitude"),
-                            crs = 4326)
+#set factor order 
+lat_lon_site_fix[,DepthZone:= factor(DepthZone, levels = c("Inner","Middle","Outer","Deep","ARM"),
+                                     labels = c("Inner (5m)","Middle (10m)","Outer (15m)","Deep (25m)","AR"))]
 
 #avg values
 #mean lat and lon
 lat_lon_site_fix[,avg_lon := mean(Longitude,na.rm = T),Site][,avg_lat := mean(Latitude,na.rm = T),Site]
 lat_lon_site_fix.r <- unique(lat_lon_site_fix[,.(Site, `Reef type`, avg_lon, avg_lat)])
+
+#Project points to simple feature
+lat_lon_site_fix.sf <- st_as_sf(lat_lon_site_fix, coords = c("Longitude","Latitude"), crs = st_crs(4326)) #all depth zones
+lat_lon_site_fix.r.sf <- st_as_sf(lat_lon_site_fix.r, coords = c("avg_lon","avg_lat"), crs = st_crs(4326)) #avg across depth zones for each site
 
 ##############################################type_sum()
 #Map
@@ -133,26 +137,94 @@ ggsave(site_map_colored, filename = "site_map_colored.jpg", path = file.path("fi
 # Plot using ggplot and sf
 # Get US states and Mexico
 usa <- rnaturalearth::ne_countries(country = "United States of America", returnclass = "sf", scale = "large")
-mexico <- rnaturalearth::ne_states(country="Mexico", returnclass = "sf", scale = "small")
+mexico <- rnaturalearth::ne_states(country="Mexico", returnclass = "sf")
+
+# Load the state boundaries for the USA
+states <- ne_states(country = "united states of america", returnclass = "sf")
+
+# Filter to get only California
+california <- states[states$name == "California", ]
+
+#Higher rez California
+CA_Map <- sf::st_read("~/Dropbox/VRG Files/R Code/Mapping/CA_Map_Nov2023.shp")
 
 #plot
 site_map_basic <- ggplot() + 
-  geom_tile(data = bathy_VRG_xyz.200m, aes(x = V1, y = V2), fill = "lightblue", color = "lightblue") +
+ # geom_tile(data = bathy_VRG_xyz.200m, aes(x = V1, y = V2), fill = "lightblue", color = "lightblue") +
   geom_sf(data = usa) +
   geom_sf(data = mexico) +
   geom_point(data = lat_lon_site_fix.r, aes(x = avg_lon, y = avg_lat, fill = `Reef type`, shape = `Reef type`), size = 2, color = "black") +
   scale_fill_manual(values = c("darkturquoise","brown1"))+
   scale_shape_manual(values = c(21,24)) +
-  coord_sf(xlim = c(-120.5,-116.75), ylim = c(32.6, 34.3), expand = F) +
+  coord_sf(xlim = c(-120.5,-116.75), ylim = c(32.6, 34.1), expand = F) +
+  geom_rect(aes(xmin = -118.27,
+                xmax = -118.48,
+                ymin = 33.68,
+                ymax = 33.8),
+            fill = NA, color = "black", size = 0.5, linetype = "dashed") +  # Add red rectangle to highlight PVR
   theme_classic() +
   theme(axis.title = element_blank(),
         panel.border = element_rect(color = "black", fill = NA, size = 1),
-        legend.position = "top", legend.direction = "horizontal",
-        legend.title = element_text(size = 14),
-        legend.text = element_text(size = 13)) +
+        legend.position = c(0.72,0.22), legend.direction = "vertical",
+        legend.title = element_text(size = 13),
+        legend.text = element_text(size = 12)) +
   guides(
-    fill = guide_legend(override.aes = list(size = 5)),
-    shape = guide_legend(override.aes = list(size = 5))
+    fill = guide_legend(override.aes = list(size = 4)),
+    shape = guide_legend(override.aes = list(size = 4))
   )
 
 ggsave(site_map_basic, filename = "site_map_basic.jpg", path = file.path("figures"), width = 15, height = 10, units = "in", dpi = 300)
+
+# Create an inset plot for California
+california_inset <- ggplot() +
+  geom_sf(data = california, lwd = 0.3) +
+  geom_rect(aes(xmin = -120.5,
+            xmax = -116.75,
+            ymin = 32.6,
+            ymax = 34.3),
+            fill = NA, color = "black", size = 0.4) +  # Add red rectangle to highlight the area
+  theme_void()
+
+#Convert lat/lon for each site to match CA map crs
+lat_lon_site_fix.sf <- st_transform(lat_lon_site_fix.sf, crs = st_crs(CA_Map))
+
+#Extract legend
+inset_leg <- get_legend(ggplot() +
+  geom_point(data = lat_lon_site_fix, aes(x = Longitude, y = Latitude,color = DepthZone, shape = DepthZone), size = 2) +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100","black")) +
+    scale_shape_manual(values = c(17,17,17,17,21)) +
+    labs(color = "Depth zone/\nreef type", shape = "Depth zone/\nreef type") +
+    theme_classic() +
+    theme(legend.background = element_rect(fill = "NA")))
+
+#Create inset plot for PVR
+PVR_inset <- ggplot() +
+  geom_sf(data = CA_Map) +
+  geom_sf(data = lat_lon_site_fix.sf, aes(fill = DepthZone, shape = `Reef type`), size = 1.5, color = "black", stroke = 0.1) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100","white"))+
+  scale_shape_manual(values = c(21,24)) +
+ coord_sf(xlim = c(366453,381074.8), ylim = c(3729596, 3741414), expand = F) + #bounding box values from "PalosVerdes_DepthZones.shp"
+  ggspatial::annotation_scale(location = 'bl') +
+  theme_classic() +
+  theme(axis.title = element_blank(),axis.ticks = element_blank(),axis.text = element_blank(),axis.line = element_blank(),
+        panel.border = element_rect(color = "black", fill = NA, size = 1, linetype = "dashed"), legend.position = "null", plot.background = element_rect(fill = NA))
+
+
+# Add the CA outline inset to the main plot
+site_map_with_inset <- site_map_basic +
+  annotation_custom(
+    grob = ggplotGrob(california_inset), 
+    xmin = -117.7, 
+    ymin = 33.1)
+
+#Add legend, and small PVR plot to main plot
+site_map_with_insets <- ggdraw(site_map_with_inset) +
+  draw_plot(PVR_inset, x = -0.28, y = 0.059, height = 0.55) +
+  draw_plot(inset_leg, x = -0.19, y = 0.36, height = 0.05) +
+  geom_segment(aes(x = 0.55, y = 0.73, xend = 0.37, yend = 0.64),
+               arrow = arrow()) +
+  geom_text(aes(label = "Palos Verdes Peninsula",x = 0.22, y = 0.63), size = 5)
+
+# Save the plot
+ggsave(site_map_with_insets, filename = "site_map_basic_with_insets.jpg", path = file.path("figures"), width = 9, height =4.5, units = "in", dpi = 300)
+ 

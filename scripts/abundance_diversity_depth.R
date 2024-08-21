@@ -18,6 +18,7 @@ library(MuMIn)
 library(ggpattern)
 library(multcompView)
 library(grid)
+library(MASS)
 
 source(file.path("functions","add_tukey_letter_boxplot.R"))
 
@@ -794,36 +795,23 @@ rank_mod_output_coef_akaike <- function(dt, response_var, metric_category, taxa,
   for (i in 1:length(depthzones)) {
     
     dt.bydepth <- dt[DepthZone == depthzones[i]]
-    
-    
-    global.mod <- lm(data =dt.bydepth, get(response_var) ~ 
-                                                     mean_chl_mg_m3.s + max_chl_mg_m3.s + min_chl_mg_m3.s +
-                                                     mean_sst_C.s + max_sst_C.s + min_sst_C.s +
-                                                     dist_200m_bath.s + giantkelp_stipe_density_m2.s + Relief_index.s + Relief_SD.s +
-                                                     Substrate_index.s + Substrate_SD.s)
-    
-    #subset to only include only one variable at a time
-    dredge_output <- dredge(global.mod, m.lim = c(NA,1) ,subset = !(mean_chl_mg_m3.s && max_chl_mg_m3.s && min_chl_mg_m3.s ) &
-                                         !(mean_chl_mg_m3.s && max_chl_mg_m3.s) &
-                                         !(max_chl_mg_m3.s && min_chl_mg_m3.s) &
-                                         !(mean_chl_mg_m3.s && min_chl_mg_m3.s) &
-                                         !(mean_sst_C.s && max_sst_C.s && min_sst_C.s) &
-                                         !(max_sst_C.s && min_sst_C.s) &
-                                         !(mean_sst_C.s && max_sst_C.s) &
-                                         !(mean_sst_C.s && min_sst_C.s))
-    
-    #table with top models
-    dredge_output.dt <- data.table(dredge_output)
 
 #extract coefficient value from all model
 for(j in 1:length(predictors)) {
-  mod <- lm(data = dt.bydepth, get(response_var) ~ get(paste0(predictors[j],".s")))
-  
+  if(metric_category != "Simpson_diversity"){
+  mod <- glm(data = dt.bydepth, get(response_var) ~ get(paste0(predictors[j],".s")), family = quasipoisson) #quasipoisson okay with overdispersed count data
+  }else{
+    mod <- glm(data = dt.bydepth, get(response_var) ~ get(paste0(predictors[j],".s")), family = binomial) #binomial 
+  }
   #Extract r_squared
-  r_squared <- summary(mod)$r.squared
+  r_squared <- r.squaredGLMM(mod)[[2,1]] #Delta method
+  
   
   #Extract coefficient
   coefficient <- mod$coefficients[[2]]
+  
+  #Pvalue
+  pvalue <- coef(summary(mod))[2,4]
   
   #Make row in data table
   row.dt <- data.table(metric_category = metric_category,
@@ -832,7 +820,7 @@ for(j in 1:length(predictors)) {
                        DepthZone = depthzones[i],
                        env_var = predictors[j],
                        coefficient = coefficient,
-                       akaike_weight = dredge_output.dt[!is.na(get(paste0(predictors[j],".s"))),weight],
+                       pvalue = pvalue,
                        r_squared = r_squared)
   
   output <- rbind(output,row.dt)
@@ -953,14 +941,15 @@ all_taxa_env_model_rank_output[,metric_category := factor(metric_category, level
   "abundance","richness","Simpson_diversity"),
   labels = c("Abundance","Richness","Simpson diversity index"))]
 
-#test plot
+
+#visualize
 all_taxa_env_model_rank_plot <- ggplot() +
   annotate(geom = 'rect', xmin=-Inf, xmax=Inf, ymin=8-0.5, ymax=Inf, alpha=0.4, fill = 'darkgrey')+ 
-  geom_point(data = all_taxa_env_model_rank_output , aes(x = DepthZone, y = env_var, fill = akaike_weight, size = akaike_weight), shape = 21) +
-  geom_text(data = all_taxa_env_model_rank_output[akaike_weight > 0.2], aes(x = DepthZone, y = env_var, label = round(coefficient,2)), size = 2) +
+  geom_point(data = all_taxa_env_model_rank_output , aes(x = DepthZone, y = env_var, fill = r_squared, size = r_squared), shape = 21) +
+  geom_text(data = all_taxa_env_model_rank_output[r_squared > 0.4 & pvalue <= 0.05], aes(x = DepthZone, y = env_var, label = round(coefficient,2)), size = 2) +
   scale_size_continuous(range = c(0,10)) +
   scale_fill_gradient(low = "white",high = "turquoise", guide = guide_colorbar(frame.colour = "black", ticks.colour = "black")) +
-  labs(x = "Depth zone", y = "Environmental variable", fill = "Akaike weight", size = "") +
+  labs(x = "Depth zone", y = "Environmental variable", fill = "Delta R-squared", size = "") +
   facet_grid(metric_category + metric ~ taxa) +
     #guides(size = FALSE) +
   theme_classic() +

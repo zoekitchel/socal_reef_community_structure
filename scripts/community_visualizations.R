@@ -165,7 +165,8 @@ stopifnot(colnames(dat_averages_bysite.wide[,c(1:3,24,36)]) == c("Region","Site"
 dat_averages_bysite.wide.spp <- dat_averages_bysite.wide[,c(4:23,37:210)]
 
 #log base 2 transform (Jonathan F. Jupke, Ralf B. Schäfer)
-dat_averages_bysite.wide.spp.l <- log2(1+dat_averages_bysite.wide.spp)
+#BUT I am using square root for permanova, so I should use square root here too
+dat_averages_bysite.wide.spp.l <- sqrt(dat_averages_bysite.wide.spp)
 
 #transformed but with depth zone attached
 dat_averages_bysite.wide.spp.depthzone <- cbind(dat_averages_bysite.wide[,3], dat_averages_bysite.wide.spp.l)
@@ -205,11 +206,13 @@ PCoA_allspp_allsite_points_natural_only <- ggplot(PCoA_logtrans_env[DepthZone !=
   scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
   geom_point(aes(Dim1, Dim2, color = DepthZone, shape = DepthZone), size = 4, fill = "#FE6100") +
   scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
-  lims(x = c(-0.65,0.6),y = c(-0.75,0.57)) +
-  labs(x = paste0("PCoA Dim 1 (",round(allspp_PCoA$eig[1],1)," %)"),y = paste0("PCoA Dim 2 (",round(allspp_PCoA$eig[2],1)," %)"), shape = "Depth zone",color = "Depth zone") +
+  lims(x = c(-0.5,0.48),y = c(-0.68,0.5)) +
+  labs(x = paste0("PCoA dim 1 (",round(allspp_PCoA$eig[1],1),"%)"),y = paste0("PCoA dim 2 (",round(allspp_PCoA$eig[2],1),"%)"), shape = "Depth zone",color = "Depth zone") +
   scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  annotate(geom = "text",label ="Square-root transformation\nDistance: Bray-Curtis dissimilarity", 
+           x = 0.48, y = -0.65, size = 4, hjust = 1) +
   theme_classic() +
-  theme(legend.position = c(0.5,0.9), legend.direction = "horizontal",
+  theme(legend.position = c(0.5,0.95), legend.direction = "horizontal",
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18),
         axis.text = element_text(size = 16),
@@ -227,12 +230,12 @@ ggsave(PCoA_allspp_allsite_points_natural_only, path = "figures", filename = "PC
 PCoA_allspp_allsite_points_natural_only_island_mainland <- ggplot(PCoA_logtrans_env[DepthZone != "AR"]) +
   geom_point(aes(Dim1, Dim2, fill = type), shape = 24, color = "black", size = 3) +
   scale_fill_manual(values = c("black","white")) +
-  lims(x = c(-0.65,0.6),y = c(-0.75,0.57)) +
-  labs(x = "PCoA Dim 1",y = "PCoA Dim 2", fill = "Reef type") +
+  lims(x = c(-0.5,0.48),y = c(-0.68,0.5)) +
+  labs(x = "PCoA dim 1",y = "PCoA dim 2", fill = "Reef type") +
   scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
   theme_classic() +
   theme(legend.direction = "horizontal",
-        legend.position = c(.45, .9),
+        legend.position = c(.55, .95),
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18),
         axis.text = element_text(size = 16),
@@ -342,10 +345,18 @@ PCoA_allspp_centroids <- ggplot() +
   geom_point(data = PCoA_logtrans_env[DepthZone == "AR"], aes(Dim1, Dim2),color = "black", size = 2) +
   scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
   scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
-  lims(x = c(-0.65,0.6),y = c(-0.75,0.57)) +
-  labs(x = "PCoA Dim 1",y = "PCoA Dim 2", shape = "Depth zone",color = "Depth zone", fill = "Depth zone", linetype = "Reef type") +
+  annotate(geom = "text",label = "Artificial reef", x = 0, y = 0.5, size = 6) +
+  annotate(geom = "text",label = "I", x = 0.4, y = 0.25, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "M", x = 0.25, y = 0.39, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "O", x = -0.04, y = 0.4, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "D", x = -0.31, y = 0.38, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "Mainland", x = 0, y = -0.05, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "Island", x = -0.15, y = -0.6, size = 5, fontface = 'bold') +
+  geom_point(aes(x = -0.18, y = 0.5), size = 3) + #adds point for artificial reef
+  lims(x = c(-0.5,0.48),y = c(-0.68,0.5)) +
+  labs(x = "PCoA dim 1",y = "PCoA dim 2", shape = "Depth zone",color = "Depth zone", fill = "Depth zone", linetype = "Reef type") +
   theme_classic() +
-  theme(legend.position = "top", legend.justification = "center",
+  theme(legend.position = "null", legend.justification = "center",
         legend.text = element_text(size = 18, face = "bold"),   # Increase legend text size
         legend.key.size = unit(1.5, "lines"),
               legend.title = element_text(size = 20),
@@ -355,7 +366,7 @@ PCoA_allspp_centroids <- ggplot() +
 #plot natural reefs next to artificial reef highlight plot
 PCoA_allspp_allsite_AR_natural_merge <- plot_grid(PCoA_allspp_allsite_points_natural_only,
                                                   PCoA_allspp_allsite_points_natural_only_island_mainland + theme(axis.title.y = element_blank(), axis.text.y = element_blank()),
-                                                  PCoA_allspp_centroids+theme(legend.position = "null",axis.title.y = element_blank(), axis.text.y = element_blank()), ncol = 3, align = "hv", labels = c("a.","b.","c."))
+                                                  PCoA_allspp_centroids+theme(legend.position = "null",axis.title.y = element_blank(), axis.text.y = element_blank()), ncol = 3, align = "hv", labels = c("a.","b.","c."), label_size = 20)
 
 
 ggsave(PCoA_allspp_allsite_AR_natural_merge, path = "figures", filename = "PCoA_allspp_allsite_AR_natural_merge.jpg", width =18, height = 6)
@@ -432,6 +443,370 @@ PCoA_allspp_zones <- plot_grid(PCoA_allspp_inner+theme(legend.position = "null")
 PCoA_allspp_full <- plot_grid(PCoA_allspp_centroids, PCoA_allspp_zones, ncol = 1, rel_heights = c(0.8,1))
 
 ggsave(PCoA_allspp_full, path = "figures", filename = "PCoA_allspp_full.jpg",height = 11, width = 7, unit = "in" )
+
+####################################
+#REPEAT PCOA FOR INDEPENDENT TAXA GROUPS
+#############################################
+#wide data from above
+#dat_fish_averages_bysite.wide
+#dat_fish_biomass_averages_bysite.wide
+#dat_macroinvert_averages_bysite.wide
+dat_kelp_averages_bysite.wide[is.na(dat_kelp_averages_bysite.wide)] <- 0 #get rid of NAs for kelp
+
+
+##################################################################################################
+#Visualize full PcoA (all species, colored by Depth Zone, no ARM yet)
+##################################################################################################
+#FISH DENSITY
+#CHECK FOR NUMBERS IN 165
+stopifnot(colnames(dat_fish_averages_bysite.wide[,c(1:3,17)]) == c("Region","Site","DepthZone","Alloclinus holderi"))
+
+#fish species only
+dat_fish_averages_bysite.wide.spp <- dat_fish_averages_bysite.wide[,c(17:87)]
+
+#log base 2 transform (Jonathan F. Jupke, Ralf B. Schäfer)
+#BUT I am using square root for permanova, so I should use square root here too
+dat_fish_averages_bysite.wide.spp.l <- sqrt(dat_fish_averages_bysite.wide.spp)
+
+#transformed but with depth zone attached
+dat_fish_averages_bysite.wide.spp.depthzone <- cbind(dat_fish_averages_bysite.wide[,3], dat_fish_averages_bysite.wide.spp.l)
+
+#distance matrix (distance = bray curtis)
+dat_fish_averages_bysite.wide.spp.dist <- vegdist(dat_fish_averages_bysite.wide.spp.l, distance = "bray")
+
+#PCoA
+fish_PCoA <- wcmdscale(dat_fish_averages_bysite.wide.spp.dist, eig = TRUE)
+
+fish_PCoA.pnts <- data.table(fish_PCoA$points)
+
+#add env and group variables
+PCoA_fish_sqrt_env <- cbind(dat_fish_averages_bysite.wide[,c(1:16)],fish_PCoA.pnts[,1:2])
+
+#adjust factor order
+PCoA_fish_sqrt_env[,DepthZone := factor(DepthZone,
+                                       levels = c("Inner","Middle","Outer","Deep","ARM"),
+                                       labels = c("Inner","Middle","Outer","Deep","AR"))]
+
+#add mainland versus island designation
+PCoA_fish_sqrt_env[,type := factor(ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Mainland")))]
+
+#visualize
+#just natural sites
+PCoA_fish_allsite_points_natural_only <- ggplot(PCoA_fish_sqrt_env[DepthZone != "AR"]) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  geom_point(aes(Dim1, Dim2, color = DepthZone, shape = DepthZone), size = 4, fill = "#FE6100") +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  lims(x = c(-0.5,0.6),y = c(-0.4,0.58)) +
+  labs(x = paste0("PCoA dim 1 (",round(fish_PCoA$eig[1],1),"%)"),y = paste0("Fish\nPCoA dim 2 (",round(fish_PCoA$eig[2],1),"%)"), shape = "Depth zone",color = "Depth zone") +
+  scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  annotate(geom = "text",label ="Square-root transformation\nDistance: Bray-Curtis dissimilarity", 
+           x = 0.6, y = -0.4, size = 4, hjust = 1) +
+  theme_classic() +
+  theme(legend.position = c(0.5,0.95), legend.direction = "horizontal",
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16)) +
+  guides(
+    color = guide_legend(override.aes = list(size = 6), title.position = "top", title.hjust = 0.5, reverse = T),
+    shape = guide_legend(override.aes = list(size = 6), title.position = "top", title.hjust = 0.5, reverse = T),
+  )
+
+ggsave(PCoA_fish_allsite_points_natural_only, path = "figures", filename = "PCoA_fish_allsite_points_natural_only.jpg", height = 8, width = 12, unit = "in", dpi = 300)
+
+
+#mainland vs island
+#just natural sites
+PCoA_fish_allsite_points_natural_only_island_mainland <- ggplot(PCoA_fish_sqrt_env[DepthZone != "AR"]) +
+  geom_point(aes(Dim1, Dim2, fill = type), shape = 24, color = "black", size = 3) +
+  scale_fill_manual(values = c("black","white")) +
+  lims(x = c(-0.5,0.6),y = c(-0.4,0.58)) +
+  labs(x = "PCoA dim 1",y = "PCoA dim 2", fill = "Reef type") +
+  scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  theme_classic() +
+  theme(legend.direction = "horizontal",
+        legend.position = c(.55, .95),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16)) +
+  guides(
+    fill = guide_legend(override.aes = list(size = 6), title.position = "top",title.hjust = 0.5)
+  )
+
+ggsave(PCoA_fish_allsite_points_natural_only_island_mainland, path = "figures", filename = "PCoA_fish_allsite_points_natural_only_island_mainland.jpg", height = 8, width = 12, unit = "in", dpi = 300)
+
+
+#merge plot
+PCoA_fish_centroids <- ggplot() +
+  stat_ellipse(data = PCoA_fish_sqrt_env[DepthZone != "AR"], geom = "polygon", aes(Dim1, Dim2, fill = DepthZone), color = "white",alpha = 0.2) +
+  stat_ellipse(data = PCoA_fish_sqrt_env[DepthZone != "AR"], geom = "polygon", aes(Dim1, Dim2,linetype = type), color = "gray32",fill = NA) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  geom_point(data = PCoA_fish_sqrt_env[DepthZone == "AR"], aes(Dim1, Dim2),color = "black", size = 2) +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  annotate(geom = "text",label = "Artificial reef", x = 0.08, y = 0.58, size = 6) +
+  annotate(geom = "text",label = "I", x = -0.45, y = 0.08, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "M", x = -0.4, y = 0.19, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "O", x = -0.25, y = 0.3, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "D", x = 0.1, y = 0.5, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "Island", x = 0.25, y = -0.3, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "Mainland", x = -0.15, y = -0.22, size = 5, fontface = 'bold') +
+  geom_point(aes(x = -0.15, y = 0.58), size = 3) + #adds point for artificial reef
+  lims(x = c(-0.5,0.6),y = c(-0.4,0.58)) +
+  labs(x = "PCoA dim 1",y = "PCoA dim 2", shape = "Depth zone",color = "Depth zone", fill = "Depth zone", linetype = "Reef type") +
+  theme_classic() +
+  theme(legend.position = "null", legend.justification = "center",
+        legend.text = element_text(size = 18, face = "bold"),   # Increase legend text size
+        legend.key.size = unit(1.5, "lines"),
+        legend.title = element_text(size = 20),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16))     # Increase legend key size
+
+#plot natural reefs next to artificial reef highlight plot
+PCoA_fish_allsite_AR_natural_merge <- plot_grid(PCoA_fish_allsite_points_natural_only,
+                                                  PCoA_fish_allsite_points_natural_only_island_mainland + theme(axis.title.y = element_blank(), axis.text.y = element_blank()),
+                                                  PCoA_fish_centroids+theme(legend.position = "null",axis.title.y = element_blank(), axis.text.y = element_blank()), ncol = 3, align = "hv", labels = c("a.","b.","c."), label_size = 20)
+
+
+ggsave(PCoA_fish_allsite_AR_natural_merge, path = "figures", filename = "PCoA_fish_allsite_AR_natural_merge.jpg", width =18, height = 6)
+
+#MACROALGAE DENSITY
+#CHECK FOR NUMBERS IN 165
+stopifnot(colnames(dat_kelp_averages_bysite.wide[,c(1:4)]) == c("Region","Site","DepthZone","Agarum fimbriatum"))
+
+#kelp species only
+dat_kelp_averages_bysite.wide.spp <- dat_kelp_averages_bysite.wide[,c(4:23)]
+
+#log base 2 transform (Jonathan F. Jupke, Ralf B. Schäfer)
+#BUT I am using square root for permanova, so I should use square root here too
+dat_kelp_averages_bysite.wide.spp.l <- sqrt(dat_kelp_averages_bysite.wide.spp)
+
+#transformed but with depth zone attached
+dat_kelp_averages_bysite.wide.spp.depthzone <- cbind(dat_kelp_averages_bysite.wide[,3], dat_kelp_averages_bysite.wide.spp.l)
+
+#distance matrix (distance = bray curtis)
+dat_kelp_averages_bysite.wide.spp.dist <- vegdist(dat_kelp_averages_bysite.wide.spp.l, distance = "bray")
+
+#PCoA
+kelp_PCoA <- wcmdscale(dat_kelp_averages_bysite.wide.spp.dist, eig = TRUE)
+
+kelp_PCoA.pnts <- data.table(kelp_PCoA$points)
+
+#add env and group variables
+PCoA_kelp_sqrt_env <- cbind(dat_kelp_averages_bysite.wide[,c(1:3)],kelp_PCoA.pnts[,1:2])
+
+#adjust factor order
+PCoA_kelp_sqrt_env[,DepthZone := factor(DepthZone,
+                                        levels = c("Inner","Middle","Outer","Deep","ARM"),
+                                        labels = c("Inner","Middle","Outer","Deep","AR"))]
+
+#add mainland versus island designation
+PCoA_kelp_sqrt_env[,type := factor(ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Mainland")))]
+
+#visualize
+#just natural sites
+PCoA_kelp_allsite_points_natural_only <- ggplot(PCoA_kelp_sqrt_env[DepthZone != "AR"]) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  geom_point(aes(Dim1, Dim2, color = DepthZone, shape = DepthZone), size = 4, fill = "#FE6100") +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  lims(x = c(-0.7,0.6),y = c(-0.6,0.45)) +
+  labs(x = paste0("PCoA dim 1 (",round(kelp_PCoA$eig[1],1),"%)"),y = paste0("Macroalgae\nPCoA dim 2 (",round(kelp_PCoA$eig[2],1),"%)"), shape = "Depth zone",color = "Depth zone") +
+  scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  annotate(geom = "text",label ="Square-root transformation\nDistance: Bray-Curtis dissimilarity", 
+           x = 0.6, y = -0.6, size = 4, hjust = 1) +
+  theme_classic() +
+  theme(legend.position = c(0.5,0.95), legend.direction = "horizontal",
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16)) +
+  guides(
+    color = guide_legend(override.aes = list(size = 6), title.position = "top", title.hjust = 0.5, reverse = T),
+    shape = guide_legend(override.aes = list(size = 6), title.position = "top", title.hjust = 0.5, reverse = T),
+  )
+
+ggsave(PCoA_kelp_allsite_points_natural_only, path = "figures", filename = "PCoA_kelp_allsite_points_natural_only.jpg", height = 8, width = 12, unit = "in", dpi = 300)
+
+
+#mainland vs island
+#just natural sites
+PCoA_kelp_allsite_points_natural_only_island_mainland <- ggplot(PCoA_kelp_sqrt_env[DepthZone != "AR"]) +
+  geom_point(aes(Dim1, Dim2, fill = type), shape = 24, color = "black", size = 3) +
+  scale_fill_manual(values = c("black","white")) +
+  lims(x = c(-0.7,0.6),y = c(-0.6,0.45)) +
+  labs(x = "PCoA dim 1",y = "PCoA dim 2", fill = "Reef type") +
+  scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  theme_classic() +
+  theme(legend.direction = "horizontal",
+        legend.position = c(.55, .95),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16)) +
+  guides(
+    fill = guide_legend(override.aes = list(size = 6), title.position = "top",title.hjust = 0.5)
+  )
+
+ggsave(PCoA_kelp_allsite_points_natural_only_island_mainland, path = "figures", filename = "PCoA_kelp_allsite_points_natural_only_island_mainland.jpg", height = 8, width = 12, unit = "in", dpi = 300)
+
+
+#merge plot
+PCoA_kelp_centroids <- ggplot() +
+  stat_ellipse(data = PCoA_kelp_sqrt_env[DepthZone != "AR"], geom = "polygon", aes(Dim1, Dim2, fill = DepthZone), color = "white",alpha = 0.2) +
+  stat_ellipse(data = PCoA_kelp_sqrt_env[DepthZone != "AR"], geom = "polygon", aes(Dim1, Dim2,linetype = type), color = "gray32",fill = NA) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  geom_point(data = PCoA_kelp_sqrt_env[DepthZone == "AR"], aes(Dim1, Dim2),color = "black", size = 2) +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  annotate(geom = "text",label = "Artificial reef", x = -0.2, y = 0.45, size = 6) +
+  annotate(geom = "text",label = "I", x = -0.25, y = 0.3, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "M", x = 0, y = 0.22, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "O", x = -0.1, y = 0.2, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "D", x = 0, y = 0.12, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "Island", x = -0.41, y = -0.5, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "Mainland", x = 0.4, y = 0.25, size = 5, fontface = 'bold') +
+  geom_point(aes(x = -0.42, y = 0.45), size = 3) + #adds point for artificial reef
+  lims(x = c(-0.7,0.6),y = c(-0.6,0.45)) +
+  labs(x = "PCoA dim 1",y = "PCoA dim 2", shape = "Depth zone",color = "Depth zone", fill = "Depth zone", linetype = "Reef type") +
+  theme_classic() +
+  theme(legend.position = "null", legend.justification = "center",
+        legend.text = element_text(size = 18, face = "bold"),   # Increase legend text size
+        legend.key.size = unit(1.5, "lines"),
+        legend.title = element_text(size = 20),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16))     # Increase legend key size
+
+#plot natural reefs next to artificial reef highlight plot
+PCoA_kelp_allsite_AR_natural_merge <- plot_grid(PCoA_kelp_allsite_points_natural_only,
+                                                PCoA_kelp_allsite_points_natural_only_island_mainland + theme(axis.title.y = element_blank(), axis.text.y = element_blank()),
+                                                PCoA_kelp_centroids+theme(legend.position = "null",axis.title.y = element_blank(), axis.text.y = element_blank()), ncol = 3, align = "hv", labels = c("d.","e.","f."), label_size = 20)
+
+
+ggsave(PCoA_kelp_allsite_AR_natural_merge, path = "figures", filename = "PCoA_kelp_allsite_AR_natural_merge.jpg", width =18, height = 6)
+
+
+#MACROINVERT DENSITY#CHECK FOR NUMBERS IN 165
+stopifnot(colnames(dat_macroinvert_averages_bysite.wide[,c(1:4)]) == c("Region","Site","DepthZone","Acanthodoris lutea"))
+
+#macroinvert species only
+dat_macroinvert_averages_bysite.wide.spp <- dat_macroinvert_averages_bysite.wide[,c(4:106)]
+
+#log base 2 transform (Jonathan F. Jupke, Ralf B. Schäfer)
+#BUT I am using square root for permanova, so I should use square root here too
+dat_macroinvert_averages_bysite.wide.spp.l <- sqrt(dat_macroinvert_averages_bysite.wide.spp)
+
+#transformed but with depth zone attached
+dat_macroinvert_averages_bysite.wide.spp.depthzone <- cbind(dat_macroinvert_averages_bysite.wide[,3], dat_macroinvert_averages_bysite.wide.spp.l)
+
+#distance matrix (distance = bray curtis)
+dat_macroinvert_averages_bysite.wide.spp.dist <- vegdist(dat_macroinvert_averages_bysite.wide.spp.l, distance = "bray")
+
+#PCoA
+macroinvert_PCoA <- wcmdscale(dat_macroinvert_averages_bysite.wide.spp.dist, eig = TRUE)
+
+macroinvert_PCoA.pnts <- data.table(macroinvert_PCoA$points)
+
+#add env and group variables
+PCoA_macroinvert_sqrt_env <- cbind(dat_macroinvert_averages_bysite.wide[,c(1:3)],macroinvert_PCoA.pnts[,1:2])
+
+#adjust factor order
+PCoA_macroinvert_sqrt_env[,DepthZone := factor(DepthZone,
+                                        levels = c("Inner","Middle","Outer","Deep","ARM"),
+                                        labels = c("Inner","Middle","Outer","Deep","AR"))]
+
+#add mainland versus island designation
+PCoA_macroinvert_sqrt_env[,type := factor(ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Mainland")))]
+
+#visualize
+#just natural sites
+PCoA_macroinvert_allsite_points_natural_only <- ggplot(PCoA_macroinvert_sqrt_env[DepthZone != "AR"]) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  geom_point(aes(Dim1, Dim2, color = DepthZone, shape = DepthZone), size = 4, fill = "#FE6100") +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  lims(x = c(-0.7,0.6),y = c(-0.6,0.6)) +
+  labs(x = paste0("PCoA dim 1 (",round(macroinvert_PCoA$eig[1],1),"%)"),y = paste0("Macroinvertebrate\nPCoA dim 2 (",round(macroinvert_PCoA$eig[2],1),"%)"), shape = "Depth zone",color = "Depth zone") +
+  scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  annotate(geom = "text",label ="Square-root transformation\nDistance: Bray-Curtis dissimilarity", 
+           x = 0.6, y = -0.6, size = 4, hjust = 1) +
+  theme_classic() +
+  theme(legend.position = c(0.5,0.95), legend.direction = "horizontal",
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16)) +
+  guides(
+    color = guide_legend(override.aes = list(size = 6), title.position = "top", title.hjust = 0.5, reverse = T),
+    shape = guide_legend(override.aes = list(size = 6), title.position = "top", title.hjust = 0.5, reverse = T),
+  )
+
+ggsave(PCoA_macroinvert_allsite_points_natural_only, path = "figures", filename = "PCoA_macroinvert_allsite_points_natural_only.jpg", height = 8, width = 12, unit = "in", dpi = 300)
+
+
+#mainland vs island
+#just natural sites
+PCoA_macroinvert_allsite_points_natural_only_island_mainland <- ggplot(PCoA_macroinvert_sqrt_env[DepthZone != "AR"]) +
+  geom_point(aes(Dim1, Dim2, fill = type), shape = 24, color = "black", size = 3) +
+  scale_fill_manual(values = c("black","white")) +
+  lims(x = c(-0.7,0.6),y = c(-0.6,0.6)) +
+  labs(x = "PCoA dim 1",y = "PCoA dim 2", fill = "Reef type") +
+  scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  theme_classic() +
+  theme(legend.direction = "horizontal",
+        legend.position = c(.55, .95),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16)) +
+  guides(
+    fill = guide_legend(override.aes = list(size = 6), title.position = "top",title.hjust = 0.5)
+  )
+
+ggsave(PCoA_macroinvert_allsite_points_natural_only_island_mainland, path = "figures", filename = "PCoA_macroinvert_allsite_points_natural_only_island_mainland.jpg", height = 8, width = 12, unit = "in", dpi = 300)
+
+
+#merge plot
+PCoA_macroinvert_centroids <- ggplot() +
+  stat_ellipse(data = PCoA_macroinvert_sqrt_env[DepthZone != "AR"], geom = "polygon", aes(Dim1, Dim2, fill = DepthZone), color = "white",alpha = 0.2) +
+  stat_ellipse(data = PCoA_macroinvert_sqrt_env[DepthZone != "AR"], geom = "polygon", aes(Dim1, Dim2,linetype = type), color = "gray32",fill = NA) +
+  scale_fill_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  geom_point(data = PCoA_macroinvert_sqrt_env[DepthZone == "AR"], aes(Dim1, Dim2),color = "black", size = 2) +
+  scale_color_manual(values = c("#015AB5", "#785EF0","#DC277F","#FE6100"), guide = guide_legend(reverse = TRUE)) +
+  scale_shape_manual(values = c(15,17,19,23), guide = guide_legend(reverse = TRUE)) +
+  annotate(geom = "text",label = "Artificial reef", x = -0.1, y = 0.58, size = 6) +
+  annotate(geom = "text",label = "I", x = -0.5, y = 0.3, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "M", x = -0.3, y = 0.31, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "O", x = 0, y = 0.38, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "D", x = 0.3, y = 0.4, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "Island", x = -0.2, y = 0.45, size = 5, fontface = 'bold') +
+  annotate(geom = "text",label = "Mainland", x = 0.45, y = 0.15, size = 5, fontface = 'bold') +
+  geom_point(aes(x = -0.35, y = 0.58), size = 3) + #adds point for artificial reef
+  lims(x = c(-0.7,0.6),y = c(-0.6,0.6)) +
+  labs(x = "PCoA dim 1",y = "PCoA dim 2", shape = "Depth zone",color = "Depth zone", fill = "Depth zone", linetype = "Reef type") +
+  theme_classic() +
+  theme(legend.position = "null", legend.justification = "center",
+        legend.text = element_text(size = 18, face = "bold"),   # Increase legend text size
+        legend.key.size = unit(1.5, "lines"),
+        legend.title = element_text(size = 20),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16))     # Increase legend key size
+
+#plot natural reefs next to artificial reef highlight plot
+PCoA_macroinvert_allsite_AR_natural_merge <- plot_grid(PCoA_macroinvert_allsite_points_natural_only,
+                                                PCoA_macroinvert_allsite_points_natural_only_island_mainland + theme(axis.title.y = element_blank(), axis.text.y = element_blank()),
+                                                PCoA_macroinvert_centroids+theme(legend.position = "null",axis.title.y = element_blank(), axis.text.y = element_blank()), ncol = 3, align = "hv", labels = c("g.","h.","i."), label_size = 20)
+
+
+ggsave(PCoA_macroinvert_allsite_AR_natural_merge, path = "figures", filename = "PCoA_macroinvert_allsite_AR_natural_merge.jpg", width =18, height = 6)
+
+#full merge
+PCoA_allsite_AR_natural_merge_taxagroups <- plot_grid(PCoA_fish_allsite_AR_natural_merge,
+          PCoA_kelp_allsite_AR_natural_merge,
+          PCoA_macroinvert_allsite_AR_natural_merge, ncol = 1, align = "hv")
+
+ggsave(PCoA_allsite_AR_natural_merge_taxagroups, path = "figures", filename = "PCoA_allsite_AR_natural_merge_taxagroups.jpg", width =18, height = 18)
+
+
 
 ##################################################################################################
 #Distance-based ReDundancy Analysis (dbRDA)
@@ -753,10 +1128,6 @@ ordiplot(fitp, biplot = T, ind.spp = 20, xlim = c(-3,4.5), ylim = c(-0.0005,0.00
 
 #Including environmental variables
 
-#example
-library(mvabund)
-data(antTraits)
-
 
 #####################
 #PERMANOVA, Permutational Multivariate Analysis of Variance (perMANOVA)
@@ -764,115 +1135,208 @@ data(antTraits)
 #FULL COMMUNITY
 
 #Square root transformation (high abundance spp less pull in ordination)
-dat_averages_bysite.wide.rt <- sqrt(dat_averages_bysite.wide[,c(4:ncol(dat_averages_bysite.wide)), with = FALSE])
+dat_averages_bysite.wide.rt <- sqrt(dat_averages_bysite.wide[,c(4:24,37:ncol(dat_averages_bysite.wide)), with = FALSE])
 
 
 #add back reference columns
 dat_averages_bysite.wide.rt <- cbind(dat_averages_bysite.wide[,c(1:3), with = FALSE], dat_averages_bysite.wide.rt)
 
+#natural artificial
+dat_averages_bysite.wide.rt[,ARM_NATURAL := ifelse(DepthZone == "ARM","ARM","NAT")]
+
     #alternative version without artificial reefs
     dat_averages_bysite_NOARM.wide.rt <- dat_averages_bysite.wide.rt[DepthZone != "ARM",]
 
 #only keep Species
-dat_averages_bysite.wide.rt.trim <- dat_averages_bysite.wide.rt[,c(4:ncol(dat_averages_bysite.wide.rt)), with = FALSE]
+dat_averages_bysite.wide.rt.trim <- dat_averages_bysite.wide.rt[,c(4:198), with = FALSE]
 
   #alternative version without artificial reefs
-  dat_averages_bysite_NOARM.wide.rt.trim <- dat_averages_bysite_NOARM.wide.rt[,c(4:ncol(dat_averages_bysite_NOARM.wide.rt)), with = FALSE]
+  dat_averages_bysite_NOARM.wide.rt.trim <- dat_averages_bysite_NOARM.wide.rt[,c(4:198), with = FALSE]
 
-#perMANOVA including ARM as depth zone
-permanova_allspp <- adonis2(
-  dat_averages_bysite.wide.rt.trim ~ dat_averages_bysite.wide.rt$DepthZone,
-  method = "bray"
-)
+  #add in island versus mainland
+  dat_averages_bysite_NOARM.wide.rt[,type := ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Natural mainland"))]
 
-permanova_allspp
-
+#PERMANOVA FOR ALL SPECIES
 #permanova not including ARM as depth zone
-permanova_allspp_noarm <- adonis2(
+permanova_allspp_noarm_depthzone <- adonis2(
   dat_averages_bysite_NOARM.wide.rt.trim ~ dat_averages_bysite_NOARM.wide.rt$DepthZone,
-  method = "bray"
+  method = "bray",
+  permutations = 9999
 )
-permanova_allspp_noarm
+permanova_allspp_noarm_depthzone
 
-#depth zone accounts for 19% of variation for natural reef sites
-#depth zone PLUS AR accounts for 23% of variation
+#Depth accounts for 17% of variation in natural reef sites
 
-#ONLY FISH
-
-#Start with root transformation (high abundance spp less pull in ordination)
-dat_fish_averages_bysite.wide.rt <- sqrt(dat_fish_averages_bysite.wide[,c(4:ncol(dat_fish_averages_bysite.wide)), with = FALSE])
-
-#add back reference columns
-dat_fish_averages_bysite.wide.rt <- cbind(dat_fish_averages_bysite.wide[,c(1:3), with = FALSE], dat_fish_averages_bysite.wide.rt)
-
-#only keep Site and DepthZone
-dat_fish_averages_bysite.wide.rt.trim <- dat_fish_averages_bysite.wide.rt[,c(4:ncol(dat_fish_averages_bysite.wide.rt)), with = FALSE]
-
-permanova_fish <- adonis2(
-  dat_fish_averages_bysite.wide.rt.trim ~ dat_fish_averages_bysite.wide.rt$DepthZone,
-  method = "bray"
+#island mainland
+permanova_allspp_noarm_isl_main <- adonis2(
+  dat_averages_bysite_NOARM.wide.rt.trim ~ dat_averages_bysite_NOARM.wide.rt$type * dat_averages_bysite_NOARM.wide.rt$DepthZone, #20% of variation
+  method = "bray",
+  permutations = 9999
 )
+permanova_allspp_noarm_isl_main
 
-permanova_fish
+#island/mainland accounts for 21% of variation
 
-#fish names
-fish_names <- colnames(dat_fish_averages_bysite.wide.rt.trim)
-
-#depth zone affects fish community composition, accounting for 23% of variation in composition
-
-#ONLY MACRO
-
-#Start with root transformation (high abundance spp less pull in ordination)
-dat_macroinvert_averages_bysite.wide.rt <- sqrt(dat_macroinvert_averages_bysite.wide[,c(4:ncol(dat_macroinvert_averages_bysite.wide)), with = FALSE])
-
-#add back reference columns
-dat_macroinvert_averages_bysite.wide.rt <- cbind(dat_macroinvert_averages_bysite.wide[,c(1:3), with = FALSE], dat_macroinvert_averages_bysite.wide.rt)
-
-#only keep Site and DepthZone
-dat_macroinvert_averages_bysite.wide.rt.trim <- dat_macroinvert_averages_bysite.wide.rt[,c(4:ncol(dat_macroinvert_averages_bysite.wide.rt)), with = FALSE]
-
-permanova_macroinvert <- adonis2(
-  dat_macroinvert_averages_bysite.wide.rt.trim ~ dat_macroinvert_averages_bysite.wide.rt$DepthZone,
-  method = "bray"
+#ARM vs NAT
+#island mainland
+permanova_allspp_noarm_nat_arm <- adonis2(
+  dat_averages_bysite.wide.rt.trim ~ dat_averages_bysite.wide.rt$ARM_NATURAL, #20% of variation
+  method = "bray",
+  permutations = 9999
 )
+permanova_allspp_noarm_nat_arm
 
-permanova_macroinvert
+#only 5% of variation
 
-#macro names
-macro_names <- colnames(dat_macroinvert_averages_bysite.wide.rt.trim)
+#PERMANOVA FOR FISH
+#permanova not including ARM as depth zone
 
-#depth zone affects macroinvert community composition, but only accounting for 18% of variation in composition
+#take squareroot
+dat_fish_averages_bysite.wide.rt <- sqrt(dat_fish_averages_bysite.wide[,c(17:87)])
+
+#add back to grouping var
+dat_fish_averages_bysite.wide.rt <- cbind(dat_fish_averages_bysite.wide[,c(1:16)],dat_fish_averages_bysite.wide.rt)
+
+#no ARM
+dat_fish_averages_bysite.wide.rt.NOARM <- dat_fish_averages_bysite.wide.rt[DepthZone != "ARM",]
+
+#add island mainland
+dat_fish_averages_bysite.wide.rt.NOARM[,type := ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Natural mainland"))]
 
 
-#ONLY KELP
+#add natural vs not
+dat_fish_averages_bysite.wide.rt[,ARM_NATURAL := ifelse(DepthZone == "ARM","ARM","NAT")]
 
-#sometimes, no kelp at all, need to delete these rows
-kelp_row_sums <- rowSums(dat_kelp_averages_bysite.wide[,5:ncol(dat_kelp_wide_density)])
 
-dat_kelp_averages_bysite.wide[,rowSums := kelp_row_sums]
-
-dat_kelp_averages_bysite.wide.r <- dat_kelp_averages_bysite.wide[rowSums>0]
-
-#Start with root transformation (high abundance spp less pull in ordination)
-dat_kelp_averages_bysite.wide.rt <- sqrt(dat_kelp_averages_bysite.wide.r[,c(4:ncol(dat_kelp_averages_bysite.wide)), with = FALSE])
-
-#add back reference columns
-dat_kelp_averages_bysite.wide.rt <- cbind(dat_kelp_averages_bysite.wide.r[,c(1:3), with = FALSE], dat_kelp_averages_bysite.wide.rt)
-
-#only keep Site and DepthZone
-dat_kelp_averages_bysite.wide.rt.trim <- dat_kelp_averages_bysite.wide.rt[,c(4:ncol(dat_kelp_averages_bysite.wide.rt)), with = FALSE]
-
-permanova_kelp <- adonis2(
-  dat_kelp_averages_bysite.wide.rt.trim[,1:20] ~ dat_kelp_averages_bysite.wide.rt$DepthZone,
-  method = "bray"
+permanova_fish_noarm_depthzone <- adonis2(
+  dat_fish_averages_bysite.wide.rt.NOARM[,c(17:87)] ~ dat_fish_averages_bysite.wide.rt.NOARM$DepthZone,
+  method = "bray",
+  permutations = 9999
 )
+permanova_fish_noarm_depthzone
 
-permanova_kelp
+#Depth accounts for 17% of variation in fish composition at natural reef sites
 
-#kelp names
-kelp_names <- colnames(dat_kelp_averages_bysite.wide.rt.trim[,1:20])
+#island mainland
+permanova_fish_noarm_isl_main <- adonis2(
+  dat_fish_averages_bysite.wide.rt.NOARM[,c(17:87)] ~ dat_fish_averages_bysite.wide.rt.NOARM$DepthZone * dat_fish_averages_bysite.wide.rt.NOARM$type, 
+  method = "bray",
+  permutations = 9999
+)
+permanova_fish_noarm_isl_main
 
-#whether or not a site is an artificial reef affects fish community composition, accounting for 21% of variation in composition
+#17% depth zone, 11% island/mainland, 1.6% interaction
+
+#island/mainland accounts for 21% of variation
+
+#ARM vs NAT
+#island mainland
+permanova_fish_noarm_nat_arm <- adonis2(
+  dat_fish_averages_bysite.wide.rt[,c(17:87)] ~ dat_fish_averages_bysite.wide.rt$ARM_NATURAL, #20% of variation
+  method = "bray",
+  permutations = 9999
+)
+permanova_fish_noarm_nat_arm
+
+#7% of variation
+
+#PERMANOVA FOR KELP
+#permanova not including ARM as depth zone
+
+#take squareroot
+dat_kelp_averages_bysite.wide.rt <- sqrt(dat_kelp_averages_bysite.wide[,c(4:23)])
+
+#add back to grouping var
+dat_kelp_averages_bysite.wide.rt <- cbind(dat_kelp_averages_bysite.wide[,c(1:3)],dat_kelp_averages_bysite.wide.rt)
+
+#add island mainland
+dat_kelp_averages_bysite.wide.rt[,type := ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Natural mainland"))]
+
+
+#add natural vs not
+dat_kelp_averages_bysite.wide.rt[,ARM_NATURAL := ifelse(DepthZone == "ARM","ARM","NAT")]
+
+#no ARM
+dat_kelp_averages_bysite.wide.rt.NOARM <- dat_kelp_averages_bysite.wide.rt[DepthZone != "ARM",]
+
+permanova_kelp_noarm_depthzone <- adonis2(
+  dat_kelp_averages_bysite.wide.rt.NOARM[,c(4:23)] ~ dat_kelp_averages_bysite.wide.rt.NOARM$DepthZone,
+  method = "bray",
+  permutations = 9999
+)
+permanova_kelp_noarm_depthzone
+
+#Depth accounts for 17% of variation in kelp composition at natural reef sites
+
+#island mainland
+permanova_kelp_noarm_isl_main <- adonis2(
+  dat_kelp_averages_bysite.wide.rt.NOARM[,c(4:23)] ~ dat_kelp_averages_bysite.wide.rt.NOARM$DepthZone * dat_kelp_averages_bysite.wide.rt.NOARM$type, 
+  method = "bray",
+  permutations = 9999
+)
+permanova_kelp_noarm_isl_main
+
+#17% depth zone, 14% island/mainland, 2.8% interaction
+
+#ARM vs NAT
+#island mainland
+permanova_kelp_noarm_nat_arm <- adonis2(
+  dat_kelp_averages_bysite.wide.rt[,c(4:23)] ~ dat_kelp_averages_bysite.wide.rt$ARM_NATURAL, #20% of variation
+  method = "bray",
+  permutations = 9999
+)
+permanova_kelp_noarm_nat_arm
+
+#5.6% of variation
+#PERMANOVA FOR MACROINVERTEBRATES
+#permanova not including ARM as depth zone
+
+#take squareroot
+dat_macroinvert_averages_bysite.wide.rt <- sqrt(dat_macroinvert_averages_bysite.wide[,c(4:106)])
+
+#add back to grouping var
+dat_macroinvert_averages_bysite.wide.rt <- cbind(dat_macroinvert_averages_bysite.wide[,c(1:3)],dat_macroinvert_averages_bysite.wide.rt)
+
+#add island mainland
+dat_macroinvert_averages_bysite.wide.rt[,type := ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Natural mainland"))]
+
+
+#add natural vs not
+dat_macroinvert_averages_bysite.wide.rt[,ARM_NATURAL := ifelse(DepthZone == "ARM","ARM","NAT")]
+
+#no ARM
+dat_macroinvert_averages_bysite.wide.rt.NOARM <- dat_macroinvert_averages_bysite.wide.rt[DepthZone != "ARM",]
+
+permanova_macroinvert_noarm_depthzone <- adonis2(
+  dat_macroinvert_averages_bysite.wide.rt.NOARM[,c(4:106)] ~ dat_macroinvert_averages_bysite.wide.rt.NOARM$DepthZone,
+  method = "bray",
+  permutations = 9999
+)
+permanova_macroinvert_noarm_depthzone
+
+#Depth accounts for 16% of variation in macroinvert composition at natural reef sites
+
+#island mainland
+permanova_macroinvert_noarm_isl_main <- adonis2(
+  dat_macroinvert_averages_bysite.wide.rt.NOARM[,c(4:106)] ~ dat_macroinvert_averages_bysite.wide.rt.NOARM$DepthZone * dat_macroinvert_averages_bysite.wide.rt.NOARM$type, 
+  method = "bray",
+  permutations = 9999
+)
+permanova_macroinvert_noarm_isl_main
+
+#16% depth zone, 14% island/mainland, 2.1% interaction
+
+#ARM vs NAT
+#island mainland
+permanova_macroinvert_noarm_nat_arm <- adonis2(
+  dat_macroinvert_averages_bysite.wide.rt[,c(4:106)] ~ dat_macroinvert_averages_bysite.wide.rt$ARM_NATURAL, #20% of variation
+  method = "bray",
+  permutations = 9999
+)
+permanova_macroinvert_noarm_nat_arm
+
+#4.5% of variation
+
 
 ###################
 #PLOT NMDS
