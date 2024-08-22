@@ -53,7 +53,7 @@ spp_top_macro_kelp_key <- data.table(Species = c("Anthopleura sola", "Apostichop
                                                  "Agarum fimbriatum", "Egregia menziesii","Eisenia arborea", "Laminaria farlowii", "Macrocystis pyrifera",
                                                  "Pterygophora californica", "Sargassum horneri","Sargassum muticum","Sargassum palmeri","Sargassum sp", "Stephanocystis spp.", "Styela montereyensis"),
                                      Species_common =c("starburst anenome", "warty sea cucumber", "crowned urchin","Haliotis fulgens", "Kellet's whelk", "red gorgonian",
-                                                       "wavy turban snail", "red urchin", "golden gregorian","brown gregorian", "tube dwelling anenome",
+                                                       "wavy turban snail", "red urchin", "golden gorgonian","brown gorgonian", "tube dwelling anenome",
                                                        "CA spiny lobster", "bat star","purple urchin",
                                                        "fringed sieve kelp","feather boa kelp", "southern sea palm", "golden kombu", "giant kelp",
                                                        "stalked kelp", "S. horneri","S. muticum","S. palmeri","Sargassum sp", "chainbladder kelp", "stalked tunicate"))
