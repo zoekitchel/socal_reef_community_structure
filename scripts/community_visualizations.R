@@ -1094,12 +1094,17 @@ dat_averages_bysite.wide.rt[,ARM_NATURAL := ifelse(DepthZone == "ARM","ARM","NAT
 
     #alternative version without artificial reefs
     dat_averages_bysite_NOARM.wide.rt <- dat_averages_bysite.wide.rt[DepthZone != "ARM",]
+    dat_averages_bysite_DEEPOUTERMAINLANDARM.wide.rt <- dat_averages_bysite.wide.rt[(DepthZone %in% c("ARM","Deep","Outer") & !(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"))),]
 
 #only keep Species
 dat_averages_bysite.wide.rt.trim <- dat_averages_bysite.wide.rt[,c(4:198), with = FALSE]
 
+
   #alternative version without artificial reefs
   dat_averages_bysite_NOARM.wide.rt.trim <- dat_averages_bysite_NOARM.wide.rt[,c(4:198), with = FALSE]
+  
+  #alterative version with AR, Deep, and Outer mainland sites
+  dat_averages_bysite_DEEPOUTERMAINLANDARM.wide.rt.trim <- dat_averages_bysite_DEEPOUTERMAINLANDARM.wide.rt[,c(4:198), with = FALSE]
 
   #add in island versus mainland
   dat_averages_bysite_NOARM.wide.rt[,type := ifelse(DepthZone == "ARM","ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Natural mainland"))]
@@ -1115,8 +1120,8 @@ permanova_allspp_noarm_depthzone
 
 #Depth accounts for 17% of variation in natural reef sites
 
-#island mainland
-permanova_allspp_noarm_isl_main <- adonis2(
+#island mainland and depth zone
+permanova_allspp_noarm_isl_main_depth <- adonis2(
   dat_averages_bysite_NOARM.wide.rt.trim ~ dat_averages_bysite_NOARM.wide.rt$type * dat_averages_bysite_NOARM.wide.rt$DepthZone, #20% of variation
   method = "bray",
   permutations = 9999
@@ -1125,16 +1130,116 @@ permanova_allspp_noarm_isl_main
 
 #island/mainland accounts for 21% of variation
 
-#ARM vs NAT
-#island mainland
-permanova_allspp_noarm_nat_arm <- adonis2(
-  dat_averages_bysite.wide.rt.trim ~ dat_averages_bysite.wide.rt$ARM_NATURAL, #20% of variation
+#PERMDIS FOR DISPERSION
+#distance matrix
+dat_averages_bysite_NOARM.wide.rt.dist <- vegdist(dat_averages_bysite_NOARM.wide.rt.trim, method = "bray")
+
+#island/mainland betadisp
+permdis_allspp_noarm_isl_main <- betadisper(d = dat_averages_bysite_NOARM.wide.rt.dist, group = dat_averages_bysite_NOARM.wide.rt$type, type = "centroid")
+
+#anova of island vs. mainland
+anova(permdis_allspp_noarm_isl_main)
+
+#depth zone betadisp
+permdis_allspp_noarm_isl_main <- betadisper(d = dat_averages_bysite_NOARM.wide.rt.dist, group = dat_averages_bysite_NOARM.wide.rt$DepthZone, type = "centroid")
+
+#anova of depth zones
+anova(permdis_allspp_noarm_isl_main)
+
+#paired tests (just repeat permanova but for only two groups at a time)
+#deep and outer
+rows_keep <- dat_averages_bysite_NOARM.wide.rt[DepthZone %in% c("Deep","Outer"),.I]
+dat_averages_bysite_NOARM.wide.rt_deep_outer <- dat_averages_bysite_NOARM.wide.rt[rows_keep,]
+dat_averages_bysite_NOARM.wide.rt.trim.deep_outer <- dat_averages_bysite_NOARM.wide.rt.trim[rows_keep,]
+
+permanova_allspp_noarm_deepouter <- adonis2(
+  dat_averages_bysite_NOARM.wide.rt.trim.deep_outer ~ dat_averages_bysite_NOARM.wide.rt_deep_outer$DepthZone,
   method = "bray",
   permutations = 9999
 )
-permanova_allspp_noarm_nat_arm
+permanova_allspp_noarm_deepouter #R2 = 12, p-value = 0.0004
 
-#only 5% of variation
+#deep and middle
+rows_keep <- dat_averages_bysite_NOARM.wide.rt[DepthZone %in% c("Deep","Middle"),.I]
+dat_averages_bysite_NOARM.wide.rt_deep_middle <- dat_averages_bysite_NOARM.wide.rt[rows_keep,]
+dat_averages_bysite_NOARM.wide.rt.trim.deep_middle <- dat_averages_bysite_NOARM.wide.rt.trim[rows_keep,]
+
+permanova_allspp_noarm_deepmiddle <- adonis2(
+  dat_averages_bysite_NOARM.wide.rt.trim.deep_middle ~ dat_averages_bysite_NOARM.wide.rt_deep_middle$DepthZone,
+  method = "bray",
+  permutations = 9999
+)
+permanova_allspp_noarm_deepmiddle #R2 = 13, p-value = 0.0004
+
+#deep and inner
+rows_keep <- dat_averages_bysite_NOARM.wide.rt[DepthZone %in% c("Deep","Inner"),.I]
+dat_averages_bysite_NOARM.wide.rt_deep_inner <- dat_averages_bysite_NOARM.wide.rt[rows_keep,]
+dat_averages_bysite_NOARM.wide.rt.trim.deep_inner <- dat_averages_bysite_NOARM.wide.rt.trim[rows_keep,]
+
+permanova_allspp_noarm_deepinner <- adonis2(
+  dat_averages_bysite_NOARM.wide.rt.trim.deep_inner ~ dat_averages_bysite_NOARM.wide.rt_deep_inner$DepthZone,
+  method = "bray",
+  permutations = 9999
+)
+permanova_allspp_noarm_deepinner #R2 = 13, p-value = 0.0004
+
+#outer and inner
+rows_keep <- dat_averages_bysite_NOARM.wide.rt[DepthZone %in% c("Outer","Inner"),.I]
+dat_averages_bysite_NOARM.wide.rt_outer_inner <- dat_averages_bysite_NOARM.wide.rt[rows_keep,]
+dat_averages_bysite_NOARM.wide.rt.trim.outer_inner <- dat_averages_bysite_NOARM.wide.rt.trim[rows_keep,]
+
+permanova_allspp_noarm_outerinner <- adonis2(
+  dat_averages_bysite_NOARM.wide.rt.trim.outer_inner ~ dat_averages_bysite_NOARM.wide.rt_outer_inner$DepthZone,
+  method = "bray",
+  permutations = 9999
+)
+permanova_allspp_noarm_outerinner #R2 = 15, p-value = 0.0004
+
+#outer and middle
+rows_keep <- dat_averages_bysite_NOARM.wide.rt[DepthZone %in% c("Outer","Middle"),.I]
+dat_averages_bysite_NOARM.wide.rt_outer_middle <- dat_averages_bysite_NOARM.wide.rt[rows_keep,]
+dat_averages_bysite_NOARM.wide.rt.trim.outer_middle <- dat_averages_bysite_NOARM.wide.rt.trim[rows_keep,]
+
+permanova_allspp_noarm_outermiddle <- adonis2(
+  dat_averages_bysite_NOARM.wide.rt.trim.outer_middle ~ dat_averages_bysite_NOARM.wide.rt_outer_middle$DepthZone,
+  method = "bray",
+  permutations = 9999
+)
+permanova_allspp_noarm_outermiddle #R2 = 15, p-value = 0.0004
+
+#outer and inner
+rows_keep <- dat_averages_bysite_NOARM.wide.rt[DepthZone %in% c("Outer","Inner"),.I]
+dat_averages_bysite_NOARM.wide.rt_outer_inner <- dat_averages_bysite_NOARM.wide.rt[rows_keep,]
+dat_averages_bysite_NOARM.wide.rt.trim.outer_inner <- dat_averages_bysite_NOARM.wide.rt.trim[rows_keep,]
+
+permanova_allspp_noarm_outerinner <- adonis2(
+  dat_averages_bysite_NOARM.wide.rt.trim.outer_inner ~ dat_averages_bysite_NOARM.wide.rt_outer_inner$DepthZone,
+  method = "bray",
+  permutations = 9999
+)
+permanova_allspp_noarm_outerinner #R2 = 15, p-value = 0.0004
+
+############ARM vs NAT
+
+#Reduce to mainland outer and deep reefs only
+
+permanova_allspp_ARvsNAT <- adonis2(
+  dat_averages_bysite_DEEPOUTERMAINLANDARM.wide.rt.trim ~ dat_averages_bysite_DEEPOUTERMAINLANDARM.wide.rt$ARM_NATURAL, 
+  method = "bray",
+  permutations = 9999
+)
+permanova_allspp_ARvsNAT
+
+#distance matrix
+dat_averages_bysite_DEEPOUTERMAINLANDARM.wide.rt.dist <- vegdist(dat_averages_bysite_DEEPOUTERMAINLANDARM.wide.rt.trim, method = "bray")
+
+#natural vs. AR betadisp
+permdis_allspp_ar_vs_nat <- betadisper(d = dat_averages_bysite_DEEPOUTERMAINLANDARM.wide.rt.dist, group =dat_averages_bysite_DEEPOUTERMAINLANDARM.wide.rt$ARM_NATURAL, type = "centroid")
+
+#anova of island vs. mainland
+anova(permdis_allspp_ar_vs_nat)
+
+##################
 
 #PERMANOVA FOR FISH
 #permanova not including ARM as depth zone
@@ -1188,6 +1293,22 @@ permanova_fish_noarm_nat_arm
 
 #7% of variation
 
+#PERMDIS FOR DISPERSION
+#distance matrix
+dat_fish_averages_bysite_NOARM.wide.rt.dist <- vegdist( dat_fish_averages_bysite.wide.rt.NOARM[,c(17:87)], method = "bray")
+
+#island/mainland betadisp
+permdis_fish_noarm_isl_main <- betadisper(d = dat_fish_averages_bysite_NOARM.wide.rt.dist, group = dat_fish_averages_bysite.wide.rt.NOARM$type, type = "centroid")
+
+#anova of island vs. mainland
+anova(permdis_fish_noarm_isl_main)
+
+#depth betadisp
+permdis_fish_noarm_depthzone <- betadisper(d = dat_fish_averages_bysite_NOARM.wide.rt.dist, group = dat_fish_averages_bysite.wide.rt.NOARM$DepthZone, type = "centroid")
+
+#anova of island vs. mainland
+anova(permdis_fish_noarm_depthzone)
+
 #PERMANOVA FOR KELP
 #permanova not including ARM as depth zone
 
@@ -1225,6 +1346,22 @@ permanova_kelp_noarm_isl_main <- adonis2(
 permanova_kelp_noarm_isl_main
 
 #17% depth zone, 14% island/mainland, 2.8% interaction
+
+#PERMDIS FOR DISPERSION
+#distance matrix
+dat_kelp_averages_bysite_NOARM.wide.rt.dist <- vegdist( dat_kelp_averages_bysite.wide.rt.NOARM[,c(4:23)], method = "bray")
+
+#island/mainland betadisp
+permdis_kelp_noarm_isl_main <- betadisper(d = dat_kelp_averages_bysite_NOARM.wide.rt.dist, group = dat_kelp_averages_bysite.wide.rt.NOARM$type, type = "centroid")
+
+#anova of island vs. mainland
+anova(permdis_kelp_noarm_isl_main)
+
+#depth betadisp
+permdis_kelp_noarm_depthzone <- betadisper(d = dat_kelp_averages_bysite_NOARM.wide.rt.dist, group = dat_kelp_averages_bysite.wide.rt.NOARM$DepthZone, type = "centroid")
+
+#anova of island vs. mainland
+anova(permdis_kelp_noarm_depthzone)
 
 #ARM vs NAT
 #island mainland
@@ -1273,6 +1410,22 @@ permanova_macroinvert_noarm_isl_main <- adonis2(
 permanova_macroinvert_noarm_isl_main
 
 #16% depth zone, 14% island/mainland, 2.1% interaction
+
+#PERMDIS FOR DISPERSION
+#distance matrix
+dat_macroinvert_averages_bysite_NOARM.wide.rt.dist <- vegdist( dat_macroinvert_averages_bysite.wide.rt.NOARM[,c(4:106)], method = "bray")
+
+#island/mainland betadisp
+permdis_macroinvert_noarm_isl_main <- betadisper(d = dat_macroinvert_averages_bysite_NOARM.wide.rt.dist, group = dat_macroinvert_averages_bysite.wide.rt.NOARM$type, type = "centroid")
+
+#anova of island vs. mainland
+anova(permdis_macroinvert_noarm_isl_main)
+
+#depth betadisp
+permdis_macroinvert_noarm_depthzone <- betadisper(d = dat_macroinvert_averages_bysite_NOARM.wide.rt.dist, group = dat_macroinvert_averages_bysite.wide.rt.NOARM$DepthZone, type = "centroid")
+
+#anova of island vs. mainland
+anova(permdis_macroinvert_noarm_depthzone)
 
 #ARM vs NAT
 #island mainland

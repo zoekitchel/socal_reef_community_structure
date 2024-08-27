@@ -1,5 +1,5 @@
 # CREATION DATE 7 July 2024
-# MODIFIED DATE 14 August 2024
+# MODIFIED DATE 26 August 2024
 
 # AUTHOR: kitchel@oxy.edu
 
@@ -57,18 +57,18 @@ dat_kelp_site_averages[,type := ifelse(DepthZone == "ARM","ARM",ifelse(Region %i
 ########################
 
 #abundance for fish
-dat_fish_site_averages[,total_abundance_depthzone_site := sum(mean_density_m2),.(Site, DepthZone)]
-dat_fish_site_averages[,total_biomass_depthzone_site := sum(mean_wt_density_g_m2),.(Site, DepthZone)] #total fish biomass in grams
+dat_fish_site_averages[,total_abundance_depthzone_site := sum(mean_density_m2)*100,.(Site, DepthZone)] #multiply by 100 to get # per 100m^2
+dat_fish_site_averages[,total_biomass_depthzone_site := sum(mean_wt_density_g_m2)*100/1000,.(Site, DepthZone)] #total fish biomass in kg per 100m^2 (multiply by 100, divide by 1000)
 
 dat_fish_total_abundances <- unique(dat_fish_site_averages[,.(Site, DepthZone, type, total_abundance_depthzone_site, total_biomass_depthzone_site)])
 
 #abundance for macroinverts
-dat_macroinvert_site_averages[,total_abundance_depthzone_site := sum(mean_density_m2),.(Site, DepthZone)]
+dat_macroinvert_site_averages[,total_abundance_depthzone_site := sum(mean_density_m2)*100,.(Site, DepthZone)] #multiply by 100 to get # per 100m^2
 dat_macroinvert_total_abundances <- unique(dat_macroinvert_site_averages[,.(Site, DepthZone, type, total_abundance_depthzone_site)])
 
 
 #abundance for kelp
-dat_kelp_site_averages[,total_abundance_depthzone_site := sum(mean_density_m2),.(Site, DepthZone)]
+dat_kelp_site_averages[,total_abundance_depthzone_site := sum(mean_density_m2)*100,.(Site, DepthZone)] #multiply by 100 to get # per 100m^2
 dat_kelp_total_abundances <- unique(dat_kelp_site_averages[,.(Site, DepthZone, type, total_abundance_depthzone_site)])
 
 
@@ -83,7 +83,7 @@ fish_abundance_depthzone <- ggplot(dat_fish_total_abundances) +
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
-  labs(x = "Depth Zone",y = bquote("Fish density (#/m"^2*")") , fill = "Reef type", pattern = "Reef type") +
+  labs(x = "Depth Zone",y = bquote("   Fish density\n(count per 100 m"^2*")") , fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   theme(
     legend.position = c(0.95, 0.95),
@@ -98,7 +98,7 @@ ggsave(fish_abundance_depthzone, path = file.path("figures"), filename ="fish_ab
 #visualize all fish biomass
 
 fish_biomass_depthzone <- ggplot(dat_fish_total_abundances) +
-  geom_boxplot_pattern(aes(x = DepthZone, y = total_biomass_depthzone_site/1000, fill = type, pattern = type), position = position_dodge2(preserve = "single"),
+  geom_boxplot_pattern(aes(x = DepthZone, y = total_biomass_depthzone_site, fill = type, pattern = type), position = position_dodge2(preserve = "single"),
                        colour          = 'black', 
                        pattern_density = 0.01, 
                        pattern_fill    = 'black',
@@ -107,7 +107,7 @@ fish_biomass_depthzone <- ggplot(dat_fish_total_abundances) +
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
-  labs(x = "Depth Zone", y = bquote("Fish biomass (kg/m"^2*")"), fill = "Reef type", pattern = "Reef type") +
+  labs(x = "Depth Zone", y = bquote("   Fish density\n(kg per 100 m"^2*")"), fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   theme(
     legend.position = c(0.95, 0.95),
@@ -116,7 +116,7 @@ fish_biomass_depthzone <- ggplot(dat_fish_total_abundances) +
 
 ggsave(fish_biomass_depthzone, path = file.path("figures"), filename ="fish_biomass_depthzone.jpg", height = 4.5, width = 5, units = "in")
 
-(fish_biomass_depthzone_tukey <- generate_boxplot_tukey_labels(dat_fish_total_abundances, "total_biomass_depthzone_site", fish_biomass_depthzone, divide_var_1000 = T))
+(fish_biomass_depthzone_tukey <- generate_boxplot_tukey_labels(dat_fish_total_abundances, "total_biomass_depthzone_site", fish_biomass_depthzone))
 
 #visualize all macroinvertebrate density
 macroinvert_abundance_depthzone <- ggplot(dat_macroinvert_total_abundances) +
@@ -129,7 +129,7 @@ macroinvert_abundance_depthzone <- ggplot(dat_macroinvert_total_abundances) +
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
-  labs(x = "Depth Zone", y = bquote("Macroinvertebrate density (#/m"^2*")"), fill = "Reef type", pattern = "Reef type") +
+  labs(x = "Depth Zone", y = bquote("Macroinvertebrate density (count per 100 m"^2*")"), fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   theme(
     legend.position = c(0.85, 1.1),
@@ -151,7 +151,7 @@ kelp_abundance_depthzone <- ggplot(dat_kelp_total_abundances) +
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
-  labs(x = "Depth Zone", y = bquote("Macroalgae density (#/m"^2*")"), fill = "Reef type", pattern = "Reef type") +
+  labs(x = "Depth Zone", y = bquote("Macroalgae density (count per 100 m"^2*")"), fill = "Reef type", pattern = "Reef type") +
   scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR")) +
   theme_classic() +
   theme(
@@ -165,8 +165,8 @@ kelp_abundance_depthzone_tukey <- generate_boxplot_tukey_labels(dat_kelp_total_a
 
 #Merge plots
 #first, stack fish biomass and density
-fish_abundance_merge <- cowplot::plot_grid(fish_abundance_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()), 
-                                           fish_biomass_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
+fish_abundance_merge <- cowplot::plot_grid(fish_abundance_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank(), plot.margin = margin(0,0,0,1,unit = "cm")), 
+                                           fish_biomass_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank(), plot.margin = margin(0,0,0,1,unit = "cm")),
                                                                           ncol = 1, align = "v", labels = c("a.","b."), label_y = c(1,1.1))
 
 abundance_depthzone_merge <- cowplot::plot_grid(fish_abundance_merge,
@@ -205,7 +205,7 @@ fish_richness_depthzone <- ggplot(dat_fish_richness_depthzone_site) +
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
-  labs(x = "Depth Zone", y = "Fish richness", fill = "Reef type", pattern = "Reef type") +
+  labs(x = "Depth Zone", y = "Fish richness\n", fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   theme(
     legend.position = c(0.4, 1),
@@ -263,9 +263,9 @@ kelp_richness_depthzone_tukey <- generate_boxplot_tukey_labels(dat_kelp_richness
 
 
 #Merge plots
-richness_depthzone_merge <- cowplot::plot_grid(fish_richness_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
-                                                kelp_richness_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
-                                               macroinvert_richness_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
+richness_depthzone_merge <- cowplot::plot_grid(fish_richness_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank(), plot.margin = margin(0,0,0,1,unit = "cm")),
+                                                kelp_richness_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank(), plot.margin = margin(0,0,0,0.8,unit = "cm")),
+                                               macroinvert_richness_depthzone_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank(), plot.margin = margin(0,0,0,0.8,unit = "cm")),
                                                
                                                                                                nrow = 1, labels = c("e.","f.", "g."), align = "h")
 
@@ -313,7 +313,7 @@ fish_simpson_depthzone_density <- ggplot(dat_fish_simpson) +
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
-  labs(x = "Depth Zone", y = "Density", fill = "Reef type", pattern = "Reef type") +
+  labs(x = "Depth Zone", y = "Fish Simpson index\n(count-based)", fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   theme(
     legend.position = c(0.87, 0.15)
@@ -335,7 +335,7 @@ fish_simpson_depthzone_biomass <- ggplot(dat_fish_simpson) +
   ) +
   scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial reef","Natural island","Natural mainland")) +
   scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial reef","Natural island","Natural mainland")) +
-  labs(x = "Depth Zone", y = "Biomass", fill = "Reef type", pattern = "Reef type") +
+  labs(x = "Depth Zone", y = "Fish Simpson index\n(biomass-based)", fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   theme(
     legend.position = c(0.87, 0.15)
@@ -396,8 +396,8 @@ kelp_simpson_depthzone_density_tukey <- generate_boxplot_tukey_labels(dat_kelp_s
 
 #Merge plots
 #first, stack fish biomass and density
-fish_diversity_merge <- cowplot::plot_grid(fish_simpson_depthzone_density_tukey  + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()), 
-                                           fish_simpson_depthzone_biomass_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank()),
+fish_diversity_merge <- cowplot::plot_grid(fish_simpson_depthzone_density_tukey  + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank(),  plot.margin = margin(0,0,0,0.6,unit = "cm"))  , 
+                                           fish_simpson_depthzone_biomass_tukey + theme(legend.position = "null", axis.title.x = element_blank(), axis.text = element_text(size = 12), axis.text.x = element_blank(),  plot.margin = margin(0,0,0,0.6,unit = "cm")),
                                            ncol = 1, align = "v", labels = c("h.","i."), label_y = c(1,1.1))
 
 diversity_depthzone_merge <- cowplot::plot_grid(fish_diversity_merge,
@@ -409,8 +409,13 @@ diversity_depthzone_merge <- cowplot::plot_grid(fish_diversity_merge,
 #mega-merge
 depthzone_abun_rich_div_merge_tukey <- cowplot::plot_grid(abundance_depthzone_merge, richness_depthzone_merge, diversity_depthzone_merge, ncol = 1, align = "hv")
 
+#add legend on top
+megamerge_tukey_leg <- get_legend(fish_simpson_depthzone_density_tukey + theme(legend.position = "top", legend.direction = "horizontal"))
+
+depthzone_abun_rich_div_merge_tukey.l <- plot_grid(megamerge_tukey_leg, depthzone_abun_rich_div_merge_tukey, rel_heights = c(1,10), ncol = 1)
+
 #save
-ggsave(depthzone_abun_rich_div_merge_tukey, path = file.path("figures"), filename = "depthzone_abun_rich_div_merge_tukey.jpg", height = 9, width = 10, unit = "in")
+ggsave(depthzone_abun_rich_div_merge_tukey.l, path = file.path("figures"), filename = "depthzone_abun_rich_div_merge_tukey.l.jpg", height = 12, width = 10, unit = "in")
 
 
 
@@ -452,11 +457,11 @@ merged_abundance_richness_diversity_datatables <- rbind(dat_fish_total_abundance
 
 # Custom labels for the 'metric' variable
 metric_labels <- c(
-  total_abundance_depthzone_site = "Density (#)",
-  total_biomass_depthzone_site = "Density (kg)",
-  total_richness_depthzone_site = "Richness",
-  Simpson_index_density = "Simpson index (#)",
-  Simpson_index_biomass = "Simpson index (kg)"
+  total_abundance_depthzone_site = "Density\n(count-based)",
+  total_biomass_depthzone_site = "Density\n(biomass-based)",
+  total_richness_depthzone_site = "Richness\n ",
+  Simpson_index_density = "Simpson index\n(count-based)",
+  Simpson_index_biomass = "Simpson index\n(biomass-based)"
 )
 
 #change ARM to AR only
