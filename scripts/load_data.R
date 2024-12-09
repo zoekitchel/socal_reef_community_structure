@@ -21,10 +21,11 @@ library(dplyr)
         #Excludes samples <= 2015 to avoid heatwaves and sea star wasting, etc. Good starting year for baseline conditions of sort (avoids blob that ended in ~2015)
 
 ############################
-#Are you loading and cleaning data for OSM poster (only want 2022-2023 data)
+#Are you loading and cleaning data for regular paper, for OSM poster (only want 2022-2023 data), or for Maggie's project?
 ############################
-
+regular = TRUE
 OSM = FALSE
+maggie_gorgonian = FALSE
 
 #############################
 ##Load data
@@ -70,7 +71,15 @@ CRANE_data_prep(SELECT = "BOEM_depth_comparison",
 ########################
 source("~/Dropbox/VRG Files/R Code/Integrated Dive General/CRANE_level_orders.R")
 
-dat_fish_t <- CRANE_level_orders(dat_fish_t, AR_Region = T, AR_Complex = T) |> 
+dat_fish_t <- CRANE_level_orders(
+  dat_fish_t,
+  PVR_Monitor_Cat = T, #need this so PVR_Reefing_Area works below
+  AR_Region = T,
+  AR_Complex = T,
+  # reassign relevant SiteType & DepthZone (Halo) for Reefing Area
+  PVR_Reefing_Area = T #after this can filter out DepthZone != "Halo"
+  ) |> 
+  filter(DepthZone != "Halo") |> #remove halo observations
   droplevels()
 
 dat_macroinvert <- CRANE_level_orders(dat_macroinvert, AR_Region = T, AR_Complex = T) |> 
@@ -162,7 +171,7 @@ unique_site_year <- unique_site_year[site_second_most_sample_key,on = c("Site")]
 site_by_years <- unique(unique_site_year[,.(Site, most_recent, Years_sampled, second_most_recent_year)])
 
 
-if(OSM == F){
+if(regular == T){
 #how many sites with atleast 3 years of data?
 nrow(site_by_years[Years_sampled >=3]) #leaves us 93 sites
 
@@ -241,4 +250,33 @@ if(OSM == T){ #different subset
   saveRDS(dat_fish_site_averages_OSM, file.path("data","processed_crane", "dat_fish_site_averages_OSM.rds"))
   saveRDS(dat_macroinvert_site_averages_OSM, file.path("data","processed_crane", "dat_macroinvert_site_averages_OSM.rds"))
   saveRDS(dat_kelp_site_averages_OSM, file.path("data","processed_crane", "dat_kelp_site_averages_OSM.rds"))
+}
+
+
+if(maggie_gorgonian == T){ #different subset
+  #we don't care how many years of data, but we need gorgonians and CCA
+  #nrow(site_by_years[Years_sampled >=3]) #leaves us 93 sites #in case we want to bring back in 
+  
+  ########################
+  ##Remove TBF 2016 Project (ASK WHAT THIS IS AND IF I SHOULD LEAVE IT IN)
+  ########################
+  dat_event <- dat_event[Project != "TBF2016",]
+  dat_macroinvert <- dat_macroinvert[Project != "TBF2016",]
+  dat_kelp <- dat_kelp[Project != "TBF2016",]
+  
+  ########################
+  ##Reduce to CCA (from UPC, percent cover) and gorgonians (from swath)
+  ########################
+  
+  #SpeciesGroupF = gorgonians in swath data
+  
+  dat_gorgonian <- dat_macroinvert[SpeciesGroupF == "gorgonians"]
+  fwrite(dat_gorgonian, file.path("data","processed_crane","for_maggie","dat_gorgonian.csv"))
+  
+  #CCA from UPC
+  UPC_CCA <- UPC_complete %>% 
+    filter(Taxa == "coralline algae - crustose" & Category == "UPC Species")
+  fwrite(UPC_CCA, file.path("data","processed_crane","for_maggie","UPC_CCA.csv"))
+
+  
 }
