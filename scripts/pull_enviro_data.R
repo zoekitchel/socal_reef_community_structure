@@ -361,6 +361,9 @@ all_env_lat_lon <- fread(file.path("data","enviro_predictors","all_env_lat_lon.c
 all_env_lat_lon_nodepthzone <- all_env_lat_lon[,c(1:7,9:19)]
 all_env_lat_lon.r <- all_env_lat_lon_nodepthzone[, lapply(.SD, mean, na.rm = T), by=c("Site")] #some values look into this 
 
+#save
+fwrite(all_env_lat_lon.r,file.path("data","enviro_predictors","all_env_lat_lon.r.csv"))
+
 #map
 
 #bathymetry backdrop from marmap

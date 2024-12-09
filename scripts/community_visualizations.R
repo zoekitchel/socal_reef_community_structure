@@ -1144,7 +1144,8 @@ dat_averages_bysite.wide.rt.trim <- dat_averages_bysite.wide.rt[,c(4:198), with 
 permanova_allspp_noarm_depthzone <- adonis2(
   dat_averages_bysite_NOARM.wide.rt.trim ~ dat_averages_bysite_NOARM.wide.rt$DepthZone,
   method = "bray",
-  permutations = 9999,
+  permutations = 9999
+  ,
   by = "margin"
 )
 permanova_allspp_noarm_depthzone

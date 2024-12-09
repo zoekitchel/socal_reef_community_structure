@@ -1,10 +1,61 @@
 #add tukey test to plot
-generate_boxplot_tukey_labels <- function(dt, var, plot, divide_var_1000 = F, richness = F){
-  dt[, mainland_island := ifelse(type %in% c("ARM", "Natural mainland"), "Mainland","Island")]
+generate_boxplot_tukey_labels <- function(dt, var, plot, divide_var_1000 = F, richness = F, non_parametric = F){
+  dt[, mainland_island := ifelse(type_wAR %in% c("Artificial_reef", "Natural_mainland"), "Mainland","Island")]
   #run anova
   anova <- aov(data = dt, get(var)~DepthZone*mainland_island)
+  
+      #Alt non_parametric test
+      if(non_parametric == T){
+      #Add interaction term to data table
+        dt$interaction_depthzone_type <- interaction(dt$mainland_island,dt$DepthZone,sep = ":")
+      
+       kruskal <- kruskal.test(data = dt, get(var)~interaction_depthzone_type) #p = 0.00000008
+      }
   #run tukey
   tukey <- TukeyHSD(anova)
+  
+  #run non-parametric tukey
+    if(non_parametric == T){
+      #extract response variable
+      var_extract <- dt[[var]]
+      
+      #Run wilcoxin text (multiple pairwise comparisons; exact = F deals with ties)
+      wilcox <- pairwise.wilcox.test(x = var_extract, g = dt$interaction_depthzone_type, p.adjust.method = "bonferroni", exact = F)
+      
+      #Create full matrix from lower triangle
+      p_vals_matrix <-wilcox$p.value
+      
+      #Convert from triangular to square matrix
+      tri.to.squ<-function(x)
+      {
+        rn<-row.names(x)
+        cn<-colnames(x)
+        an<-unique(c(cn,rn))
+        myval<-x[!is.na(x)]
+        mymat<-matrix(1,nrow=length(an),ncol=length(an),dimnames=list(an,an))
+        for(ext in 1:length(cn))
+        {
+          for(int in 1:length(rn))
+          {
+            if(is.na(x[row.names(x)==rn[int],colnames(x)==cn[ext]])) next
+            mymat[row.names(mymat)==rn[int],colnames(mymat)==cn[ext]]<-x[row.names(x)==rn[int],colnames(x)==cn[ext]]
+            mymat[row.names(mymat)==cn[ext],colnames(mymat)==rn[int]]<-x[row.names(x)==rn[int],colnames(x)==cn[ext]]
+          }
+          
+        }
+        return(mymat)
+      }
+      
+      mymat <- tri.to.squ(p_vals_matrix)
+      
+      #Generate comparison letters
+      multcompLetters(mymat)
+      
+      ggboxplot(dt, x = "interaction_depthzone_type", y = var, color = "type_wAR") +theme(axis.text.x = element_text(angle = 90, hjust = 1)) + stat_compare_means()
+      View(compare_means(total_abundance_depthzone_site~interaction_depthzone_type, data = dt))
+
+      }
+  
   # Extract labels and factor levels from Tukey post-hoc 
   tukey$`DepthZone:mainland_island`[!complete.cases(tukey$`DepthZone:mainland_island`),] <- 0
   Tukey.labels <- multcompLetters4(anova, tukey)
@@ -41,10 +92,10 @@ generate_boxplot_tukey_labels <- function(dt, var, plot, divide_var_1000 = F, ri
   #link
   plot.labels.dt <- boxplot.dt[plot.labels.dt, on = c("DepthZone","mainland_island")]
   
-  plot.labels.dt <- plot.labels.dt[`DepthZone:mainland_island`!= "ARM:Island",]
+  plot.labels.dt <- plot.labels.dt[!(`DepthZone:mainland_island`%in% c("AR_PVR:Island","AR_SM:Island")),]
   
   #set order
-  plot.labels.dt[, `DepthZone:mainland_island`:= factor(`DepthZone:mainland_island`, levels = c("Inner:Island","Inner:Mainland", "Middle:Island","Middle:Mainland","Outer:Island", "Outer:Mainland", "Deep:Island","Deep:Mainland","ARM:Mainland"))]
+  plot.labels.dt[, `DepthZone:mainland_island`:= factor(`DepthZone:mainland_island`, levels = c("Inner:Island","Inner:Mainland", "Middle:Island","Middle:Mainland","Outer:Island", "Outer:Mainland", "Deep:Island","Deep:Mainland","AR_PVR:Mainland","AR_SM:Mainland"))]
   setkey(plot.labels.dt, `DepthZone:mainland_island`)
   
   plot.labels.dt[, x_location := c(0.82,
@@ -55,9 +106,11 @@ generate_boxplot_tukey_labels <- function(dt, var, plot, divide_var_1000 = F, ri
                                    3.18,
                                    3.81,
                                    4.18,
-                                   5.01)]
+                                   5.01,
+                                   6.01
+                                   )]
   
-  full_plot <- plot + geom_text(data = plot.labels.dt, aes(x = x_location, y = true_label, label = letter), size = 3) + theme(legend.position = "null")
+  full_plot <- plot + geom_text(data = plot.labels.dt, aes(x = x_location, y = true_label, label = letter), size = 3)
   
   return(full_plot)
 }
