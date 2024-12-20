@@ -223,7 +223,8 @@ site_map_with_insets <- ggdraw(site_map_with_inset) +
   draw_plot(inset_leg, x = -0.19, y = 0.36, height = 0.05) +
   geom_segment(aes(x = 0.55, y = 0.73, xend = 0.37, yend = 0.64),
                arrow = arrow()) +
-  geom_text(aes(label = "Palos Verdes Peninsula",x = 0.22, y = 0.63), size = 5)
+  geom_text(aes(label = "Palos Verdes Peninsula",x = 0.22, y = 0.63), size = 5) +
+  geom_text(aes(label = "Santa Monica Bay"), x = 0.46, y = 0.85, size = 5)
 
 # Save the plot
 ggsave(site_map_with_insets, filename = "site_map_basic_with_insets.jpg", path = file.path("figures"), width = 9, height =4.5, units = "in", dpi = 300)
