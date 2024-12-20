@@ -1,5 +1,5 @@
 # CREATION DATE 28 Jan 2024
-# MODIFIED DATE 29 Aug 2024
+# MODIFIED DATE 20 Dec 2024
 
 # AUTHOR: kitchel@oxy.edu
 
@@ -136,7 +136,7 @@ dat_fishbiomass_averages.u[,DepthZone := factor(DepthZone, levels = c("Inner","M
 dat_fishbiomass_averages.u[,full_label := factor(full_label, levels = c(
 "Anisotremus davidsonii\nxantic sargo",       "Bodianus pulcher\nCalifornia sheephead",     "Chromis punctipinnis\nblacksmith",          
 "Girella nigricans\nopaleye",                 "Hypsypops rubicundus\nGaribaldi damselfish",                                   
-"Paralabrax clathratus\nkelp bass",           "Paralabrax nebulifer\nbarred sand bass",     "Stereolepis gigas\ngiant sea bass",  "Other"     ))]
+"Paralabrax clathratus\nkelp bass",           "Paralabrax nebulifer\nbarred sand bass",   "Rhacochilus toxotes\nrubberlip seaperch",  "Stereolepis gigas\ngiant sea bass",  "Other"     ))]
 
 #Zoom into individual artificial reef complexes
 
@@ -208,13 +208,15 @@ color_palette_fishdensity <- c(
                    "#BC80BD" ,#bluebanded goby
                    "#CCEBC5" ,#blacksmith
                     "#D9D9D9")
+
 color_palette_fishbiomass <- c("deepskyblue2",#sargo
+                               "#D178A4", #rubberlip sea perch
                                "#FDB462" ,#garibaldi
-                               "#80B1D3",#barred sand bass
                                "#E16A86",#giant sea bass
-                               "#8DD3C7" ,#opaleye
                                "#CCCC8F",#california sheephead
+                               "#8DD3C7" ,#opaleye
                                "forestgreen",#kelp bass
+                               "#80B1D3",#barred sand bass
                                "#CCEBC5",#blacksmith
                                "#D9D9D9" #other
                                )
@@ -430,13 +432,14 @@ dat_fishbiomass_averages_AR.u[,AR_Complex := factor(AR_Complex,
                                                     levels = c("Santa Monica","Marina del Rey 2","Hermosa Beach","Palos Verdes Reef"),
                                                     labels = c("Santa Monica","Marina del Rey","Hermosa Beach","Palos Verdes Reef"))]
 
-fish_AR_biomass_palette <- c("#8DD3C7",#opaleye
+fish_AR_biomass_palette <- c("#D178A4",#seaperch
+                              "#8DD3C7",#opaleye
                              "forestgreen" ,#kelp bass
                               "#CCEBC5" ,#blacksmith
                               "#CCCC8F",#California sheephead
                              "#DC5725", #broomtail grouper
-                             "#E16A86",#giant sea bass
                               "#80B1D3",#barred sand bass
+                             "#E16A86",#giant sea bass
                               "#D9D9D9") #other
 
 fish_biomass_top5_stacked_AR <- ggplot(dat_fishbiomass_averages_AR.u, aes(fill=reorder(full_label_biomass, rank), y=(summed_mean_AR_complex_density_wt_m2/100*1000), x=AR_Complex)) + 
@@ -837,7 +840,7 @@ dat_fish_averages_sitetype_only[, common_top5 := ifelse(frank(-mean_depthzone_de
 dat_fish_averages_sitetype_only[, summed_mean_depthzone_sitetype_only_density_m2 := sum(mean_depthzone_density_m2), .(type_ARsplit, Species_top5, common_top5)]
 dat_fishdensity_averages_sitetype_only.u <- unique(dat_fish_averages_sitetype_only[,.(Species_top5, type_ARsplit, summed_mean_depthzone_sitetype_only_density_m2, common_top5)])
 dat_fishdensity_averages_sitetype_only.u[,full_label := ifelse(Species_top5 == "Other","Other",paste0(Species_top5,"\n", common_top5))]
-dat_fishdensity_averages_sitetype_only.u[,type_ARsplit := factor(type_ARsplit,levels = c("Island","Natural mainland","AR_PVR","AR_SM"), labels = c("Natural island","Natural mainland","Artificial reef\nPalos Verdes","Artificial reef\nSanta Monica\nBay"))]
+dat_fishdensity_averages_sitetype_only.u[,type_ARsplit := factor(type_ARsplit,levels = c("Island","Mainland","AR_PVR","AR_SM"), labels = c("Natural island","Mainland","Artificial reef\nPalos Verdes","Artificial reef\nSanta Monica\nBay"))]
 dat_fishdensity_averages_sitetype_only.u <- spp_color_key[dat_fishdensity_averages_sitetype_only.u, on = c("species_name" = "Species_top5")]
 
 
@@ -847,7 +850,7 @@ dat_kelp_averages_sitetype_only[, common_top5_kelp := ifelse(frank(-mean_depthzo
 dat_kelp_averages_sitetype_only[, summed_mean_depthzone_sitetype_only_density_m2 := sum(mean_depthzone_density_m2), .( type_ARsplit, Species_top5_kelp, common_top5_kelp)]
 dat_kelpdensity_averages_sitetype_only.u <- unique(dat_kelp_averages_sitetype_only[,.(Species_top5_kelp, type_ARsplit,  summed_mean_depthzone_sitetype_only_density_m2, common_top5_kelp)])
 dat_kelpdensity_averages_sitetype_only.u[,full_label := ifelse(Species_top5_kelp == "Other","Other",paste0(Species_top5_kelp,"\n", common_top5_kelp))]
-dat_kelpdensity_averages_sitetype_only.u[,type_ARsplit := factor(type_ARsplit,levels = c("Island","Natural mainland","AR_PVR","AR_SM"), labels = c("Natural island","Natural mainland","Artificial reef\nPalos Verdes","Artificial reef\nSanta Monica\nBay"))]
+dat_kelpdensity_averages_sitetype_only.u[,type_ARsplit := factor(type_ARsplit,levels = c("Island","Mainland","AR_PVR","AR_SM"), labels = c("Natural island","Mainland","Artificial reef\nPalos Verdes","Artificial reef\nSanta Monica\nBay"))]
 dat_kelpdensity_averages_sitetype_only.u <- spp_color_key[dat_kelpdensity_averages_sitetype_only.u, on = c("species_name" = "Species_top5_kelp")]
 
 #####MACRO######
@@ -856,7 +859,7 @@ dat_macroinvert_averages_sitetype_only[, common_top5_macroinvert := ifelse(frank
 dat_macroinvert_averages_sitetype_only[, summed_mean_depthzone_sitetype_only_density_m2 := sum(mean_depthzone_density_m2), .(type_ARsplit, Species_top5_macroinvert, common_top5_macroinvert)]
 dat_macroinvertdensity_averages_sitetype_only.u <- unique(dat_macroinvert_averages_sitetype_only[,.(Species_top5_macroinvert, type_ARsplit,summed_mean_depthzone_sitetype_only_density_m2, common_top5_macroinvert)])
 dat_macroinvertdensity_averages_sitetype_only.u[,full_label := ifelse(Species_top5_macroinvert == "Other","Other",paste0(Species_top5_macroinvert,"\n", common_top5_macroinvert))]
-dat_macroinvertdensity_averages_sitetype_only.u[,type_ARsplit := factor(type_ARsplit,levels = c("Island","Natural mainland","AR_PVR","AR_SM"), labels = c("Natural island","Natural mainland","Artificial reef\nPalos Verdes","Artificial reef\nSanta Monica\nBay"))]
+dat_macroinvertdensity_averages_sitetype_only.u[,type_ARsplit := factor(type_ARsplit,levels = c("Island","Mainland","AR_PVR","AR_SM"), labels = c("Natural island","Mainland","Artificial reef\nPalos Verdes","Artificial reef\nSanta Monica\nBay"))]
 dat_macroinvertdensity_averages_sitetype_only.u <- spp_color_key[dat_macroinvertdensity_averages_sitetype_only.u, on = c("species_name" = "Species_top5_macroinvert")]
 
 ######FISHBIOMASS######
@@ -865,7 +868,7 @@ dat_fish_averages_sitetype_only[, common_top5_fishbiomass := ifelse(frank(-mean_
 dat_fish_averages_sitetype_only[, summed_mean_depthzone_sitetype_only_biomass_m2 := sum(mean_depthzone_wt_density_g_m2), .(type_ARsplit, Species_top5_fishbiomass, common_top5_fishbiomass)]
 dat_fishbiomass_averages_sitetype_only.u <- unique(dat_fish_averages_sitetype_only[,.(Species_top5_fishbiomass, type_ARsplit, summed_mean_depthzone_sitetype_only_biomass_m2, common_top5_fishbiomass)])
 dat_fishbiomass_averages_sitetype_only.u[,full_label := ifelse(Species_top5_fishbiomass == "Other","Other",paste0(Species_top5_fishbiomass,"\n", common_top5_fishbiomass))]
-dat_fishbiomass_averages_sitetype_only.u[,type_ARsplit := factor(type_ARsplit,levels = c("Island","Natural mainland","AR_PVR","AR_SM"), labels = c("Natural island","Natural mainland","Artificial reef\nPalos Verdes","Artificial reef\nSanta Monica\nBay"))]
+dat_fishbiomass_averages_sitetype_only.u[,type_ARsplit := factor(type_ARsplit,levels = c("Island","Mainland","AR_PVR","AR_SM"), labels = c("Natural island","Mainland","Artificial reef\nPalos Verdes","Artificial reef\nSanta Monica\nBay"))]
 dat_fishbiomass_averages_sitetype_only.u <- spp_color_key[dat_fishbiomass_averages_sitetype_only.u, on = c("species_name" = "Species_top5_fishbiomass")]
 
 ############################################################
@@ -886,6 +889,7 @@ fish_density_top5_sitetype_only_stacked <- ggplot(dat_fishdensity_averages_sitet
   geom_bar(position="stack", stat="identity") +
   labs(x = "", y = expression(paste("Average density per 100m" ^2)), fill = "Fish\nspecies") +
   scale_fill_manual(values = levels(dat_fishdensity_averages_sitetype_only.u$hex)) +
+  scale_x_discrete(labels = c("Natural island","Natural mainland","Artificial reef\nPalos Verdes","Artificial reef\nSanta Monica Bay")) +
   scale_y_continuous(expand = c(0,0.1)) +
   theme_classic() +
   theme(legend.text = element_text(size = 8), legend.title = element_text(size = 9, face = "bold"), legend.position = "top") +
@@ -907,6 +911,7 @@ fish_biomass_top5_sitetype_only_stacked <- ggplot(dat_fishbiomass_averages_sitet
   geom_bar(position="stack", stat="identity") +
   labs(x = "", y = bquote("Average biomass (kg per 100m"^2*")"), fill = "Fish\nspecies") +
   scale_fill_manual(values =levels(dat_fishbiomass_averages_sitetype_only.u$hex)) +
+    scale_x_discrete(labels = c("Natural island","Natural mainland","Artificial reef\nPalos Verdes","Artificial reef\nSanta Monica Bay")) +
   scale_y_continuous(expand = c(0,0.1)) +
   theme_classic() +
   theme(legend.position = "top", legend.direction = "horizontal", legend.text = element_text(size = 8), legend.title = element_text(size = 9, face = "bold")) +
@@ -936,6 +941,7 @@ macroinvert_density_top5_sitetype_only_stacked <- ggplot(dat_macroinvertdensity_
   geom_bar(position="stack", stat="identity") +
   labs(x = "", y = expression(paste("Average density per 100m" ^2)), fill = "Macroinvertebrate\nspecies") +
   scale_fill_manual(values =levels(dat_macroinvertdensity_averages_sitetype_only.u$hex)) +
+    scale_x_discrete(labels = c("Natural island","Natural mainland","Artificial reef\nPalos Verdes","Artificial reef\nSanta Monica Bay")) +
   scale_y_continuous(expand = c(0,0.1)) +
   theme_classic() +
   theme(legend.text = element_text(size = 8), legend.title = element_text(size = 9, face = "bold"), legend.position = "top") +
@@ -958,6 +964,7 @@ dat_kelpdensity_averages_sitetype_only.u[,hex := reorder(hex,rank)]
 kelp_density_top5_sitetype_only_stacked <- ggplot(dat_kelpdensity_averages_sitetype_only.u, aes(fill=reorder(full_label,rank), y=summed_mean_depthzone_sitetype_only_density_m2*100, x=type_ARsplit)) + 
   geom_bar(position="stack", stat="identity") +
   labs(x = "", y = expression(paste("Average density per 100m" ^2)), fill = "Macroalgae\nspecies") +
+  scale_x_discrete(labels = c("Natural island","Natural mainland","Artificial reef\nPalos Verdes","Artificial reef\nSanta Monica Bay")) +
   scale_fill_manual(values = levels(dat_kelpdensity_averages_sitetype_only.u$hex)) +
   scale_y_continuous(expand = c(0,0)) +
   theme_classic() +
