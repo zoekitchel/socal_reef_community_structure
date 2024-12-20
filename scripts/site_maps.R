@@ -227,4 +227,26 @@ site_map_with_insets <- ggdraw(site_map_with_inset) +
 
 # Save the plot
 ggsave(site_map_with_insets, filename = "site_map_basic_with_insets.jpg", path = file.path("figures"), width = 9, height =4.5, units = "in", dpi = 300)
- 
+
+#Identify sites overlapping with MPAs
+#Bring in MPA polygons
+CA_mpas <- st_read(file.path("data","California_Marine_Protected_Areas_shp","California_Marine_Protected_Areas.shp"))
+
+#Adjust CRS
+CA_mpas.t <- st_transform(CA_mpas, crs = st_crs(lat_lon_site_fix.r.sf))
+
+#Find overlap
+overlaps <- st_intersects(lat_lon_site_fix.r.sf, CA_mpas.t)
+
+#Add column to df identifying whether it overlaps with MPA (lengths = length of list or vector elements)
+lat_lon_site_fix.r.sf$MPA_overlap <- lengths(overlaps) > 0
+
+#Extract just site name depth zone and MPA overlap status
+MPA_site_key <- data.table(lat_lon_site_fix.r.sf)
+
+MPA_site_key <- unique(MPA_site_key[,.(Site,MPA_overlap)])
+
+#Save to keys folder
+saveRDS(MPA_site_key, file.path("keys","MPA_site_key.rds"))
+
+

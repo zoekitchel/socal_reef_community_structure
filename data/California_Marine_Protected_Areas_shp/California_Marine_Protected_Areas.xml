@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?><metadata>
+    <idinfo>
+        <citation>
+            <citeinfo>
+                <origin/>
+                <pubdate>20160224</pubdate>
+                <title>California Marine Protected Areas [ds582]</title>
+                <geoform>vector digital data</geoform>
+                <onlink>https://wildlife.ca.gov/Data/BIOS</onlink>
+                <onlink>https://filelib.wildlife.ca.gov/Public/BDB/GIS/BIOS/Public_Datasets/500_599/ds582.zip</onlink>
+            </citeinfo>
+        </citation>
+        <descript>
+            <abstract>These data include all of Californias marine protected areas (MPAs) as January 1, 2019. This dataset reflects the Department of Fish and Wildlifes best representation of marine protected areas based upon current California Code of Regulations, Title 14, Section 632: Natural Resources, Division 1: FGC- DFG. This dataset is not intended for navigational use or defining legal boundaries.This version includes records for complementary federal marine protected areas at the northern Channel Islands. Details on these areas can be referenced at http://federalregister.gov/a/E7-10096.</abstract>
+            <purpose>The boundaries described are solely intended as a visual representation of the areas included and do not replace or supercede the legal definitions.</purpose>
+        </descript>
+        <status>
+            <progress>Complete</progress>
+            <update>As needed</update>
+        </status>
+        <spdom>
+            <bounding>
+                <westbc>-124.632018</westbc>
+                <eastbc>-116.738089</eastbc>
+                <northbc>42.074041</northbc>
+                <southbc>32.494430</southbc>
+            </bounding>
+        </spdom>
+        <keywords>
+            <theme>
+                <themekt>None</themekt>
+                <themekey>MPA existing, Protected Areas, Marine Life Protection Act, Marine Protected Areas, State Marine Parks, State Marine Reserves, State Marine Conservation Areas, State Marine Recreational Managment Areas, Special Closures, boundaries, environment, oceans, geopolitical, natural resources, hydrography, aquatic resources, marine resources, ocean resources</themekey>
+            </theme>
+            <theme>
+                <themekt>ISO 19115 Topic Categories</themekt>
+                <themekey>boundaries</themekey>
+                <themekey>environment</themekey>
+                <themekey>oceans</themekey>
+                <themekey>planningCadastre</themekey>
+            </theme>
+            <place>
+                <placekt>None</placekt>
+                <placekey>California</placekey>
+            </place>
+        </keywords>
+        <accconst>None</accconst>
+        <useconst>See purpose statement.License: This work is licensed under Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses/by/4.0/). Using the citation standards recommended for BIOS datasets (https://www.wildlife.ca.gov/Data/BIOS/Citing-BIOS) satisfies the attribution requirements of this license.Disclaimer: The State makes no claims, promises, or guarantees about the accuracy, completeness, reliability, or adequacy of these data and expressly disclaims liability for errors and omissions in these data. No warranty of any kind, implied, expressed, or statutory, including but not limited to the warranties of non-infringement of third party rights, title, merchantability, fitness for a particular purpose, and freedom from computer virus, is given with respect to these data.</useconst>
+        <ptcontac>
+            <cntinfo>
+                <cntorgp>
+                    <cntorg>California Department of Fish and Wildlife</cntorg>
+                    <cntper>Marine Region GIS</cntper>
+                </cntorgp>
+                <cntaddr>
+                    <addrtype>mailing and physical</addrtype>
+                    <address>20 Lower Ragsdale Drive, Suite 100</address>
+                    <city>Monterey</city>
+                    <state>CA</state>
+                    <postal>93953</postal>
+                    <country>US</country>
+                </cntaddr>
+                <cntvoice>(831) 649-7143 </cntvoice>
+                <cntemail>mr_gis@wildlife.ca.gov</cntemail>
+            </cntinfo>
+        </ptcontac>
+        <ptcontac>
+            <cntinfo>
+                <cntorgp>
+                    <cntorg>California Department of Fish and Wildlife</cntorg>
+                    <cntper>Marine Region GIS</cntper>
+                </cntorgp>
+                <cntaddr>
+                    <addrtype>mailing and physical</addrtype>
+                    <address>20 Lower Ragsdale Drive, Suite 100</address>
+                    <city>Monterey</city>
+                    <state>CA</state>
+                    <postal>93953</postal>
+                    <country>US</country>
+                </cntaddr>
+                <cntvoice>(831) 649-7143 </cntvoice>
+                <cntemail>mr_gis@wildlife.ca.gov</cntemail>
+            </cntinfo>
+        </ptcontac>
+        <datacred>_ Marine Region GIS; ; California Department of Fish and Wildlife (CDFW); Region 7 - Marine; ; (831) 649-7143; ; ; r7mrgis@wildlife.ca.gov; </datacred>
+        <native> Version 6.2 (Build 9200) ; Esri ArcGIS 10.5.1.7333</native>
+    </idinfo>
+    <dataqual>
+        <logic>Features derived from coordinates provided in code, othere shoreline and offshore jurisdictional line features.  </logic>
+        <complete>units measured to D MM.MMM in GCS</complete>
+        <lineage>
+            <srcinfo>
+                <typesrc>None</typesrc>
+                <srccontr>California Code of Regulations, Title 14, Section 632</srccontr>
+            </srcinfo>
+        </lineage>
+    </dataqual>
+    <spdoinfo>
+        <direct>Vector</direct>
+        <ptvctinf>
+            <sdtsterm>
+                <sdtstype>GT-polygon composed of chains</sdtstype>
+                <ptvctcnt>155</ptvctcnt>
+            </sdtsterm>
+        </ptvctinf>
+    </spdoinfo>
+    <eainfo>
+        <detailed>
+            <enttyp>
+                <enttypl>ds582</enttypl>
+                <enttypd>Marine Life Protection Act Inititative</enttypd>
+                <enttypds>https://www.wildlife.ca.gov/Conservation/Marine/MPAs</enttypds>
+            </enttyp>
+            <attr>
+                <attrlabl>OBJECTID</attrlabl>
+                <attrdef>Internal feature number.</attrdef>
+                <attrdefs>Esri</attrdefs>
+                <attrdomv>
+                                        					
+                    
+                    <udom>Sequential unique whole numbers that are automatically generated.</udom>
+                                        				
+                
+                </attrdomv>
+            </attr>
+            <attr>
+                <attrlabl>Shape</attrlabl>
+                <attrdef>Feature geometry.</attrdef>
+                <attrdefs>ESRI</attrdefs>
+                <attrdomv>
+                                        					
+                    
+                    <udom>Coordinates defining the features.</udom>
+                                        				
+                
+                </attrdomv>
+            </attr>
+            <attr>
+                <attrlabl>NAME</attrlabl>
+                <attrdef>MPA name as referenced in Title 14, California Code of Regulations, Section 632(b) (MPA types abbreviated)</attrdef>
+                <attrdefs>User defined</attrdefs>
+                <attrdomv>
+                                        					
+                    
+                    <udom>Whole numbers that are automatically generated.</udom>
+                                        				
+                
+                </attrdomv>
+            </attr>
+            <attr>
+                <attrlabl>CCR</attrlabl>
+                <attrdef>California Code of Regulations, Title 14, Section</attrdef>
+                <attrdefs>California Code of Regulations</attrdefs>
+            </attr>
+            <attr>
+                <attrlabl>Area_sq_mi</attrlabl>
+                <attrdef>area in square statute miles</attrdef>
+                <attrdefs>User generated</attrdefs>
+            </attr>
+            <attr>
+                <attrlabl>Study_Regi</attrlabl>
+                <attrdef>geographic study region</attrdef>
+                <attrdefs>MLPA planning</attrdefs>
+            </attr>
+            <attr>
+                <attrlabl>FULLNAME</attrlabl>
+                <attrdef>Regulations, Section 632(b) </attrdef>
+                <attrdefs>User defined</attrdefs>
+            </attr>
+            <attr>
+                <attrlabl>Type</attrlabl>
+                <attrdef>Type of MPA</attrdef>
+                <attrdefs>California Code of Regulations, Title 14, Section 632</attrdefs>
+            </attr>
+            <attr>
+                <attrlabl>CCR_Int</attrlabl>
+                <attrdef>Integer of subsection to California Code of Regulations, Title 14, Section 632</attrdef>
+                <attrdefs>California Code of Regulations</attrdefs>
+            </attr>
+            <attr>
+                <attrlabl>SHORTNAME</attrlabl>
+                <attrdef>Abbreviated name of area</attrdef>
+                <attrdefs>User defined</attrdefs>
+            </attr>
+            <attr>
+                <attrlabl>Acres</attrlabl>
+                <attrdef>area acres</attrdef>
+                <attrdefs>User generated</attrdefs>
+            </attr>
+            <attr>
+                <attrlabl>Hectares</attrlabl>
+                <attrdef>area hectares</attrdef>
+                <attrdefs>User generated</attrdefs>
+            </attr>
+            <attr>
+                <attrlabl>Shape_Length</attrlabl>
+                <attrdef>Length of feature in internal units.</attrdef>
+                <attrdefs>Esri</attrdefs>
+                <attrdomv>
+                                        					
+                    
+                    <udom>Positive real numbers that are automatically generated.</udom>
+                                        				
+                
+                </attrdomv>
+            </attr>
+            <attr>
+                <attrlabl>Shape_Area</attrlabl>
+                <attrdef>Area of feature in internal units squared.</attrdef>
+                <attrdefs>Esri</attrdefs>
+                <attrdomv>
+                                        					
+                    
+                    <udom>Positive real numbers that are automatically generated.</udom>
+                                        				
+                
+                </attrdomv>
+            </attr>
+        </detailed>
+    </eainfo>
+    <metainfo>
+        <metd>20230308</metd>
+        <metc>
+            <cntinfo>
+                <cntorgp>
+                    <cntorg>California Department of Fish and Wildlife</cntorg>
+                    <cntper>Marine Region GIS</cntper>
+                </cntorgp>
+                <cntaddr>
+                    <addrtype>mailing and physical</addrtype>
+                    <address>20 Lower Ragsdale Drive, Suite 100</address>
+                    <city>Monterey</city>
+                    <state>CA</state>
+                    <postal>93953</postal>
+                    <country>US</country>
+                </cntaddr>
+                <cntvoice>(831) 649-7143 </cntvoice>
+                <cntemail>mr_gis@wildlife.ca.gov</cntemail>
+            </cntinfo>
+        </metc>
+        <metstdn>FGDC Content Standard for Digital Geospatial Metadata</metstdn>
+        <metstdv>FGDC-STD-001-1998</metstdv>
+        <mettc>local time</mettc>
+    </metainfo>
+</metadata>

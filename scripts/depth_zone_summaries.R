@@ -62,9 +62,9 @@ dat_kelp_site_averages[,common_name_final := ifelse(taxa == "Stephanocystis spp.
 dat_kelp_site_averages[,common_name_final := ifelse(taxa == "Sargassum sp", "",common_name_final)]
 
 #Split depth zone for artificial reefs in PV and SM
-dat_fish_site_averages[,DepthZone := ifelse(DepthZone == "ARM"& AR_Complex == "Palos Verdes Reef","AR_PVR",ifelse(DepthZone == "ARM" & AR_Complex != "Palos Verdes", "AR_SM",as.character(DepthZone)))]
-dat_kelp_site_averages[,DepthZone := ifelse(DepthZone == "ARM"& AR_Complex == "Palos Verdes Reef","AR_PVR",ifelse(DepthZone == "ARM" & AR_Complex != "Palos Verdes", "AR_SM",as.character(DepthZone)))]
-dat_macroinvert_site_averages[,DepthZone := ifelse(DepthZone == "ARM"& AR_Complex == "Palos Verdes Reef","AR_PVR",ifelse(DepthZone == "ARM" & AR_Complex != "Palos Verdes", "AR_SM",as.character(DepthZone)))]
+dat_fish_site_averages[,DepthZone := ifelse(DepthZone %in% c("ARM","Module") & AR_Complex == "Palos Verdes Reef","AR_PVR",ifelse(DepthZone %in% c("ARM","Module") & AR_Complex != "Palos Verdes", "AR_SM",as.character(DepthZone)))]
+dat_kelp_site_averages[,DepthZone := ifelse(DepthZone %in% c("ARM","Module") & AR_Complex == "Palos Verdes Reef","AR_PVR",ifelse(DepthZone %in% c("ARM","Module") & AR_Complex != "Palos Verdes", "AR_SM",as.character(DepthZone)))]
+dat_macroinvert_site_averages[,DepthZone := ifelse(DepthZone %in% c("ARM","Module") & AR_Complex == "Palos Verdes Reef","AR_PVR",ifelse(DepthZone %in% c("ARM","Module") & AR_Complex != "Palos Verdes", "AR_SM",as.character(DepthZone)))]
 
 ########################
 ##Averaged across all sites, top species per depth zone
@@ -97,26 +97,29 @@ dat_kelp_averages <- unique(dat_kelp_site_averages[,..col_keep_kelp])
 dat_fish_averages[, Species_top5 := ifelse(frank(-mean_depthzone_density_m2)<=5,taxa,"Other"), .(DepthZone)]
 dat_fish_averages[, common_top5 := ifelse(frank(-mean_depthzone_density_m2)<=5,common_name_final,""), .(DepthZone)]
 dat_fish_averages[, summed_mean_depthzone_density_m2 := sum(mean_depthzone_density_m2), .(DepthZone, Species_top5)]
-dat_fishdensity_averages_deep_ar.u <- unique(dat_fish_averages[,.(Species_top5,common_top5, DepthZone, summed_mean_depthzone_density_m2)])
-dat_fishdensity_averages_deep_ar.u[,full_label := ifelse(Species_top5 == "Other","Other",paste0(Species_top5,"\n", common_top5))]
-dat_fishdensity_averages_deep_ar.u[,DepthZone := factor(DepthZone, levels = c("Inner","Middle","Outer","Deep","AR_PVR","AR_SM"))]
+dat_fishdensity_averages.u <- unique(dat_fish_averages[,.(Species_top5,common_top5, DepthZone, summed_mean_depthzone_density_m2)])
+dat_fishdensity_averages.u[,full_label := ifelse(Species_top5 == "Other","Other",paste0(Species_top5,"\n", common_top5))]
+dat_fishdensity_averages.u[,DepthZone := factor(DepthZone, levels = c("Inner","Middle","Outer","Deep","AR_PVR","AR_SM"))]
+dat_fishdensity_averages.u[,rel_abun := round(summed_mean_depthzone_density_m2/sum(summed_mean_depthzone_density_m2),2),.(DepthZone)]
 
 #macroinvert density
 dat_macroinvert_averages[, Species_top5 := ifelse(frank(-mean_depthzone_density_m2)<=5,taxa,"Other"), .(DepthZone)]
 dat_macroinvert_averages[, common_top5 := ifelse(frank(-mean_depthzone_density_m2)<=5,common_name_final,""), .(DepthZone)]
 dat_macroinvert_averages[, summed_mean_depthzone_density_m2 := sum(mean_depthzone_density_m2), .(DepthZone, Species_top5)]
-dat_macroinvertdensity_averages_deep_ar.u <- unique(dat_macroinvert_averages[,.(Species_top5,common_top5, DepthZone, summed_mean_depthzone_density_m2)])
-dat_macroinvertdensity_averages_deep_ar.u[,full_label := ifelse(Species_top5 == "Other","Other",paste0(Species_top5,"\n", common_top5))]
-dat_macroinvertdensity_averages_deep_ar.u[,DepthZone := factor(DepthZone, levels = c("Inner","Middle","Outer","Deep","AR_PVR","AR_SM"))]
+dat_macroinvertdensity_averages.u <- unique(dat_macroinvert_averages[,.(Species_top5,common_top5, DepthZone, summed_mean_depthzone_density_m2)])
+dat_macroinvertdensity_averages.u[,full_label := ifelse(Species_top5 == "Other","Other",paste0(Species_top5,"\n", common_top5))]
+dat_macroinvertdensity_averages.u[,DepthZone := factor(DepthZone, levels = c("Inner","Middle","Outer","Deep","AR_PVR","AR_SM"))]
+dat_macroinvertdensity_averages.u[,rel_abun := round(summed_mean_depthzone_density_m2/sum(summed_mean_depthzone_density_m2),2),.(DepthZone)]
 
 
 #Kelp density
 dat_kelp_averages[, Species_top5 := ifelse(frank(-mean_depthzone_density_m2)<=5,taxa,"Other"), .(DepthZone)]
 dat_kelp_averages[, common_top5 := ifelse(frank(-mean_depthzone_density_m2)<=5,common_name_final,""), .(DepthZone)]
 dat_kelp_averages[, summed_mean_depthzone_density_m2 := sum(mean_depthzone_density_m2), .(DepthZone, Species_top5)]
-dat_kelp_averages_deep_ar.u <- unique(dat_kelp_averages[,.(Species_top5, common_top5, DepthZone, summed_mean_depthzone_density_m2)])
-dat_kelp_averages_deep_ar.u[,full_label := ifelse(Species_top5 == "Other","Other",paste0(Species_top5,"\n", common_top5))]
-dat_kelp_averages_deep_ar.u[,DepthZone := factor(DepthZone, levels = c("Inner","Middle","Outer","Deep","AR_PVR","AR_SM"))]
+dat_kelp_averages.u <- unique(dat_kelp_averages[,.(Species_top5, common_top5, DepthZone, summed_mean_depthzone_density_m2)])
+dat_kelp_averages.u[,full_label := ifelse(Species_top5 == "Other","Other",paste0(Species_top5,"\n", common_top5))]
+dat_kelp_averages.u[,DepthZone := factor(DepthZone, levels = c("Inner","Middle","Outer","Deep","AR_PVR","AR_SM"))]
+dat_kelp_averages.u[,rel_abun := round(summed_mean_depthzone_density_m2/sum(summed_mean_depthzone_density_m2),2),.(DepthZone)]
 
 
 #Add column for whether species is in top 5 species (by biomass) for that zone, and then sum biomass for all others
@@ -124,13 +127,13 @@ dat_kelp_averages_deep_ar.u[,DepthZone := factor(DepthZone, levels = c("Inner","
 dat_fish_averages[, Species_top5_biomass := ifelse(frank(-mean_depthzone_wt_density_g_m2)<=5,taxa,"Other"), .(DepthZone)]
 dat_fish_averages[, common_top5_biomass := ifelse(frank(-mean_depthzone_wt_density_g_m2)<=5,common_name_final,""), .(DepthZone)]
 dat_fish_averages[, summed_mean_depthzone_biomass_m2 := sum(mean_depthzone_wt_density_g_m2), .(DepthZone, Species_top5_biomass)]
-dat_fishbiomass_averages_deep_ar.u <- unique(dat_fish_averages[,.(Species_top5_biomass,common_top5_biomass, DepthZone, summed_mean_depthzone_biomass_m2)])
-dat_fishbiomass_averages_deep_ar.u[,full_label := ifelse(Species_top5_biomass == "Other","Other",paste0(Species_top5_biomass,"\n", common_top5_biomass))]
-dat_fishbiomass_averages_deep_ar.u[,DepthZone := factor(DepthZone, levels = c("Inner","Middle","Outer","Deep","AR_PVR","AR_SM"))]
+dat_fishbiomass_averages.u <- unique(dat_fish_averages[,.(Species_top5_biomass,common_top5_biomass, DepthZone, summed_mean_depthzone_biomass_m2)])
+dat_fishbiomass_averages.u[,full_label := ifelse(Species_top5_biomass == "Other","Other",paste0(Species_top5_biomass,"\n", common_top5_biomass))]
+dat_fishbiomass_averages.u[,DepthZone := factor(DepthZone, levels = c("Inner","Middle","Outer","Deep","AR_PVR","AR_SM"))]
 
 
 #manually set factor order for plotting
-dat_fishbiomass_averages_deep_ar.u[,full_label := factor(full_label, levels = c(
+dat_fishbiomass_averages.u[,full_label := factor(full_label, levels = c(
 "Anisotremus davidsonii\nxantic sargo",       "Bodianus pulcher\nCalifornia sheephead",     "Chromis punctipinnis\nblacksmith",          
 "Girella nigricans\nopaleye",                 "Hypsypops rubicundus\nGaribaldi damselfish",                                   
 "Paralabrax clathratus\nkelp bass",           "Paralabrax nebulifer\nbarred sand bass",     "Stereolepis gigas\ngiant sea bass",  "Other"     ))]
@@ -259,10 +262,10 @@ color_palette_kelp <- c("#8DD3C7",#southern sea palm
                         "#D9D9D9")
 
 #add new rank column
-dat_fishdensity_averages_deep_ar.u[,rank := ifelse(full_label == "Other",400,frank(summed_mean_depthzone_density_m2))]
+dat_fishdensity_averages.u[,rank := ifelse(full_label == "Other",400,frank(summed_mean_depthzone_density_m2))]
 
 #fish density
-fish_density_top5_stacked <- ggplot(dat_fishdensity_averages_deep_ar.u, aes(fill=reorder(full_label,rank), y=(summed_mean_depthzone_density_m2*100), x=DepthZone)) + 
+fish_density_top5_stacked <- ggplot(dat_fishdensity_averages.u, aes(fill=reorder(full_label,rank), y=(summed_mean_depthzone_density_m2*100), x=DepthZone)) + 
   geom_bar(position="stack", stat="identity") +
   labs(x = "                   Depth zone                                            AR Complex", y = expression(paste("Average density per 100m" ^2)), fill = "Fish species") +
   scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos Verdes", "Santa Monica\nBay")) +
@@ -276,11 +279,11 @@ fish_density_top5_stacked <- ggplot(dat_fishdensity_averages_deep_ar.u, aes(fill
 ggsave(fish_density_top5_stacked, path = file.path("figures"), filename = "fish_density_top5_stacked.jpg", height = 6, width = 8, units = "in")
 
 #add new rank column
-dat_fishbiomass_averages_deep_ar.u[,summed_mean_depthzone_biomass_kg_100m := (summed_mean_depthzone_biomass_m2*100/1000)]
-dat_fishbiomass_averages_deep_ar.u[,rank := ifelse(full_label == "Other",400,frank(summed_mean_depthzone_biomass_m2))]
+dat_fishbiomass_averages.u[,summed_mean_depthzone_biomass_kg_100m := (summed_mean_depthzone_biomass_m2*100/1000)]
+dat_fishbiomass_averages.u[,rank := ifelse(full_label == "Other",400,frank(summed_mean_depthzone_biomass_m2))]
 
 #fish biomass
-fish_biomass_top5_stacked <- ggplot(dat_fishbiomass_averages_deep_ar.u, aes(fill=reorder(full_label,rank), y=(summed_mean_depthzone_biomass_m2*100/1000), x=DepthZone)) + 
+fish_biomass_top5_stacked <- ggplot(dat_fishbiomass_averages.u, aes(fill=reorder(full_label,rank), y=(summed_mean_depthzone_biomass_m2*100/1000), x=DepthZone)) + 
   geom_bar(position="stack", stat="identity") +
   scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos Verdes", "Santa Monica\nBay")) +
   labs(x = "                   Depth zone                                            AR Complex", y = expression(paste("Average biomass in kg per 100m" ^2)), fill = "Fish species") +
@@ -353,9 +356,9 @@ ggplot(dat_fish_site_averages[taxa == "Stereolepis gigas"]) +
 
 #macroinvert density
 #add new rank column
-dat_macroinvertdensity_averages_deep_ar.u[,rank := ifelse(full_label == "Other",400,frank(summed_mean_depthzone_density_m2))]
+dat_macroinvertdensity_averages.u[,rank := ifelse(full_label == "Other",400,frank(summed_mean_depthzone_density_m2))]
 
-macroinvert_density_top5_stacked <- ggplot(dat_macroinvertdensity_averages_deep_ar.u, aes(fill=reorder(full_label,rank), y=summed_mean_depthzone_density_m2*100, x=DepthZone)) + 
+macroinvert_density_top5_stacked <- ggplot(dat_macroinvertdensity_averages.u, aes(fill=reorder(full_label,rank), y=summed_mean_depthzone_density_m2*100, x=DepthZone)) + 
   geom_bar(position="stack", stat="identity") +
   labs(x = "                   Depth zone                                            AR Complex", y = expression(paste("Average density per 100m" ^2)), fill = "Macroinvertebrate species") +
   scale_fill_manual(values = color_palette_macroinvert) +
@@ -370,9 +373,9 @@ ggsave(macroinvert_density_top5_stacked, path = file.path("figures"), filename =
 
 #kelp density
 #add new rank column
-dat_kelp_averages_deep_ar.u[,rank := ifelse(full_label == "Other",400,frank(summed_mean_depthzone_density_m2))]
+dat_kelp_averages.u[,rank := ifelse(full_label == "Other",400,frank(summed_mean_depthzone_density_m2))]
 
-kelp_density_top5_stacked <- ggplot(dat_kelp_averages_deep_ar.u, aes(fill=reorder(full_label, rank), y=summed_mean_depthzone_density_m2*100, x=DepthZone)) + 
+kelp_density_top5_stacked <- ggplot(dat_kelp_averages.u, aes(fill=reorder(full_label, rank), y=summed_mean_depthzone_density_m2*100, x=DepthZone)) + 
   geom_bar(position="stack", stat="identity") +
   labs(x = "                   Depth zone                                            AR Complex", y = expression(paste("Average density per 100m" ^2)), fill = "Macroalgae species") +
   scale_fill_manual(values = color_palette_kelp) +
@@ -635,7 +638,7 @@ ggsave(fish_biomass_order_stacked, path = file.path("figures"), filename = "fish
 
 
 ############################################################
-#Now, average biomass and density by Island vs ARM vs Coast
+#Now, average biomass and density by Island vs ARM vs Coast ####
 ############################################################
 
 #New Column Identifying Island versus Mainland

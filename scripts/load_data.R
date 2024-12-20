@@ -1,5 +1,5 @@
 # CREATION DATE 28 Jan 2024
-# MODIFIED DATE 14 Apr 2024
+# MODIFIED DATE 1 Dec 2024
 
 # AUTHOR: kitchel@oxy.edu
 
@@ -126,19 +126,11 @@ dat_UPC_VRG <- dat_UPC_VRG |>
   droplevels() 
 
 
- ########WHAT DOES HE MEAN BY THIS
-
-# Filter out species with very few observations??? WHAT DOES HE MEAN BY THIS
-
-
-#TO DO? Add PVR replicate descriptions (reef vs. sand) - ask Jonathon for these, filter out sand/halo classified transects? 
-
-
 ########################
 ##Restrict to well sampled sites for averages (sampled in at least X years)
 ########################
 
-#switch to data table, easier for Zoë
+#Switch to data table
 
 dat_event <- data.table(dat_event)
 dat_fish_t <- data.table(dat_fish_t)
