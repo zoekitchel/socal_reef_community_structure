@@ -1,0 +1,94 @@
+Site,Region,Reef type,avg_lon,avg_lat,DepthZone_list,years_sampled
+SCLI - Pyramid Cove,San Clemente Island,Natural reef,-118.371027777778,32.8159722222222,"Deep, Inner, Middle, Outer",3
+Abalone Cove Kelp West,Palos Verdes,Natural reef,-118.387306666667,33.73857,"Inner, Middle, Outer",8
+Golden Cove,Palos Verdes,Natural reef,-118.41493,33.75277,Inner,9
+Honeymoon Cove,Palos Verdes,Natural reef,-118.42529275,33.764214,"Inner, Middle, Outer, Deep",9
+Marguerite Central,Palos Verdes,Natural reef,-118.418335,33.7566785,"Inner, Middle",9
+Point Vicente West,Palos Verdes,Natural reef,-118.413756190476,33.7398883333333,"Inner, Middle, Outer, Deep",9
+Rocky Point North,Palos Verdes,Natural reef,-118.429797692308,33.7807569230769,"Inner, Middle, Outer, Deep",9
+120 Reef,Palos Verdes,Natural reef,-118.392305294118,33.7378217647059,"Inner, Middle",8
+3 Palms East,Palos Verdes,Natural reef,-118.3326175,33.7168475,"Inner, Middle, Outer, Deep",8
+3 Palms West,Palos Verdes,Natural reef,-118.335335,33.7185275,"Outer, Deep, Inner, Middle",8
+Albondigas,Palos Verdes,Natural reef,-118.416266666667,33.7502966666667,"Inner, Middle, Outer",9
+Bunker Point,Palos Verdes,Natural reef,-118.3537734375,33.724880625,"Inner, Middle, Outer, Deep",8
+Burial Grounds,Palos Verdes,Natural reef,-118.34768,33.7238925,"Inner, Middle, Outer, Deep",8
+Cairns,Palos Verdes,Natural reef,-118.307470666667,33.7104173333333,"Inner, Middle, Outer",8
+Cape Point,Palos Verdes,Natural reef,-118.34046525,33.7207215,"Inner, Middle, Outer, Deep",8
+Christmas Tree Cove,Palos Verdes,Natural reef,-118.4218456,33.7615704,"Inner, Middle, Outer",8
+Flat Rock North,Palos Verdes,Natural reef,-118.40672,33.80098,"Inner, Middle, Outer",8
+Flat Rock South,Palos Verdes,Natural reef,-118.413648333333,33.7959803333333,"Inner, Middle, Outer",8
+Hawthorne Reef,Palos Verdes,Natural reef,-118.4174525,33.7470125,"Inner, Middle, Outer, Deep",8
+Hermosa Beach AR - Giants,Artificial Reef,Artificial reef,-118.412946,33.853633,ARM,9
+KOU Rock,Palos Verdes,Natural reef,-118.33944,33.7200725,"Inner, Middle, Outer, Deep",8
+Long Point East,Palos Verdes,Natural reef,-118.401594516129,33.7353209677419,"Inner, Middle, Outer, Deep",8
+Long Point West,Palos Verdes,Natural reef,-118.40332,33.73727,"Inner, Middle",8
+Lunada Bay,Palos Verdes,Natural reef,-118.43168875,33.77106175,"Deep, Inner, Middle, Outer",8
+Marguerite East,Palos Verdes,Natural reef,-118.417116875,33.75554125,"Inner, Middle",8
+Marguerite West,Palos Verdes,Natural reef,-118.41918826087,33.7579495652174,"Inner, Middle, Outer",8
+Marina del Rey AR - F,Artificial Reef,Artificial reef,-118.4866655,33.9675965,ARM,8
+Marina del Rey AR - I,Artificial Reef,Artificial reef,-118.485777,33.9685625,ARM,8
+Marina del Rey AR - K,Artificial Reef,Artificial reef,-118.487437,33.9689735,ARM,8
+Old 18th,Palos Verdes,Natural reef,-118.34410030303,33.722573030303,"Deep, Outer, Middle, Inner",8
+Old Marineland,Palos Verdes,Natural reef,-118.39501,33.73738,Inner,8
+Point Fermin,Palos Verdes,Natural reef,-118.29799,33.7056266666667,"Inner, Middle, Outer",8
+Portuguese Bend,Palos Verdes,Natural reef,-118.35755575,33.72750175,"Inner, Middle, Outer, Deep",8
+Portuguese Point,Palos Verdes,Natural reef,-118.375510666667,33.736317,"Inner, Middle, Outer",8
+Resort Point,Palos Verdes,Natural reef,-118.4277385,33.76653325,"Inner, Middle, Outer, Deep",8
+Ridges North,Palos Verdes,Natural reef,-118.423965,33.78818,"Inner, Middle, Outer, Deep",9
+Ridges South,Palos Verdes,Natural reef,-118.426067441176,33.7858840294118,"Inner, Middle, Outer, Deep",8
+Rocky Point South,Palos Verdes,Natural reef,-118.4322935,33.77587475,"Inner, Middle, Outer, Deep",8
+Santa Monica AR - A,Artificial Reef,Artificial reef,-118.53036,34.00957,ARM,7
+Santa Monica AR - B,Artificial Reef,Artificial reef,-118.531234,34.009324,ARM,7
+Santa Monica AR - C,Artificial Reef,Artificial reef,-118.530878,34.008944,ARM,7
+SCAI - Bird Rock,Santa Catalina Island,Natural reef,-118.487476521739,33.4532056521739,"Inner, Middle, Outer, Deep",6
+SCAI - Blue Cavern,Santa Catalina Island,Natural reef,-118.479277333333,33.448074,"Inner, Middle, Outer",6
+SCAI - Hen Rock,Santa Catalina Island,Natural reef,-118.366496666667,33.3996366666667,"Inner, Middle, Outer",6
+SCAI - Italian Gardens,Santa Catalina Island,Natural reef,-118.375503333333,33.4106413333333,"Inner, Middle, Outer",6
+SCAI - Ripper's Cove,Santa Catalina Island,Natural reef,-118.435324,33.4282885,"Inner, Middle",6
+Underwater Arch,Palos Verdes,Natural reef,-118.417036666667,33.7516246666667,"Inner, Middle, Outer",8
+Whites Point,Palos Verdes,Natural reef,-118.322996666667,33.7146966666667,"Inner, Middle, Outer",8
+SCAI - Iron Bound Cove,Santa Catalina Island,Natural reef,-118.575492633333,33.44765,"Inner, Middle, Outer",6
+Segovia,Palos Verdes,Natural reef,-118.423565909091,33.7623413636364,"Inner, Middle, Outer",7
+Children's Pool,La Jolla and Point Loma,Natural reef,-117.27887,32.8521466666667,"Inner, Middle, Outer",5
+Crystal Cove,Orange and North County,Natural reef,-117.836073333333,33.56395,"Inner, Middle, Outer",5
+Dana Point,Orange and North County,Natural reef,-117.721753333333,33.46631,"Inner, Middle, Outer",5
+Escondido West,Malibu,Natural reef,-118.7734165,34.0212175,"Inner, Middle",5
+Heisler Park,Orange and North County,Natural reef,-117.792096666667,33.54058,"Inner, Middle, Outer",5
+Laguna Beach,Orange and North County,Natural reef,-117.780243333333,33.5309633333333,"Inner, Middle, Outer",5
+Lechuza,Malibu,Natural reef,-118.862795818182,34.0327018181818,"Inner, Middle",5
+Leucadia,Orange and North County,Natural reef,-117.310633333333,33.06438,"Inner, Middle, Outer",5
+Little Dume West,Malibu,Natural reef,-118.789897666667,34.00488,"Inner, Middle, Outer",5
+Matlahuayl,La Jolla and Point Loma,Natural reef,-117.27038,32.852715,"Inner, Middle",5
+Nicholas Canyon West,Malibu,Natural reef,-118.92273,34.0405233333333,"Inner, Middle, Outer",5
+Point Dume,Malibu,Natural reef,-118.8071013,33.9985533333333,"Inner, Middle, Outer",5
+Point Loma Central,La Jolla and Point Loma,Natural reef,-117.267861,32.7098265,"Inner, Middle, Outer, Deep",5
+PVR 2A,Artificial Reef,Artificial reef,-118.34996,33.7234,ARM,5
+PVR 2B,Artificial Reef,Artificial reef,-118.34978,33.72278,ARM,5
+PVR 2C,Artificial Reef,Artificial reef,-118.3491,33.72254,ARM,5
+PVR 4B,Artificial Reef,Artificial reef,-118.3467833,33.72156,ARM,5
+PVR 4C,Artificial Reef,Artificial reef,-118.3467384,33.7211,ARM,5
+PVR 5A,Artificial Reef,Artificial reef,-118.34582,33.72157,ARM,5
+PVR 5B,Artificial Reef,Artificial reef,-118.3454,33.72099,ARM,5
+PVR 5C,Artificial Reef,Artificial reef,-118.34526,33.72046,ARM,5
+PVR 6A,Artificial Reef,Artificial reef,-118.34388,33.72102,ARM,5
+PVR 6C,Artificial Reef,Artificial reef,-118.34387,33.71998,ARM,5
+PVR 7A,Artificial Reef,Artificial reef,-118.3424,33.7204,ARM,5
+PVR 7B,Artificial Reef,Artificial reef,-118.34245,33.72019,ARM,5
+PVR 7C,Artificial Reef,Artificial reef,-118.34231,33.71962,ARM,5
+PVR 8A,Artificial Reef,Artificial reef,-118.34009,33.7193,ARM,5
+PVR 8B,Artificial Reef,Artificial reef,-118.34057,33.71884,ARM,5
+PVR 8C,Artificial Reef,Artificial reef,-118.34039,33.71836,ARM,5
+San Mateo Kelp,Orange and North County,Natural reef,-117.608125,33.384795,"Middle, Outer",5
+SBI - Cat Canyon,Santa Barbara Island,Natural reef,-119.04495925,33.46407275,"Inner, Middle, Deep, Outer",4
+SBI - Southeast Reef,Santa Barbara Island,Natural reef,-119.0287775,33.4635525,"Inner, Middle, Outer, Deep",4
+SBI - Southeast Sealion,Santa Barbara Island,Natural reef,-119.0285,33.4690033333333,"Inner, Middle, Outer",4
+SBI - Sutil,Santa Barbara Island,Natural reef,-119.04858575,33.46542175,"Inner, Middle, Outer, Deep",4
+SCAI - Cat Harbor,Santa Catalina Island,Natural reef,-118.5113884,33.4258257333333,"Inner, Outer, Middle",5
+SCAI - China Point,Santa Catalina Island,Natural reef,-118.469496666667,33.3299366666667,"Inner, Middle, Outer",4
+SCAI - Indian Rock,Santa Catalina Island,Natural reef,-118.524612352941,33.4685870588235,"Inner, Middle, Outer, Deep",5
+SCAI - Salta Verde,Santa Catalina Island,Natural reef,-118.421993076923,33.3147384615385,"Inner, Middle, Outer",4
+SCAI - Ship Rock,Santa Catalina Island,Natural reef,-118.49187,33.4635425,"Inner, Middle, Outer, Deep",5
+South La Jolla,La Jolla and Point Loma,Natural reef,-117.286525,32.81285,"Inner, Middle, Outer, Deep",5
+Swami's,Orange and North County,Natural reef,-117.30076,33.0358266666667,"Inner, Middle, Outer",5
+PVR 4D,Artificial Reef,Artificial reef,-118.3472053,33.72197,ARM,4
+PVR 6D,Artificial Reef,Artificial reef,-118.34391,33.72051,ARM,4

@@ -1,5 +1,5 @@
 # CREATION DATE 25 March 2024
-# MODIFIED DATE 19 August 2024
+# MODIFIED DATE 20 December 2024
 
 # AUTHOR: kitchel@oxy.edu
 
@@ -72,6 +72,9 @@ lat_lon_site_fix[,DepthZone:= factor(DepthZone, levels = c("Inner","Middle","Out
 #mean lat and lon
 lat_lon_site_fix[,avg_lon := mean(Longitude,na.rm = T),Site][,avg_lat := mean(Latitude,na.rm = T),Site]
 lat_lon_site_fix.r <- unique(lat_lon_site_fix[,.(Site, `Reef type`, avg_lon, avg_lat)])
+
+#Save site points
+fwrite(lat_lon_site_fix.r, file.path("keys","lat_lon_site_fix.r.csv"))
 
 #Project points to simple feature
 lat_lon_site_fix.sf <- st_as_sf(lat_lon_site_fix, coords = c("Longitude","Latitude"), crs = st_crs(4326)) #all depth zones
