@@ -1,5 +1,5 @@
 # CREATION DATE 14 Jan 2024
-# MODIFIED DATE 14 April 2024
+# MODIFIED DATE 15 Jan 2024
 
 # AUTHOR: kitchel@oxy.edu
 
@@ -22,6 +22,7 @@ library(purrr)
 
 #pull in functions
 source("https://raw.githubusercontent.com/zoekitchel/CA_environmental_data/main/UPC_in_situ_habitat.R")
+source("https://raw.githubusercontent.com/zoekitchel/CA_environmental_data/main/scripts/bathy_join_function.R")
 
 
 #############################
@@ -311,7 +312,7 @@ chl_bysite <- lat_lon_site_variable_full.r[variable == "chl"][,mean_chl_mg_m3 :=
 
 #######Distance to 200 m isobath
 
-distance_200mbathy_bysite <- add_depth_columns(lat_lon_site_fix, ETOPO = F, CDFW = F, USGS_socal=F, dist_200m = T)
+distance_200mbathy_bysite <- add_depth_columns(lat_lon_site_fix, ETOPO = T, USGS_socal=F, ETOPO_dist_200m = T)
 
 
 #remove lat lon columns
