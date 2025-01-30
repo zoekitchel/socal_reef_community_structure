@@ -210,6 +210,31 @@ saveRDS(dat_macroinvert_site_averages, file.path("data","processed_crane", "dat_
 saveRDS(dat_kelp_site_averages, file.path("data","processed_crane", "dat_kelp_site_averages.rds"))
 }
 
+#Save site list for supplement as CSV ####
+#Calculate years sampled per site
+dat_event.r[,years_sampled := uniqueN(SampleYear),.(Site)]
+
+#List depth zones per site
+# Create a new column with unique values from 'value' grouped by 'group'
+dat_event.r[, DepthZone_list := paste(unique(DepthZone), collapse = ", "),.(Site)]
+
+#Identify Island vs. Mainland
+dat_event.r[,type := ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Mainland")]
+
+#Identify inside outside MPA
+MPA_site_key <- readRDS(file.path("keys","MPA_site_key.rds"))
+dat_event.r <- MPA_site_key[dat_event.r, on = "Site"]
+
+#Add lat lon from dive priority list
+lat_lon_site_fix.r <- fread(file.path("keys","lat_lon_site_fix.r.csv"))
+dat_event.r <- lat_lon_site_fix.r[dat_event.r, on = "Site"]
+
+#Unique rows
+Site_attributes <- unique(dat_event.r[,.(Site, Region, `Reef type`, avg_lon, avg_lat, DepthZone_list, years_sampled)])
+
+#Export as csv
+fwrite(Site_attributes, file.path("output","Site_attributes.csv"))
+
 
 if(OSM == T){ #different subset
   #how many sites sampled in both 2022 and 2023

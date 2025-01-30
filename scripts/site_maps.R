@@ -33,6 +33,14 @@ dive_site_priority_list <- fread("dive_site_priority_list.csv")
 #extract depth zone and site from location column
 dive_site_priority_list[,DepthZone := word(Location,-1)][,Site := word(Location, start = 1, end = -2)]
 
+
+#Additionally manual fixes to wonky names without depthzones
+dive_site_priority_list[Location == "Malibu Bluffs Eelgrass",DepthZone := "Middle"][Location == "Malibu Bluffs Eelgrass",Site := "Malibu Bluffs Eelgrass"]
+dive_site_priority_list[Location == "Santa Monica Jetty",DepthZone := NA][Location == "Santa Monica Jetty",Site := "Santa Monica Jetty"]
+dive_site_priority_list[Location == "Santa Monica Jetty - Interior",DepthZone := NA][Location == "Santa Monica Jetty - Interior",Site := "Santa Monica Jetty - Interior"]
+dive_site_priority_list[Location == "Marina del Rey Breakwater - Exterior",DepthZone := NA][Location == "Marina del Rey Breakwater - Exterior",Site := "Marina del Rey Breakwater - Exterior"]
+
+
 #change column names
 colnames(dive_site_priority_list) <- c("Location","Latitude_fix","Longitude_fix","DepthZone","Site")
 

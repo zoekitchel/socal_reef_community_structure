@@ -796,6 +796,9 @@ dat_averages_bysite.wide.spp.attributes
 #which are artificial reef sites?
 AR_ref <- which(dat_averages_bysite.wide.spp.attributes$DepthZone == "ARM")
 
+#which are outer or deep sites (for comparison with ARs)
+outer_deep_ref <- which(dat_averages_bysite.wide.spp.attributes$DepthZone %in% c("Outer","Deep"))
+
 #excluding AR
 dat_averages_bysite.wide.spp.l.NATURAL <- dat_averages_bysite.wide.spp.l[-AR_ref,]
 dat_averages_bysite.wide.spp.attributes_NATURAL <- dat_averages_bysite.wide.spp.attributes[DepthZone!="ARM"]
@@ -811,6 +814,31 @@ permanova_allspp_natural_depthzone <- adonis2(
 )
 
 permanova_allspp_natural_depthzone
+
+#Depth accounts for 19% of variation in natural reef sites#PERMANOVA FOR ALL SPECIES
+#permanova not including ARM as depth zone
+permanova_allspp_natural_depthzone <- adonis2(
+  dat_averages_bysite.wide.spp.l.NATURAL ~ dat_averages_bysite.wide.spp.attributes_NATURAL$DepthZone,
+  method = "bray",
+  permutations = 9999
+  ,
+  by = "margin"
+)
+
+permanova_allspp_natural_depthzone
+
+#Depth accounts for 19% of variation in natural reef sites#PERMANOVA FOR ALL SPECIES
+
+#PERMANOVA comparing MPA to non-MPA sites
+permanova_allspp_natural_MPAoverlap <- adonis2(
+  dat_averages_bysite.wide.spp.l.NATURAL ~ dat_averages_bysite.wide.spp.attributes_NATURAL$MPA_overlap,
+  method = "bray",
+  permutations = 9999
+  ,
+  by = "margin"
+)
+
+permanova_allspp_natural_MPAoverlap
 
 #Depth accounts for 19% of variation in natural reef sites
 
@@ -923,6 +951,9 @@ AllSpp_NATURALREEF.dist <- vegdist(dat_averages_bysite.wide.spp.l.NATURAL, metho
 #Island/mainland beta dispersion
 PERMDISP2_AllSpp_NATURALREEF_isl_main <- betadisper(d = AllSpp_NATURALREEF.dist, group = dat_averages_bysite.wide.spp.attributes_NATURAL$type, type = "centroid")
 
+#MPA non-MPA beta dispersion
+PERMDISP2_AllSpp_NATURALREEF_MPAoverlap <- betadisper(d = AllSpp_NATURALREEF.dist, group = dat_averages_bysite.wide.spp.attributes_NATURAL$MPA_overlap, type = "centroid")
+
 #Depth zone beta dispersion
 PERMDISP2_AllSpp_NATURALREEF_depthzone <- betadisper(d = AllSpp_NATURALREEF.dist, group = dat_averages_bysite.wide.spp.attributes_NATURAL$DepthZone, type = "centroid")
 
@@ -930,6 +961,9 @@ PERMDISP2_AllSpp_NATURALREEF_depthzone <- betadisper(d = AllSpp_NATURALREEF.dist
 anova(PERMDISP2_AllSpp_NATURALREEF_depthzone)
 
 #No significant difference between depth zones
+
+#ANOVA for MPA and non-MPA
+anova(PERMDISP2_AllSpp_NATURALREEF_MPAoverlap)
 
 #ANOVA (compare dispersion) of island versus mainland reefs
 anova(PERMDISP2_AllSpp_NATURALREEF_isl_main)
@@ -1003,18 +1037,6 @@ PERMDISP2_Fish_NATURALREEF_depthzone <- betadisper(d = Fish_NATURALREEF.dist, gr
 anova(PERMDISP2_Fish_NATURALREEF_depthzone)
 
 
-#ARM vs NAT
-#island mainland
-permanova_fish_noarm_nat_arm <- adonis2(
-  dat_fish_averages_bysite.wide.rt[,c(17:87)] ~ dat_fish_averages_bysite.wide.rt$ARM_NATURAL, #20% of variation
-  method = "bray",
-  permutations = 9999,
-  by = "margin"
-)
-permanova_fish_noarm_nat_arm
-
-#7% of variation
-
 #Macroinvert PERMANOVA ####
 
 community_matrix_macroinvert_sqrt_attributes <- cbind(dat_macroinvert_averages_bysite.wide[,c(1:3)], dat_macroinvert_averages_bysite.wide.spp.l)
@@ -1078,102 +1100,19 @@ PERMDISP2_Macroinvert_NATURALREEF_depthzone <- betadisper(d = Macroinvert_NATURA
 #anova of island vs. mainland
 anova(PERMDISP2_Macroinvert_NATURALREEF_depthzone)
 
-
-#ARM vs NAT
-#island mainland
-permanova_macroinvert_noarm_nat_arm <- adonis2(
-  dat_macroinvert_averages_bysite.wide.rt[,c(4:23)] ~ dat_macroinvert_averages_bysite.wide.rt$ARM_NATURAL, #20% of variation
-  method = "bray",
-  permutations = 9999,
-  by = "margin"
-)
-permanova_macroinvert_noarm_nat_arm
-
-#5.6% of variation
-
-#Macroinvert PERMANOVA ####
-
-community_matrix_macroinvert_sqrt_attributes <- cbind(dat_macroinvert_averages_bysite.wide[,c(1:3)], dat_macroinvert_averages_bysite.wide.spp.l)
-
-#Add island.mainland
-community_matrix_macroinvert_sqrt_attributes[,type := ifelse(DepthZone %in% c("ARM","Module"),"ARM",ifelse(Region %in% c("Santa Catalina Island","Santa Barbara Island","San Clemente Island"),"Island","Natural mainland"))]
-
-#MPA designation
-community_matrix_macroinvert_sqrt_attributes <- MPA_site_key[community_matrix_macroinvert_sqrt_attributes, on = "Site"]
-
-#excluding ARs
-macroinvert_natural_reef_rows <- which(community_matrix_macroinvert_sqrt_attributes[,DepthZone] != "ARM")
-
-community_matrix_macroinvert_sqrt_NATURAL_attributes <- community_matrix_macroinvert_sqrt_attributes[macroinvert_natural_reef_rows,]
-dat_macroinvert_averages_bysite.wide.NATURAL.spp.l <- dat_macroinvert_averages_bysite.wide.spp.l[macroinvert_natural_reef_rows,]
-
-permanova_macroinvert_NATURAL_depthzone <- adonis2(
-  dat_macroinvert_averages_bysite.wide.NATURAL.spp.l ~ community_matrix_macroinvert_sqrt_NATURAL_attributes$DepthZone,
-  method = "bray",
-  permutations = 9999,
-  by = "margin"
-)
-permanova_macroinvert_NATURAL_depthzone
-
-#Depth accounts for 17% of variation in macroinvert composition at natural reef sites
-
-#Island versus mainland
-permanova_macroinvert_NATURAL_isl_main <- adonis2(
-  dat_macroinvert_averages_bysite.wide.NATURAL.spp.l ~ community_matrix_macroinvert_sqrt_NATURAL_attributes$type, 
-  method = "bray",
-  permutations = 9999,
-  by = "margin"
-)
-permanova_macroinvert_NATURAL_isl_main
-
-#island/mainland accounts for 14% of variation
-
-permanova_macroinvert_NATURAL_isl_main_depthzone <- adonis2(
-  dat_macroinvert_averages_bysite.wide.NATURAL.spp.l ~ community_matrix_macroinvert_sqrt_NATURAL_attributes$type * community_matrix_macroinvert_sqrt_NATURAL_attributes$DepthZone, 
-  method = "bray",
-  permutations = 9999,
-  by = "margin"
-)
-permanova_macroinvert_NATURAL_isl_main_depthzone
-
-#interaction is not significant
-
-#PERMDIS FOR DISPERSION
-#distance matrix
-Macroinvert_NATURALREEF.dist <- vegdist(dat_macroinvert_averages_bysite.wide.NATURAL.spp.l, method = "bray")
-
-#Island/mainland beta dispersion
-PERMDISP2_Macroinvert_NATURALREEF_isl_main <- betadisper(d = Macroinvert_NATURALREEF.dist, group = community_matrix_macroinvert_sqrt_NATURAL_attributes$type, type = "centroid")
-
-#Anova of island vs. mainland
-anova(PERMDISP2_Macroinvert_NATURALREEF_isl_main)
-
-#depth betadisp
-PERMDISP2_Macroinvert_NATURALREEF_depthzone <- betadisper(d = Macroinvert_NATURALREEF.dist, group = community_matrix_macroinvert_sqrt_NATURAL_attributes$DepthZone, type = "centroid")
-
-#anova of island vs. mainland
-anova(PERMDISP2_Macroinvert_NATURALREEF_depthzone)
-
-#ARM vs NAT
-#island mainland
-permanova_macroinvert_noarm_nat_arm <- adonis2(
-  dat_macroinvert_averages_bysite.wide.rt[,c(4:106)] ~ dat_macroinvert_averages_bysite.wide.rt$ARM_NATURAL, #20% of variation
-  method = "bray",
-  permutations = 9999,
-  by = "margin"
-)
-permanova_macroinvert_noarm_nat_arm
-
-#4.5% of variation
-
-
-
 ############ARM vs NAT
 
 #Reduce to mainland outer and deep reefs only
+dat_averages_bysite.wide.spp.l.OUTERDEEPARM <- dat_averages_bysite.wide.spp.l[c(outer_deep_ref,AR_ref),]
+dat_averages_bysite.wide.spp.attributes_OUTERDEEPARM <- dat_averages_bysite.wide.spp.attributes[c(outer_deep_ref,AR_ref),]
 
+#Designate arm vs natural
+dat_averages_bysite.wide.spp.attributes_OUTERDEEPARM[,ARM_NATURAL := ifelse(DepthZone == "ARM","ARM","NATURAL")]
+
+#Perform PERMANOVA
 permanova_allspp_ARvsNAT <- adonis2(
-  dat_averages_bysite_DEEPOUTERMAINLANDARM.wide.rt.trim ~ dat_averages_bysite_DEEPOUTERMAINLANDARM.wide.rt$ARM_NATURAL, 
+  #Reduce to mainland outer and deep reefs only
+  dat_averages_bysite.wide.spp.l.OUTERDEEPARM ~ dat_averages_bysite.wide.spp.attributes_OUTERDEEPARM$ARM_NATURAL, 
   method = "bray",
   permutations = 9999,
   by = "margin"
@@ -1181,11 +1120,11 @@ permanova_allspp_ARvsNAT <- adonis2(
 permanova_allspp_ARvsNAT
 
 #distance matrix
-dat_averages_bysite_DEEPOUTERMAINLANDARM.wide.rt.dist <- vegdist(dat_averages_bysite_DEEPOUTERMAINLANDARM.wide.rt.trim, method = "bray")
+  dat_averages_bysite.wide.spp.l.OUTERDEEPARM.dist <- vegdist(  dat_averages_bysite.wide.spp.l.OUTERDEEPARM, method = "bray")
 
 #natural vs. AR betadisp
-permdis_allspp_ar_vs_nat <- betadisper(d = dat_averages_bysite_DEEPOUTERMAINLANDARM.wide.rt.dist, group =dat_averages_bysite_DEEPOUTERMAINLANDARM.wide.rt$ARM_NATURAL, type = "centroid")
+permdis_allspp_ar_vs_nat <- betadisper(d =   dat_averages_bysite.wide.spp.l.OUTERDEEPARM.dist, group =  dat_averages_bysite.wide.spp.attributes_OUTERDEEPARM$ARM_NATURAL, type = "centroid")
 
-#anova of island vs. mainland
+#anova of arm vs. not arm
 anova(permdis_allspp_ar_vs_nat)
 
