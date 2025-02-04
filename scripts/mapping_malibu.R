@@ -1,9 +1,9 @@
 # CREATION DATE 29 Jan 2025
-# MODIFIED DATE 29 Jan 2025
+# MODIFIED DATE 3 Feb 2025
 
 # AUTHOR: kitchel@oxy.edu
 
-# PURPOSE: Map of malibut with fire inset for 2 pager
+# PURPOSE: Map of Malibu with fire inset for 2 pager
 
 #############################
 ##Setup
@@ -35,56 +35,72 @@ dive_site_priority_list[,DepthZone := word(Location,-1)][,Site := word(Location,
 
 #Additionally manual fixes to wonky names without depthzones
 dive_site_priority_list[Location == "Malibu Bluffs Eelgrass",DepthZone := "Middle"][Location == "Malibu Bluffs Eelgrass",Site := "Malibu Bluffs Eelgrass"]
-dive_site_priority_list[Location == "Santa Monica Jetty",DepthZone := NA][Location == "Santa Monica Jetty",Site := "Santa Monica Jetty"]
-dive_site_priority_list[Location == "Santa Monica Jetty - Interior",DepthZone := NA][Location == "Santa Monica Jetty - Interior",Site := "Santa Monica Jetty - Interior"]
-dive_site_priority_list[Location == "Marina del Rey Breakwater - Exterior",DepthZone := NA][Location == "Marina del Rey Breakwater - Exterior",Site := "Marina del Rey Breakwater - Exterior"]
+dive_site_priority_list[Location == "Santa Monica Jetty",DepthZone := "ARM"][Location == "Santa Monica Jetty",Site := "Santa Monica Jetty"]
+dive_site_priority_list[Location == "Santa Monica Jetty - Interior",DepthZone := "ARM"][Location == "Santa Monica Jetty - Interior",Site := "Santa Monica Jetty"]
+dive_site_priority_list[Location == "Marina del Rey Breakwater - Exterior",DepthZone := "ARM"][Location == "Marina del Rey Breakwater - Exterior",Site := "Marina del Rey Breakwater"]
+
+#For SMB AR, MDR AR, and SoS AR, merge into only 3 to make them visible on the map
+dive_site_priority_list[grepl("Santa Monica Bay AR", Site) == T, Site := "Santa Monica Bay AR"]
+dive_site_priority_list[grepl("Santa Monica AR", Site) == T, Site := "Santa Monica AR"]
+dive_site_priority_list[grepl("Marina del Rey AR", Site) == T, Site := "Marina del Rey AR"]
 
 #change column names
 colnames(dive_site_priority_list) <- c("Location","Latitude_fix","Longitude_fix","DepthZone","Site")
 
 #limit to lat, lon, depthzone, site
-dive_site_priority_list.r <- dive_site_priority_list[,.(Site, DepthZone, Latitude_fix, Longitude_fix)]
+dive_site_priority_list.r <- dive_site_priority_list[,.(Latitude_fix = mean(Latitude_fix,na.rm = T),
+                                                        Longitude_fix = mean(Longitude_fix,na.rm = T)),
+                                                   .(Site)]
 
-#load dat_event_malibu
+#Load CRANE dat_event_malibu
 dat_event_malibu <- readRDS(file.path("data","processed_crane", "dat_event_malibu.rds"))
+
+#Again, merge SMB and MDR AR sites into 1
+dat_event_malibu[grepl("Santa Monica AR", Site) == T, Site := "Santa Monica AR"]
+dat_event_malibu[grepl("Santa Monica Bay AR", Site) == T, Site := "Santa Monica Bay AR"]
+dat_event_malibu[grepl("Marina del Rey AR", Site) == T, Site := "Marina del Rey AR"]
+
+#Add column for reef type
+dat_event_malibu[,reef_type := ifelse(DepthZone == "ARM","Artificial_reef","Natural_reef")]
+
+#Manually adjust for Marina del Rey Breakwater - Exterior
+dat_event_malibu[Site == "Marina del Rey Breakwater - Exterior", reef_type := "Artificial_reef"]
+dat_event_malibu[Site == "Santa Monica Jetty - Interior",Site := "Santa Monica Jetty"]
+dat_event_malibu[Site == "Santa Monica Jetty - Exterior",Site := "Santa Monica Jetty"]
+dat_event_malibu[Site == "Marina del Rey Breakwater - Exterior",Site := "Marina del Rey Breakwater"]
 
 #Number of years of sampling at a site
 dat_event_malibu[,years_sampled := uniqueN(SampleYear),Site]
 
-#reduce to unique lat, lon, site, depth zone
-lat_lon_site_orig.malibu <- unique(dat_event_malibu[,.(Site, DepthZone, Latitude, Longitude, years_sampled)])
+#Reduce to unique Site
+lat_lon_site_orig.malibu <- unique(dat_event_malibu[,.(Site,reef_type, years_sampled)])
 
 #merge event data with fixed lat and lon from dive site priority list
-lat_lon_site_fix.malibu <- lat_lon_site_orig.malibu[dive_site_priority_list.r, on = c("Site","DepthZone")]
+lat_lon_site_fix.malibu <- lat_lon_site_orig.malibu[dive_site_priority_list.r, on = c("Site")]
 
 #Delete any rows without values, and use this as key for Site, Lat and Long
 lat_lon_site_fix.malibu <- lat_lon_site_fix.malibu[complete.cases(lat_lon_site_fix.malibu),]
 
 #only keep unique values
-lat_lon_site_fix.malibu <- unique(lat_lon_site_fix.malibu) #17 sites
+lat_lon_site_fix.malibu <- unique(lat_lon_site_fix.malibu) #24 sites
 
 #delete old lat lon columns from all sites
-lat_lon_site_fix.malibu <- lat_lon_site_fix.malibu[,.(Site, DepthZone, years_sampled, Latitude_fix, Longitude_fix)]
+lat_lon_site_fix.malibu <- lat_lon_site_fix.malibu[,.(Site, reef_type, years_sampled, Latitude_fix, Longitude_fix)]
+
 
 #change col names
-colnames(lat_lon_site_fix.malibu) <- c("Site","DepthZone","Years_sampled","Latitude","Longitude")
-
-#set factor order 
-lat_lon_site_fix.malibu[,DepthZone:= factor(DepthZone, levels = c("Inner","Middle","Outer","Deep"),
-                                     labels = c("Inner (5m)","Middle (10m)","Outer (15m)","Deep (25m)"))]
-
-#avg values
-#mean lat and lon across depth zones
-lat_lon_site_fix.malibu[,avg_lon := mean(Longitude,na.rm = T),Site][,avg_lat := mean(Latitude,na.rm = T),Site]
-lat_lon_site_fix.malibu.r <- unique(lat_lon_site_fix.malibu[,.(Site, Years_sampled, avg_lon, avg_lat)])
+colnames(lat_lon_site_fix.malibu) <- c("Site","Reef_type","Years_sampled","Latitude","Longitude")
 
 #Add column for labeling on map by longitude
-setkey(lat_lon_site_fix.malibu.r, avg_lon)
-lat_lon_site_fix.malibu.r[,label := LETTERS[1:nrow(lat_lon_site_fix.malibu.r)]]
+setkey(lat_lon_site_fix.malibu, Reef_type, Longitude)
 
-#Project points to simple feature#ProjecLETTERSt points to simple feature
+#Label natural reefs as letters, label artificial reefs as numbers
+lat_lon_site_fix.malibu[,label := 
+                            c(as.character(seq(1,nrow(lat_lon_site_fix.malibu[Reef_type != "Natural_reef"]),by=1)),
+                              LETTERS[1:nrow(lat_lon_site_fix.malibu[Reef_type == "Natural_reef"])])]
+
+#Project points to simple feature points to simple feature
 lat_lon_site_fix.malibu.sf <- st_as_sf(lat_lon_site_fix.malibu, coords = c("Longitude","Latitude"), crs = st_crs(4326)) #all depth zones
-lat_lon_site_fix.malibu.r.sf <- st_as_sf(lat_lon_site_fix.malibu.r, coords = c("avg_lon","avg_lat"), crs = st_crs(4326)) #avg across depth zones for each site
 
 #############################
 # Pull in fire outlines for Woolsey, Franklin, and Palisades ####
@@ -130,17 +146,20 @@ fire_perimeters.t <- rbind(woolsey_perimeter.t, palisades_perimeter.t)
 ##############################################type_sum()
 #Map
 #######################
-#Plot using ggmap (google map) remember to add API here: https://console.cloud.google.com/google/maps-apis/credentials?utm_source=Docs_CreateAPIKey&utm_content=Docs_maps-backend&_gl=1*xzqbpi*_ga*ODI3MDgxMjQ1LjE3MzgyMDI3OTI.*_ga_NRWSTWS78N*MTczODIwMjc5Mi4xLjEuMTczODIwMzE3OS4wLjAuMA..&project=alpine-canto-410820
+#Plot using ggmap (google map) remember to 
+#add API here: https://console.cloud.google.com/google/maps-apis/credentials?utm_source=Docs_CreateAPIKey&utm_content=Docs_maps-backend&_gl=1*xzqbpi*_ga*ODI3MDgxMjQ1LjE3MzgyMDI3OTI.*_ga_NRWSTWS78N*MTczODIwMjc5Mi4xLjEuMTczODIwMzE3OS4wLjAuMA..&project=alpine-canto-410820
+
 #Malibu map
 malibu_basemap <- get_googlemap("Malibu, CA, USA", zoom = 10, maptype = "satellite")
 
 #Malibu fire map with polygons
-malibu_firemap <- ggmap(malibu_basemap, alpha = 0.7) +
-  geom_sf(data = fire_perimeters.t,inherit.aes = F, aes(color = IncidentNa, fill = IncidentNa), alpha = 0.5) + #inherit aes false allows me to plot polygon on top of ggmap without coordinates
+malibu_firemap <- ggmap(malibu_basemap) +
+  geom_sf(data = fire_perimeters.t,inherit.aes = F,
+          aes(color = IncidentNa, fill = IncidentNa), alpha = 0.5) + #inherit aes false allows me to plot polygon on top of ggmap without coordinates
   scale_color_manual(values = c("darkred","red")) +
   scale_fill_manual(values = c("darkred","red")) +
-  geom_point(data = lat_lon_site_fix.malibu.r, aes(x = avg_lon, y = avg_lat), color = "white") +
-  geom_text(data = lat_lon_site_fix.malibu.r, aes(x = avg_lon, y = avg_lat,label = label),size = 1.5) +
+  geom_point(data = lat_lon_site_fix.malibu, aes(x = Longitude, y = Latitude), color = "white") +
+  geom_text(data = lat_lon_site_fix.malibu, aes(x = Longitude, y = Latitude,label = label),size = 1.5) +
   coord_sf(xlim = c(-119.1,-118.4), ylim = c(33.9, 34.3), expand = F, crs = 4326) +
   theme_classic() +
   labs(color = "Fire incident",fill = "Fire incident") +
@@ -204,37 +223,42 @@ malibu_site_year_all <- malibu_site_year[malibu_site_year_all, on = c("Site","Sa
 #If NA, not sampled
 malibu_site_year_all[,sampled := ifelse(is.na(sampled),F,T)]
 
-#Sampled in 2025
-malibu_site_year_all[Site %in% malibu_2024_sites & SampleYear == 2024,sampled := T]
-
 #Manually, what sites sampled in 2024?
 malibu_2024_sites <- c(
-        "Deep Hole East" ,
-        "Deep Hole West" ,
-        "Big Rock",
-        "El Matador" ,
-        "El Pescador",
-        "El Sol" ,
-        "Escondido East",
-        "Escondido West" ,
-        "La Piedra",
-        "Lechuza" ,
-        "Leo Carrillo",
-        "Little Dume East" ,
-        "Little Dume West",
-        "Malibu Bluffs" ,
-        "Nicholas Canyon East",
-        "Nicholas Canyon West" ,
-        "Point Dume")
+  "Deep Hole East" ,
+  "Deep Hole West" ,
+  "Big Rock",
+  "El Matador" ,
+  "El Pescador",
+  "El Sol" ,
+  "Escondido East",
+  "Escondido West" ,
+  "La Piedra",
+  "Lechuza" ,
+  "Leo Carrillo",
+  "Little Dume East" ,
+  "Little Dume West",
+  "Malibu Bluffs" ,
+  "Nicholas Canyon East",
+  "Nicholas Canyon West" ,
+  "Point Dume",
+  "Santa Monica AR",
+  "Marina Del Rey AR",
+  "Santa Monica Jetty",
+  "Marina del Rey Breakwater"
+  )
+
+#Sampled in 2024
+malibu_site_year_all[Site %in% malibu_2024_sites & SampleYear == 2024,sampled := T]
 
 #Link lat lon with labels
-malibu_site_year_all <- lat_lon_site_fix.malibu.r[malibu_site_year_all, on = "Site"]
+malibu_site_year_all <- lat_lon_site_fix.malibu[malibu_site_year_all, on = "Site"]
 
 malibu_site_year_all[,full_label := paste0(label,": ",Site)]
 
 #Create tileplot
 # Create the tile plot
-malibu_sampling_years <- ggplot(malibu_site_year_all, aes(x = SampleYear, y = reorder(full_label, -avg_lon), fill = factor(sampled))) + 
+malibu_sampling_years <- ggplot(malibu_site_year_all, aes(x = SampleYear, y = reorder(full_label, -Longitude), fill = factor(sampled))) + 
   geom_tile(color = "grey") +  # Tile plot with white borders
   scale_fill_manual(values = c("white", "turquoise"), name = "Sampled", labels = c("No", "Yes")) + 
   labs(x = "Year", y = "Site") + 

@@ -125,11 +125,15 @@ dat_kelp <- data.table(dat_kelp)
 
   #Malibu only
   
-  #reduce all data tables to sites that have been sampled atleast 3 times
-  dat_event.malibu <- dat_event[Region == "Malibu"]
-  dat_fish_t.malibu <- dat_fish_t[Region == "Malibu"]
-  dat_macroinvert.malibu <- dat_macroinvert[Region == "Malibu"]
-  dat_kelp.malibu <- dat_kelp[Region == "Malibu"]
+  #reduce all data tables to sites that are in Malibut, or are above 33.8977 lat (above manhattan beach)
+  dat_event.malibu <- dat_event[Region == "Malibu" | Latitude > 33.8977362]
+  
+  #Site names
+  sites_keep <- unique(dat_event.malibu$Site)
+  
+  dat_fish_t.malibu <- dat_fish_t[Site %in% sites_keep,]
+  dat_macroinvert.malibu <- dat_macroinvert[Site %in% sites_keep,]
+  dat_kelp.malibu <- dat_kelp[Site %in% sites_keep,]
   
   ########################
   ##Remove TBF 2016 Project (ASK WHAT THIS IS AND IF I SHOULD LEAVE IT IN)
