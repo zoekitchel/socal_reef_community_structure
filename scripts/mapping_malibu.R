@@ -87,6 +87,8 @@ lat_lon_site_fix.malibu <- unique(lat_lon_site_fix.malibu) #24 sites
 #delete old lat lon columns from all sites
 lat_lon_site_fix.malibu <- lat_lon_site_fix.malibu[,.(Site, reef_type, years_sampled, Latitude_fix, Longitude_fix)]
 
+#Per Chelsea's advice, remove Malibu Bluffs Eelgrass and Santa Monica Bay ARs
+lat_lon_site_fix.malibu <- lat_lon_site_fix.malibu[!(Site %in% c("Malibu Bluffs Eelgrass", "Santa Monica Bay AR")),]
 
 #change col names
 colnames(lat_lon_site_fix.malibu) <- c("Site","Reef_type","Years_sampled","Latitude","Longitude")
@@ -152,6 +154,7 @@ fire_perimeters.t <- rbind(woolsey_perimeter.t, palisades_perimeter.t)
 #Malibu map
 malibu_basemap <- get_googlemap("Malibu, CA, USA", zoom = 10, maptype = "satellite")
 
+
 #Malibu fire map with polygons
 malibu_firemap <- ggmap(malibu_basemap) +
   geom_sf(data = fire_perimeters.t,inherit.aes = F,
@@ -214,6 +217,9 @@ malibu_site_year <- unique(dat_event_malibu[,.(Site,SampleYear)])
 
 malibu_site_year[,sampled := T]
 
+#Per Chelsea's advice, remove Malibu Bluffs Eelgrass and Santa Monica Bay ARs
+malibu_site_year <- malibu_site_year[!(Site %in% c("Malibu Bluffs Eelgrass", "Santa Monica Bay AR")),]
+
 #expand grid for all possibilities
 malibu_site_year_all <- data.table(expand.grid(SampleYear = seq(from = min(malibu_site_year$SampleYear), to = 2025,by = 1), Site = malibu_site_year$Site))
 
@@ -243,7 +249,7 @@ malibu_2024_sites <- c(
   "Nicholas Canyon West" ,
   "Point Dume",
   "Santa Monica AR",
-  "Marina Del Rey AR",
+  "Marina del Rey AR",
   "Santa Monica Jetty",
   "Marina del Rey Breakwater"
   )
@@ -263,10 +269,10 @@ malibu_sampling_years <- ggplot(malibu_site_year_all, aes(x = SampleYear, y = re
   scale_fill_manual(values = c("white", "turquoise"), name = "Sampled", labels = c("No", "Yes")) + 
   labs(x = "Year", y = "Site") + 
   scale_x_continuous(breaks = seq(min(malibu_site_year_all$SampleYear), 2025, by = 1), expand = c(0,0)) +  # Set breaks for each year
-  geom_vline(xintercept = 2018, color = "darkred", size = 1) +  # Add vertical red lines at 2017 for Woosley
-  geom_vline(xintercept = 2025, color = "red", size = 1) +  # Add vertical red lines at 2025 for Palisades
-  annotate("text", x = 2018, y = 5, label = " Woolsey", angle = 90, hjust = -3,vjust = -0.5, size = 5, color = "darkred") +  # Add text rotated at 2017
-  annotate("text", x = 2025, y = 5, label = "Palisades", angle = 90, hjust = -3,vjust = -0.5, size = 5, color = "red") +  # Add text rotated at 2025
+  #geom_vline(xintercept = 2018, color = "darkred", size = 1) +  # Add vertical red lines at 2017 for Woolsey
+  geom_vline(xintercept = 2024.5, color = "red", size = 1, linetype = "dashed", alpha = 0.8) +  # Add vertical red lines at 2025 for Palisades
+  #annotate("text", x = 2018, y = 5, label = " Woolsey", angle = 90, hjust = -3,vjust = -0.5, size = 5, color = "darkred") +  # Add text rotated at 2017
+  annotate("text", x = 2025, y = 5, label = "Palisades Fire", angle = 90, hjust = -0.2,size = 5, color = "red") +  # Add text rotated at 2025
   theme_classic() + 
   theme(
     legend.position = "top", 
@@ -282,6 +288,31 @@ malibu_sampling_years <- ggplot(malibu_site_year_all, aes(x = SampleYear, y = re
 
 ggsave(malibu_sampling_years, filename = "malibu_sampling_years.jpg", path = file.path("figures"), width = 12, height =6, units = "in", dpi = 300)
 
+#Abbreviated version
+malibu_sampling_years_2019_2024 <- ggplot(malibu_site_year_all, aes(x = SampleYear, y = reorder(full_label, -Longitude), fill = factor(sampled))) + 
+  geom_tile(color = "grey") +  # Tile plot with white borders
+  scale_fill_manual(values = c("white", "turquoise"), name = "Sampled", labels = c("No", "Yes")) + 
+  labs(x = "Year", y = "Site") + 
+  scale_x_continuous(breaks = seq(2019, 2025, by = 1), expand = c(0,0), limits = c(2018.5,2025.5)) +  # Set breaks for each year
+  #geom_vline(xintercept = 2018, color = "darkred", size = 1) +  # Add vertical red lines at 2017 for Woolsey
+  geom_vline(xintercept = 2024.5, color = "red", size = 1, linetype = "dashed", alpha = 0.8) +  # Add vertical red lines at 2025 for Palisades
+  #annotate("text", x = 2018, y = 5, label = " Woolsey", angle = 90, hjust = -3,vjust = -0.5, size = 5, color = "darkred") +  # Add text rotated at 2017
+  annotate("text", x = 2025, y = 5, label = "Palisades Fire", angle = 90, hjust = -0.2,size = 5, color = "red") +  # Add text rotated at 2025
+  theme_classic() + 
+  theme(
+    legend.position = "top", 
+    legend.direction = "horizontal", 
+    axis.title = element_text(size = 14),  # Increase axis title size
+    axis.text = element_text(size = 12),   # Increase axis text size
+    axis.text.x = element_text(angle = 45, hjust = 1),  # Rotate x-axis labels by 45 degrees
+    legend.text = element_text(size = 12),  # Increase legend text size
+    legend.title = element_text(size = 14), # Increase legend title size
+    plot.title = element_text(size = 16),   # Increase plot title size (if you add one)
+    strip.text = element_text(size = 12)    # For facet labels if you're using facets
+        )
+
+
+ggsave(malibu_sampling_years_2019_2024, filename = "malibu_sampling_years_2019_2024.jpg", path = file.path("figures"), width = 6, height =6, units = "in", dpi = 300)
 
 #Plot Panels left and right
 merged_malibu <- cowplot::plot_grid(malibu_site_map_with_inset,
