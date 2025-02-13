@@ -9,6 +9,8 @@
 ##Setup
 #############################
 library(ggplot2)
+library(ggnewscale)
+library(ggrepel)
 library(data.table)
 library(dplyr)
 library(vegan)
@@ -145,6 +147,79 @@ palisades_perimeter.t <- palisades_perimeter.t |>
 #Merge into a single sf
 fire_perimeters.t <- rbind(woolsey_perimeter.t, palisades_perimeter.t)
 
+#############################
+# Pull in watershed outlines for LA county ####
+#############################
+#Shapefile downloaded February 12, 2025 from https://egis-lacounty.hub.arcgis.com/datasets/lacounty::los-angeles-county-sub-watershed-feature-layer/about
+#Filename = Los_Angeles_County_Sub_Watershed_Feature_Layer/Los_Angeles_County_Sub_Watershed_Feature_Layer.shp
+
+LAcounty_watersheds <- sf::st_read(file.path("data","Los_Angeles_County_Sub_Watershed_Feature_Layer","Los_Angeles_County_Sub_Watershed_Feature_Layer.shp"))
+
+#transform
+LAcounty_watersheds.t <- st_transform(LAcounty_watersheds, crs = 4326)
+
+#Select focal columns and narrow down to Malibu Creek Watershed and then merge into single shapefile for each
+#I used this as a guide: https://ladpw.org/wmd/newsletter/WMNews/02_Sep_img/pic1.htm
+
+#Manually reduce to required names
+Malibu_watershed <- LAcounty_watersheds.t %>%
+  filter(WATERSHED == "malibu" & 
+           (grepl("MALBU",NAME)==T |
+              grepl("MALUB",NAME2)==T |
+            grepl("MALBU",NAME2)==T |
+              grepl("POTVY",NAME2)==T |
+              grepl("LVIRG",NAME2) == T |
+              grepl("TRIUN",NAME2)==T |
+              grepl("ELVRG",NAME2)==T |
+                 grepl("LOBOC",NAME2)==T |
+                grepl("CHESE",NAME2)==T |
+                grepl("MEDEA",NAME2)==T |
+              grepl("COLDK",NAME2)==T )) %>%
+  summarise()
+
+#Transform Malibu to 4326
+Malibu_watershed.t <- st_transform(Malibu_watershed, crs = 4326)
+
+#Manually reduce to required names for Topanga (same way as Malibu above)
+Topanga_watershed <- LAcounty_watersheds.t %>%
+  filter(grepl("TPNG",NAME2)==T | grepl("TPNGA",NAME) == T) %>%
+  summarise()
+
+#Transform Topanga to 4326
+Topanga_watershed.t <- st_transform(Topanga_watershed, crs = 4326)
+
+#Load Ballona Outline (I made this myself February 12 2025 using GEP and Figure Figure ES-4 from https://www.waterboards.ca.gov/rwqcb4/water_issues/programs/stormwater/municipal/watershed_management/ballona_creek/BallonaCreek_RevisedEWMP_corrected2016Feb1.pdf)
+Ballona_watershed <- sf::st_read(file.path("data","Ballona_Creek_Watershed.kml"))
+
+#Transform Ballona to 4326
+Ballona_watershed.t <- st_transform(Ballona_watershed, crs = 4326)
+
+#Merge together, and make column with name
+Malibu_watershed.t <- Malibu_watershed.t %>%
+  mutate(Name = "Malibu Creek") %>%
+  select(Name, geometry)
+
+Ballona_watershed.t <- Ballona_watershed.t %>%
+  st_make_valid() %>%
+  mutate(Name = "Ballona Creek") %>%
+  select(Name, geometry)
+  
+Topanga_watershed.t <- Topanga_watershed.t %>%
+  mutate(Name = "Topanga Creek") %>%
+  select(Name, geometry)
+  
+
+#Merge into a single sf
+watershed_perimeters.t <- rbind(Malibu_watershed.t, Topanga_watershed.t
+                                #, Ballona_watershed.t #leave out, doesn't overlap exactly
+                                )
+
+#Set factor order
+watershed_perimeters.t <- watershed_perimeters.t %>% 
+  mutate(Name = factor(Name, levels = c("Malibu Creek","Topanga Creek"
+                                       # ,"Ballona Creek" #leave out, doesn't overlap exactly
+                                        )))
+
 ##############################################type_sum()
 #Map
 #######################
@@ -182,32 +257,42 @@ malibu_firemap <- ggmap(malibu_basemap) +
                   fill = "white", color = "white") +  # Add white rectangle to highlight scalebar
   annotation_scale(location = "bl")
 
-#Malibu PALISADES fire map with polygons
+#Malibu PALISADES fire map with watersheds
 malibu_palisades_firemap <- ggmap(malibu_basemap) +
+  geom_sf(data = watershed_perimeters.t, inherit.aes = F,
+          aes(color = Name, fill = Name), alpha = 0.2, linewidth = 1) +
+  scale_color_manual(values = c("#FFD699","#A7F3D0")) +
+  scale_fill_manual(values = c("#FFD699","#A7F3D0")) +
+  labs(color = "Watershed", fill = "Watershed") +
+  new_scale_color() +
+  new_scale_fill() +
   geom_sf(data = fire_perimeters.t %>% filter(IncidentNa == "2025 Palisades"),inherit.aes = F,
-          aes(color = IncidentNa, fill = IncidentNa), alpha = 0.5) + #inherit aes false allows me to plot polygon on top of ggmap without coordinates
+          aes(color = IncidentNa, fill = IncidentNa), alpha = 0.5, linewidth = 1.5) + #inherit aes false allows me to plot polygon on top of ggmap without coordinates
   scale_color_manual(values = c("red")) +
   scale_fill_manual(values = c("red")) +
-  geom_point(data = lat_lon_site_fix.malibu, aes(x = Longitude, y = Latitude), color = "white") +
-  geom_text(data = lat_lon_site_fix.malibu, aes(x = Longitude, y = Latitude,label = label),size = 1.5) +
+  labs(color = "Fire incident",fill = "Fire incident") +
+  geom_point(data = lat_lon_site_fix.malibu, aes(x = Longitude, y = Latitude),
+             shape = 21, color = "black",fill = "white", size = 4) +
+  geom_label_repel(data = lat_lon_site_fix.malibu, aes(x = Longitude, y = Latitude,label = label),size = 6) +
   coord_sf(xlim = c(-119.0,-118.4), ylim = c(33.9, 34.25), expand = F, crs = 4326) +
   theme_classic() +
-  labs(color = "Fire incident",fill = "Fire incident") +
   theme(axis.title = element_blank(),
-        axis.text = element_text(size = 12),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
         panel.border = element_rect(color = "black", fill = NA, size = 1),
-        legend.position = c(0.2,0.87), legend.direction = "vertical",
-        legend.title = element_text(size = 13),
-        legend.text = element_text(size = 12)) +
+        legend.position = "top", legend.direction = "horizontal",
+        legend.title = element_text(size = 16, face = "bold"),
+        legend.text = element_text(size = 16)) +
   guides(
-    fill = guide_legend(override.aes = list(size = 4)),
-    shape = guide_legend(override.aes = list(size = 4))) +   
+    fill = guide_legend(override.aes = list(size = 6)),
+    shape = guide_legend(override.aes = list(size = 6))) +   
  # geom_rect(aes(xmin = -119.1,
  #               xmax = -118.88,
  #               ymin = 33.902,
  #               ymax = 34.01),
  #           fill = "white", color = "white") +  # Add white rectangle to highlight scalebar
-  annotation_scale(location = "bl")
+  annotation_scale(location = "bl",
+                   height = unit(5,"mm"), text_cex = 2.5)
 
 # Load the state boundaries for the USA
 states <- ne_states(country = "united states of america", returnclass = "sf")
@@ -230,7 +315,7 @@ malibu_site_map_with_inset <- malibu_firemap +
   annotation_custom(
     grob = ggplotGrob(california_inset), 
     xmin = -118.58, 
-    ymin = 34.12)
+    ymin = 34.15)
 
 # Save the plot
 ggsave(malibu_site_map_with_inset, filename = "malibu_site_map_with_inset.jpg", path = file.path("figures"), width = 6, height =4.5, units = "in", dpi = 300)
@@ -243,7 +328,10 @@ malibu_site_map_with_inset_palisadesonly <- malibu_palisades_firemap +
     ymin = 34.12)
 
 # Save the plot
-ggsave(malibu_site_map_with_inset_palisadesonly, filename = "malibu_site_map_with_inset_palisadesonly.jpg", path = file.path("figures"), width = 6, height =4.5, units = "in", dpi = 300)
+ggsave(malibu_site_map_with_inset_palisadesonly,
+       filename = "malibu_site_map_with_inset_palisadesonly.jpg",
+       path = file.path("figures"),
+       width = 12, height =7, units = "in", dpi = 300)
 
 ####################
 # Make tile plot with years that had observations ####
