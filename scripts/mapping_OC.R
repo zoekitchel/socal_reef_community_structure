@@ -122,6 +122,9 @@ lat_lon_site_fix.OC[,label := rev(LETTERS[1:nrow(lat_lon_site_fix.OC)])]
 #Link up with # depth zones sampled
 lat_lon_site_fix.OC <- max_depth_zones[lat_lon_site_fix.OC, on = "Site_label"]
 
+#Actually only want OC, not North SD County, so, restrict to greater than 33.25 latitude
+lat_lon_site_fix.OC <- lat_lon_site_fix.OC[Latitude>=33.25]
+
 #Project points to simple feature points to simple feature
 lat_lon_site_fix.OC.sf <- st_as_sf(lat_lon_site_fix.OC, coords = c("Longitude","Latitude"), crs = st_crs(4326)) #all depth zones merged
 
@@ -133,7 +136,7 @@ lat_lon_site_fix.OC.sf <- st_as_sf(lat_lon_site_fix.OC, coords = c("Longitude","
 #add API here: https://console.cloud.google.com/google/maps-apis/credentials?utm_source=Docs_CreateAPIKey&utm_content=Docs_maps-backend&_gl=1*xzqbpi*_ga*ODI3MDgxMjQ1LjE3MzgyMDI3OTI.*_ga_NRWSTWS78N*MTczODIwMjc5Mi4xLjEuMTczODIwMzE3OS4wLjAuMA..&project=alpine-canto-410820
 
 #Malibu map
-OC_basemap <- get_googlemap(center=c(-117.49421906606435,33.32424647992126), zoom = 10, maptype = "satellite")
+OC_basemap <- get_googlemap(center=c(-117.75,33.5), zoom = 11, maptype = "satellite")
 
 
 #Malibu fire map with polygons
@@ -167,8 +170,8 @@ california <- states[states$name == "California", ]
 california_inset <- ggplot() +
   geom_sf(data = california, lwd = 0.3) +
   geom_rect(aes(xmin = -118,
-                xmax = -117,
-                ymin = 32.95,
+                xmax = -117.5,
+                ymin = 33.3,
                 ymax = 33.7),
              color = "yellow",fill = "yellow", linewidth = 0.6, alpha = 0.3) +  # Add rectangle to highlight the area
   theme_void()
@@ -177,8 +180,8 @@ california_inset <- ggplot() +
 OC_site_map_with_inset <- OC_sitemap +
   annotation_custom(
     grob = ggplotGrob(california_inset), 
-    xmin = -117.4, 
-    ymin = 33.3)
+    xmin = -117.71, 
+    ymin = 33.523)
 
 # Save the plot
 ggsave(OC_site_map_with_inset, filename = "OC_site_map_with_inset.jpg",
@@ -189,7 +192,7 @@ ggsave(OC_site_map_with_inset, filename = "OC_site_map_with_inset.jpg",
 ####################
 
 #Unique site, year data table
-OC_site_year <- unique(dat_event_OC[,.(Site_label,SampleYear)])
+OC_site_year <- unique(dat_event_OC[Latitude>=33.25,.(Site_label,SampleYear)]) #again, limit to OC only
 
 OC_site_year[,sampled := T]
 
