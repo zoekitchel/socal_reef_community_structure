@@ -1,9 +1,11 @@
 # CREATION DATE 13 Feb 2025
-# MODIFIED DATE 13 Feb 2025
+# MODIFIED DATE 20 Feb 2025
 
 # AUTHOR: kitchel@oxy.edu
 
 # PURPOSE: Map of OC for Jayson Smith with timeline of sampling
+
+#Note, for beginning of code, I made adjustments for both OC and SD Counties. Keeping SD code just in case, even though all SD sites are removed.
 
 #############################
 ##Setup
@@ -13,12 +15,6 @@ library(ggnewscale)
 library(ggrepel)
 library(data.table)
 library(dplyr)
-library(vegan)
-library(ggvegan)
-library(labdsv)
-library(cowplot)
-library(marmap) #to pull depth data
-library(rasterVis)
 library(ggspatial)
 library(ggmap) #background google map
 library(sf)
@@ -135,6 +131,8 @@ lat_lon_site_fix.OC.sf <- st_as_sf(lat_lon_site_fix.OC, coords = c("Longitude","
 #Plot using ggmap (google map) remember to 
 #add API here: https://console.cloud.google.com/google/maps-apis/credentials?utm_source=Docs_CreateAPIKey&utm_content=Docs_maps-backend&_gl=1*xzqbpi*_ga*ODI3MDgxMjQ1LjE3MzgyMDI3OTI.*_ga_NRWSTWS78N*MTczODIwMjc5Mi4xLjEuMTczODIwMzE3OS4wLjAuMA..&project=alpine-canto-410820
 
+#once API added, may need to use register_google() again with API key from website above
+
 #Malibu map
 OC_basemap <- get_googlemap(center=c(-117.75,33.5), zoom = 11, maptype = "satellite")
 
@@ -212,14 +210,7 @@ OC_2024_sites <- c(
 "Heisler Park",
 "Laguna Beach",
 "Dana Point",
-"San Mateo Kelp",
-"Leucadia",
-"Swami's",
-"Matlahuayl",
-"Children's Pool",
-"South La Jolla",
-"Point Loma",
-"Cabrillo National Monument"
+"San Mateo Kelp"
   )
 
 #Sampled in 2024
