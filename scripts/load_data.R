@@ -1,5 +1,5 @@
 # CREATION DATE 28 Jan 2024
-# MODIFIED DATE 1 Dec 2024
+# MODIFIED DATE 14 Mar 2025
 
 # AUTHOR: kitchel@oxy.edu
 
@@ -40,7 +40,15 @@ source("~/Dropbox/VRG Files/R Code/Integrated Dive General/CRANE_data_prep.R")
 CRANE_data_prep(SELECT = "BOEM_depth_comparison",
                 add_0s = "sp_0s", #summed to by Species with 0s added
                 fish_prod = F, #check what this does, don't think I need it now
-                Rem_YOYs_dens = T) #talk to Jeremy about this, see FISH_PREP2.R for details on what this does
+                #assign 0 to abundance and density for species-specific EstimatedLength below
+                #Juv.cut.cm in conversions (i.e., remove YOYs from total density calculations)
+                Rem_YOYs_dens = T,
+                # rename Topsmelt & Jacksmelt to Atherinopsidae (hard to ID underwater)
+                ## Also (from 2018 fish Biomass Analysis) CHANGE OYT TO OLIVE and  consolidate Atherinops affinis & Atherinopsis californiensis into Atherinopsidae (otherwise causes problems in community analyses)
+                Atherin_Seb_ser_YOY = TRUE
+) 
+#NOTE that YOY ARE removed from density estimates but are NOT removed from biomass estimates (assumption that biomass contributions are small)
+
 
 ########################
 ##Split into fish, inverts, and kelp
@@ -124,6 +132,24 @@ dat_kelp <- dat_kelp |>
 dat_UPC_VRG <- dat_UPC_VRG |>
   filter(!Site %in% c("Leucadia", "Old 18th")) |> #some depth zones were way out there in nMDS (probably very few species?)
   droplevels() 
+
+#Just in case this hasn't already happened, manually remove Sphyraena argentea, Sardinops sagax, Scomber japonicus, Trachurus symmetricus
+
+#Pacific sardine (Sardinops sagax caerulea)
+#Northern anchovy (Engraulis mordax)
+#Pacific mackerel (Scomber japonicus)
+#Jack mackerel (Trachurus symmetricus)
+#Pacific barracuda (Sphyraena argentea)
+
+dat_fish_t <- dat_fish_t |>
+  filter(!(Species %in% c("Sphyraena argentea",
+                          "Sardinops sagax",
+                          "Scomber japonicus",
+                          "Trachurus symmetricus",
+                          "Engraulis mordax"
+                          )))
+
+
 
 
 ########################
@@ -294,6 +320,20 @@ if(maggie_gorgonian == T){ #different subset
   UPC_CCA <- UPC_complete %>% 
     filter(Taxa == "coralline algae - crustose" & Category == "UPC Species")
   fwrite(UPC_CCA, file.path("data","processed_crane","for_maggie","UPC_CCA.csv"))
+  
+  #Unique depth/Site/depthzone values
+  site_depthzone_depth <- dat_event[,.(mean_surveydepth = round(mean(SurveyDepth, na.rm = T),0)),.(Site, DepthZone)]
 
+  #See if this looks right by plotting
+  ggplot() +
+    geom_boxplot(data =   site_depthzone_depth , 
+                 aes(x = DepthZone, y = mean_surveydepth)) +
+    theme_classic()
+  
+  #Looks good!
+  
+  #Export
+  fwrite(site_depthzone_depth, file.path("data","processed_crane","for_maggie","site_depthzone_depth.csv"))
+  
   
 }

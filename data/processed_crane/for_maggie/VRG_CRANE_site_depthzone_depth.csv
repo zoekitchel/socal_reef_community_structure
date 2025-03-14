@@ -1,0 +1,404 @@
+Site,DepthZone,mean_surveydepth
+SCLI - Boy Scout Camp,Inner,5
+SCLI - Boy Scout Camp,Outer,15
+SCLI - Boy Scout Camp,Middle,10
+SCLI - China Point,Deep,22
+SCLI - China Point,Inner,5
+SCLI - China Point,Middle,10
+SCLI - China Point,Outer,15
+SCLI - Eel Point,Deep,23
+SCLI - Eel Point,Inner,7
+SCLI - Eel Point,Middle,10
+SCLI - Eel Point,Outer,14
+SCLI - Lil Flower,Middle,10
+SCLI - Lil Flower,Inner,5
+SCLI - Lil Flower,Deep,24
+SCLI - Lil Flower,Outer,15
+SCLI - North Range,Deep,22
+SCLI - North Range,Inner,7
+SCLI - North Range,Middle,9
+SCLI - North Range,Outer,16
+SCLI - Purseseine Rock,Middle,9
+SCLI - Purseseine Rock,Inner,5
+SCLI - Purseseine Rock,Outer,17
+SCLI - Pyramid Cove,Deep,25
+SCLI - Pyramid Cove,Inner,5
+SCLI - Pyramid Cove,Middle,10
+SCLI - Pyramid Cove,Outer,16
+SCLI - Reflector Reef,Inner,5
+SCLI - Reflector Reef,Middle,8
+SCLI - Reflector Reef,Deep,23
+SCLI - Reflector Reef,Outer,15
+SCLI - Station 1,Inner,4
+SCLI - Station 1,Middle,10
+SCLI - Station 2,Middle,10
+SCLI - Station 2,Inner,5
+SCLI - Station 2,Outer,15
+SCLI - Castle Rock,Deep,23
+SCLI - Castle Rock,Inner,5
+SCLI - Castle Rock,Middle,9
+SCLI - Castle Rock,Outer,14
+SCLI - Northwest Harbor,Outer,14
+SCLI - Northwest Harbor,Middle,9
+SCLI - Northwest Harbor,Inner,5
+NBPL Central,Inner,6
+NBPL Central,Middle,10
+NBPL Central,Outer,11
+NBPL Central,Deep,23
+NBPL North,Inner,5
+NBPL North,Middle,10
+NBPL North,Outer,15
+NBPL North,Deep,22
+NBPL South,Inner,5
+NBPL South,Middle,10
+NBPL South,Outer,14
+NBPL South,Deep,21
+Abalone Cove Kelp West,Inner,5
+Abalone Cove Kelp West,Middle,9
+Abalone Cove Kelp West,Outer,16
+Golden Cove,Inner,4
+Honeymoon Cove,Inner,5
+Honeymoon Cove,Middle,10
+Honeymoon Cove,Outer,14
+Honeymoon Cove,Deep,22
+Marguerite Central,Inner,5
+Marguerite Central,Middle,10
+Point Vicente West,Inner,5
+Point Vicente West,Middle,10
+Point Vicente West,Outer,15
+Point Vicente West,Deep,23
+Rocky Point North,Inner,5
+Rocky Point North,Middle,10
+Rocky Point North,Outer,14
+Rocky Point North,Deep,22
+120 Reef,Inner,5
+120 Reef,Middle,10
+3 Palms East,Inner,5
+3 Palms East,Middle,9
+3 Palms East,Outer,15
+3 Palms East,Deep,21
+3 Palms West,Outer,14
+3 Palms West,Deep,21
+3 Palms West,Inner,5
+3 Palms West,Middle,10
+Albondigas,Inner,5
+Albondigas,Middle,10
+Albondigas,Outer,13
+Bunker Point,Inner,5
+Bunker Point,Middle,9
+Bunker Point,Outer,14
+Bunker Point,Deep,20
+Burial Grounds,Inner,5
+Burial Grounds,Middle,10
+Burial Grounds,Outer,14
+Burial Grounds,Deep,20
+Cairns,Inner,5
+Cairns,Middle,10
+Cairns,Outer,15
+Cape Point,Inner,5
+Cape Point,Middle,10
+Cape Point,Outer,15
+Cape Point,Deep,21
+Christmas Tree Cove,Inner,5
+Christmas Tree Cove,Middle,10
+Christmas Tree Cove,Outer,14
+Flat Rock North,Inner,5
+Flat Rock North,Middle,10
+Flat Rock South,Inner,6
+Flat Rock South,Middle,10
+Flat Rock South,Outer,15
+Hawthorne Reef,Inner,5
+Hawthorne Reef,Middle,10
+Hawthorne Reef,Outer,15
+Hawthorne Reef,Deep,23
+Hermosa Beach AR - Giants,ARM,18
+HK - Queen Mary,Deep,24
+HK - Reference Reef,Deep,21
+KOU Rock,Inner,5
+KOU Rock,Middle,10
+KOU Rock,Outer,16
+KOU Rock,Deep,22
+Long Point East,Inner,5
+Long Point East,Middle,10
+Long Point East,Outer,15
+Long Point East,Deep,23
+Long Point West,Inner,5
+Long Point West,Middle,10
+Lunada Bay,Deep,22
+Lunada Bay,Inner,5
+Lunada Bay,Middle,9
+Lunada Bay,Outer,15
+Marguerite East,Inner,5
+Marguerite East,Middle,10
+Marguerite West,Inner,5
+Marguerite West,Middle,10
+Marguerite West,Outer,14
+Marina del Rey AR - F,ARM,19
+Marina del Rey AR - I,ARM,19
+Marina del Rey AR - K,ARM,19
+Old 18th,Deep,20
+Old 18th,Outer,15
+Old 18th,Middle,9
+Old 18th,Inner,5
+Old Marineland,Inner,4
+Point Fermin,Inner,6
+Point Fermin,Middle,10
+Point Fermin,Outer,14
+Portuguese Bend,Inner,6
+Portuguese Bend,Middle,9
+Portuguese Bend,Outer,14
+Portuguese Bend,Deep,21
+Portuguese Point,Inner,5
+Portuguese Point,Middle,11
+Portuguese Point,Outer,15
+Resort Point,Inner,5
+Resort Point,Middle,10
+Resort Point,Outer,15
+Resort Point,Deep,20
+Ridges North,Inner,5
+Ridges North,Middle,10
+Ridges North,Outer,15
+Ridges North,Deep,23
+Ridges South,Inner,5
+Ridges South,Middle,10
+Ridges South,Outer,15
+Ridges South,Deep,24
+Rocky Point South,Inner,5
+Rocky Point South,Middle,10
+Rocky Point South,Outer,15
+Rocky Point South,Deep,23
+Santa Monica AR - A,ARM,18
+Santa Monica AR - B,ARM,19
+Santa Monica AR - C,ARM,18
+SCAI - Bird Rock,Inner,5
+SCAI - Bird Rock,Middle,10
+SCAI - Bird Rock,Outer,15
+SCAI - Bird Rock,Deep,23
+SCAI - Blue Cavern,Inner,5
+SCAI - Blue Cavern,Middle,10
+SCAI - Blue Cavern,Outer,16
+SCAI - Hen Rock,Inner,5
+SCAI - Hen Rock,Middle,11
+SCAI - Hen Rock,Outer,17
+SCAI - Italian Gardens,Inner,5
+SCAI - Italian Gardens,Middle,10
+SCAI - Italian Gardens,Outer,14
+SCAI - Ripper's Cove,Inner,4
+SCAI - Ripper's Cove,Middle,8
+Underwater Arch,Inner,5
+Underwater Arch,Middle,10
+Underwater Arch,Outer,14
+Whites Point,Inner,4
+Whites Point,Middle,8
+Whites Point,Outer,13
+SCAI - Iron Bound Cove,Inner,5
+SCAI - Iron Bound Cove,Middle,10
+SCAI - Iron Bound Cove,Outer,14
+Segovia,Inner,5
+Segovia,Middle,10
+Segovia,Outer,15
+Flat Rock North,Outer,15
+Children's Pool,Inner,6
+Children's Pool,Middle,9
+Children's Pool,Outer,15
+Crystal Cove,Inner,6
+Crystal Cove,Middle,11
+Crystal Cove,Outer,15
+Dana Point,Inner,6
+Dana Point,Middle,10
+Dana Point,Outer,15
+Escondido West,Inner,5
+Escondido West,Middle,10
+Heisler Park,Inner,6
+Heisler Park,Middle,10
+Heisler Park,Outer,14
+Laguna Beach,Inner,7
+Laguna Beach,Middle,11
+Laguna Beach,Outer,14
+Lechuza,Inner,6
+Lechuza,Middle,10
+Leucadia,Inner,6
+Leucadia,Middle,11
+Leucadia,Outer,14
+Little Dume West,Inner,5
+Little Dume West,Middle,9
+Little Dume West,Outer,13
+Matlahuayl,Inner,6
+Matlahuayl,Middle,10
+Nicholas Canyon West,Inner,6
+Nicholas Canyon West,Middle,11
+Nicholas Canyon West,Outer,14
+Point Dume,Inner,5
+Point Dume,Middle,10
+Point Dume,Outer,14
+Point Loma Central,Inner,6
+Point Loma Central,Middle,10
+Point Loma Central,Outer,15
+Point Loma Central,Deep,23
+PVR 1A,ARM,17
+PVR 1B,ARM,17
+PVR 1C,ARM,18
+PVR 2A,ARM,17
+PVR 2B,ARM,18
+PVR 2C,ARM,18
+PVR 3A,ARM,17
+PVR 3B,ARM,19
+PVR 3C,ARM,21
+PVR 4A,ARM,17
+PVR 4B,ARM,19
+PVR 4C,ARM,20
+PVR 5A,ARM,17
+PVR 5B,ARM,19
+PVR 5C,ARM,20
+PVR 6A,ARM,17
+PVR 6B,ARM,19
+PVR 6C,ARM,20
+PVR 7A,ARM,17
+PVR 7B,ARM,19
+PVR 7C,ARM,21
+PVR 8A,ARM,18
+PVR 8B,ARM,20
+PVR 8C,ARM,21
+San Mateo Kelp,Middle,10
+San Mateo Kelp,Outer,15
+SBI - Cat Canyon,Inner,6
+SBI - Cat Canyon,Middle,10
+SBI - Cat Canyon,Deep,21
+SBI - Cat Canyon,Outer,15
+SBI - Southeast Reef,Inner,6
+SBI - Southeast Reef,Middle,10
+SBI - Southeast Reef,Outer,17
+SBI - Southeast Reef,Deep,25
+SBI - Southeast Sealion,Inner,6
+SBI - Southeast Sealion,Middle,10
+SBI - Southeast Sealion,Outer,14
+SBI - Sutil,Inner,5
+SBI - Sutil,Middle,11
+SBI - Sutil,Outer,16
+SBI - Sutil,Deep,24
+SCAI - Cat Harbor,Inner,4
+SCAI - Cat Harbor,Outer,15
+SCAI - Cat Harbor,Middle,10
+SCAI - China Point,Inner,5
+SCAI - China Point,Middle,10
+SCAI - China Point,Outer,14
+SCAI - Indian Rock,Inner,5
+SCAI - Indian Rock,Middle,10
+SCAI - Indian Rock,Outer,15
+SCAI - Salta Verde,Inner,6
+SCAI - Salta Verde,Middle,10
+SCAI - Salta Verde,Outer,14
+SCAI - Ship Rock,Inner,5
+SCAI - Ship Rock,Middle,10
+SCAI - Ship Rock,Outer,15
+SCAI - Ship Rock,Deep,26
+South La Jolla,Inner,5
+South La Jolla,Middle,10
+South La Jolla,Outer,16
+South La Jolla,Deep,24
+Swami's,Inner,5
+Swami's,Middle,10
+Swami's,Outer,16
+PVR 3D,ARM,19
+PVR 4D,ARM,18
+PVR 6D,ARM,19
+Hermosa Beach AR - AC,ARM,18
+Hermosa Beach AR - Boxes,ARM,18
+Hermosa Beach AR - NW,ARM,19
+Hermosa Beach AR - Pier Pilings,ARM,19
+Redondo Beach AR - Barge,ARM,23
+Redondo Beach AR - C,ARM,23
+Redondo Beach AR - D,ARM,24
+Redondo Beach AR - E,ARM,23
+Santa Monica Bay AR - 11,ARM,18
+Santa Monica Bay AR - 16,ARM,18
+Santa Monica Bay AR - 17,ARM,23
+Santa Monica Bay AR - 19,ARM,23
+Santa Monica Bay AR - 9,ARM,18
+Santa Monica Bay AR - 20,ARM,23
+Santa Monica Bay AR - 22,ARM,23
+Santa Monica Bay AR - 7,ARM,14
+Santa Monica Jetty - Exterior,ARM,6
+SCAI - Indian Rock,Deep,24
+Star of Scotland,ARM,22
+Wreck of the Avalon,ARM,21
+Big Rock,Inner,8
+Buck Gully,Inner,5
+Buck Gully,Middle,9
+Cabrillo National Monument,Inner,6
+Cabrillo National Monument,Middle,10
+Cabrillo National Monument,Outer,13
+Deep Hole East,Inner,6
+Deep Hole East,Middle,10
+Deep Hole East,Outer,14
+Deep Hole West,Deep,22
+Deep Hole West,Inner,5
+Deep Hole West,Middle,10
+Deep Hole West,Outer,14
+El Matador,Inner,6
+El Matador,Middle,9
+El Pescador,Middle,11
+El Sol,Middle,10
+El Sol,Outer,12
+Escondido East,Inner,6
+Escondido East,Middle,10
+KH - West Breakwater,Inner,5
+KH - West Breakwater,Middle,10
+KH - West Breakwater,Outer,14
+La Piedra,Middle,10
+Leo Carrillo,Inner,5
+Leo Carrillo,Middle,9
+Little Dume East,Inner,4
+Little Dume East,Middle,9
+Little Dume East,Outer,12
+Malibu Bluffs,Inner,7
+Malibu Bluffs,Middle,9
+Malibu Bluffs Eelgrass,Middle,11
+Marina del Rey AR - C,ARM,19
+Marina del Rey AR - H,ARM,19
+Marina del Rey AR - O,ARM,18
+Marina del Rey AR - Q,ARM,20
+Marina del Rey AR - R,ARM,19
+Marina del Rey Breakwater - Exterior,Inner,6
+Nicholas Canyon East,Middle,10
+Nicholas Canyon East,Outer,13
+Point Loma North,Deep,25
+Point Loma North,Inner,5
+Point Loma North,Middle,10
+Point Loma North,Outer,17
+Point Loma South,Deep,22
+Point Loma South,Inner,5
+Point Loma South,Middle,11
+Point Loma South,Outer,15
+Redondo Beach AR - FG,ARM,24
+Redondo Beach AR - IJ,ARM,24
+Santa Monica Bay AR - 14,ARM,18
+Santa Monica Bay AR - 5,ARM,14
+Santa Monica Jetty - Interior,ARM,7
+SCAI - Casino Point,Deep,22
+SCAI - Casino Point,Inner,5
+SCAI - Casino Point,Middle,10
+SCAI - Casino Point,Outer,16
+SCAI - Intake Pipes,Deep,23
+SCAI - Intake Pipes,Inner,5
+SCAI - Intake Pipes,Middle,10
+SCAI - Intake Pipes,Outer,14
+SCAI - Isthmus Reef,Deep,23
+SCAI - Isthmus Reef,Inner,5
+SCAI - Isthmus Reef,Middle,10
+SCAI - Isthmus Reef,Outer,15
+SCAI - Lion Head,Deep,25
+SCAI - Lion Head,Inner,5
+SCAI - Lion Head,Middle,11
+SCAI - Lion Head,Outer,16
+SCAI - Torqua,Deep,22
+SCAI - Torqua,Inner,4
+SCAI - Torqua,Middle,10
+SCAI - Torqua,Outer,14
+Bolsa Chica AR - 19,ARM,24
+Bolsa Chica AR - A,ARM,26
+Huntington Beach AR - A4,ARM,20
+Huntington Beach AR - B4,ARM,20
+Huntington Beach AR - C,ARM,20
+Huntington Beach AR - C2,ARM,20
+Huntington Beach AR - D12,ARM,20
