@@ -2,7 +2,7 @@
 
 Currently in prep for Marine Ecology Progress Series.
 
-*Zoë J. Kitchel<sup>1</sup>, Jeremy T. Claisse<sup>1,2</sup>, Daniel J. Pondella II<sup>1</sup>, Chelsea M. Williams<sup>1</sup>, Jonathan P. Williams<sup>1</sup>, & Donna Schroeder<sup>3</sup>
+*Zoë J. Kitchel<sup>1</sup>, Jeremy T. Claisse<sup>1,2</sup>, Daniel J. Pondella II<sup>1</sup>, Chelsea M. Williams<sup>1</sup>, Jonathan P. Williams<sup>1</sup>, & Donna Schroeder<sup>3</sup>*
 
 <sup>1</sup>Vantuna Research Group, Occidental College, Los Angeles, CA, 90041, USA
 <sup>2</sup>Department of Biological Sciences, California State Polytechnic University, Pomona, CA, 91768, USA
