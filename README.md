@@ -2,11 +2,11 @@
 
 Currently in prep for Marine Ecology Progress Series.
 
-*Zoë J. Kitchel^1^, Jeremy T. Claisse^1,2^, Daniel J. Pondella II^1^, Chelsea M. Williams^1^, Jonathan P. Williams^1^, & Donna Schroeder^3^
+*Zoë J. Kitchel<sup>1</sup>, Jeremy T. Claisse<sup>1,2</sup>, Daniel J. Pondella II<sup>1</sup>, Chelsea M. Williams<sup>1</sup>, Jonathan P. Williams<sup>1</sup>, & Donna Schroeder<sup>3</sup>
 
-^1^Vantuna Research Group, Occidental College, Los Angeles, CA, 90041, USA
-^2^Department of Biological Sciences, California State Polytechnic University, Pomona, CA, 91768, USA
-^3^Bureau of Ocean Energy Management Pacific OCS Region, 760 Paseo Camarillo, Suite 102 Camarillo, CA 93010
+<sup>1</sup>Vantuna Research Group, Occidental College, Los Angeles, CA, 90041, USA
+<sup>2</sup>Department of Biological Sciences, California State Polytechnic University, Pomona, CA, 91768, USA
+<sup>3</sup>Bureau of Ocean Energy Management Pacific OCS Region, 760 Paseo Camarillo, Suite 102 Camarillo, CA 93010
 
 Please contact [Z.J. Kitchel](https://www.zoekitchel.com/) with questions about this project. The results are partially reproducible from the scripts and data files that can be shared are either in this GitHub repository or (if they are too large) will be hosted on [OSF](https://osf.io/) (as described below). 
 
