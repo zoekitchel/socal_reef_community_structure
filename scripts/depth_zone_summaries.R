@@ -70,6 +70,7 @@ dat_macroinvert_site_averages[,DepthZone := ifelse(DepthZone %in% c("ARM","Modul
 dat_fish_site_averages.summary <- dat_fish_site_averages[,.(density_count100m2_summed = round(sum(mean_density_m2*100),1),biomass_kg100m2_summed = round(sum(mean_wt_density_g_m2)/1000*100,1)),.(DepthZone,Site)]
 dat_kelp_site_averages.summary <- dat_kelp_site_averages[,.(density_count100m2_summed = round(sum(mean_density_m2)*100,1)), .(DepthZone,Site)]
 dat_macroinvert_site_averages.summary <- dat_macroinvert_site_averages[,.(density_count100m2_summed = round(sum(mean_density_m2)*100,1)),.(DepthZone,Site)]
+
 ########################
 ##Averaged across all sites, top species per depth zone
 ########################
@@ -78,21 +79,29 @@ dat_macroinvert_site_averages.summary <- dat_macroinvert_site_averages[,.(densit
 dat_fish_site_averages[,mean_depthzone_density_m2 := mean(mean_density_m2),.(taxa, DepthZone)] 
 dat_fish_site_averages[,mean_depthzone_wt_density_g_m2 := mean(mean_wt_density_g_m2),.(taxa, DepthZone)] 
 
-col_keep_fish <- colnames(dat_fish_site_averages[,c(1:10,14,17,18)])
+col_keep_fish<-c("worms_id","taxa","common_name_final",
+                      "kingdom","phylum","class",
+                      "order","family","genus",
+                      "rank","DepthZone","mean_depthzone_density_m2",
+                      "mean_depthzone_wt_density_g_m2")
 
 dat_fish_averages <- unique(dat_fish_site_averages[,..col_keep_fish])
 
 #invert
 dat_macroinvert_site_averages[,mean_depthzone_density_m2 := mean(mean_density_m2),.(taxa, DepthZone)] 
 
-col_keep_macroinvert <- colnames(dat_macroinvert_site_averages[,c(1:10,15,17)])
+col_keep_macroinvert <- c("worms_id", "taxa", "common_name_final", "kingdom",                  
+                            "phylum", "class", "order", "family",                   
+                            "genus", "rank", "DepthZone", "mean_depthzone_density_m2")
 
 dat_macroinvert_averages <- unique(dat_macroinvert_site_averages[,..col_keep_macroinvert])
   
 #kelp
 dat_kelp_site_averages[,mean_depthzone_density_m2 := mean(mean_density_m2),.(taxa, DepthZone)] 
 
-col_keep_kelp <- colnames(dat_kelp_site_averages[,c(1:10,15,17)])
+col_keep_kelp <- c("worms_id", "taxa", "common_name_final", "kingdom",                  
+                    "phylum", "class", "order", "family",                   
+                    "genus", "rank", "DepthZone", "mean_depthzone_density_m2")
 
 dat_kelp_averages <- unique(dat_kelp_site_averages[,..col_keep_kelp])
 

@@ -146,9 +146,10 @@ ggsave(site_map_colored, filename = "site_map_colored.jpg", path = file.path("fi
 
 
 # Plot using ggplot and sf
+library(rnaturalearth)
 # Get US states and Mexico
-usa <- rnaturalearth::ne_countries(country = "United States of America", returnclass = "sf", scale = "large")
-mexico <- rnaturalearth::ne_states(country="Mexico", returnclass = "sf")
+usa <- ne_countries(country = "United States of America", returnclass = "sf", scale = "large")
+mexico <- ne_states(country="Mexico", returnclass = "sf")
 
 # Load the state boundaries for the USA
 states <- ne_states(country = "united states of america", returnclass = "sf")
