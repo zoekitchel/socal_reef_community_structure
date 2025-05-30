@@ -123,7 +123,7 @@ fish_abundance_depthzone <- ggplot(dat_fish_total_abundances) +
   ) +
   scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
   scale_pattern_manual(values = c("stripe","none","none"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPV","AR\nSMB")) +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
   labs(x = "", y = bquote("   Density\n(count per 100 m"^2*")") , fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
  ggtitle("Fish")+
@@ -155,7 +155,7 @@ fish_abundance_depthzone_MPA <- ggplot(dat_fish_total_abundances) +
   ) +
   scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
   scale_color_manual(values = c("black","darkgrey")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPV","AR\nSMB")) +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
   labs(x = "", y = bquote("   Density\n(count per 100 m"^2*")") , fill = "Reef type", pattern = "Reef type", color = "Within MPA") +
   theme_classic() +
   ggtitle("Fish")+
@@ -209,7 +209,7 @@ fish_biomass_depthzone_MPA <- ggplot(dat_fish_total_abundances) +
   ) +
   scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
   scale_color_manual(values = c("black","darkgrey")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPV","AR\nSMB")) +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
   labs(x = "", y = bquote("   Density\n(kg per 100 m"^2*")"), fill = "Reef type", pattern = "Reef type", color = "Within MPA") +
   theme_classic() +
   ggtitle("Fish")+
@@ -262,7 +262,7 @@ macroinvert_abundance_depthzone_MPA <- ggplot(dat_macroinvert_total_abundances) 
   ) +
   scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
   scale_color_manual(values = c("black","darkgrey")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPV","AR\nSMB")) +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
   labs(x = "", y = bquote("   Density\n(count per 100 m"^2*")"), fill = "Reef type", pattern = "Reef type", color = "Within MPA") +
   theme_classic() +
   ggtitle("Macroinvertebrate")+
@@ -315,7 +315,7 @@ kelp_abundance_depthzone_MPA <- ggplot(dat_kelp_total_abundances) +
   ) +
   scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
   scale_color_manual(values = c("black","darkgrey")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPV","AR\nSMB")) +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
   labs(x = "", y = bquote("   Density\n(count per 100 m"^2*")"), fill = "Reef type", pattern = "Reef type", color = "Within MPA") +
   theme_classic() +
   ggtitle("Macroalgae")+
@@ -854,13 +854,13 @@ metric_labels <- c(
 )
 
 #change ARM to AR only
-merged_abundance_richness_diversity_datatables[,DepthZone := factor(DepthZone, levels = c("Inner","Middle","Outer","Deep","AR_PVR","AR_SM"), labels = c("Inner","Middle","Outer","Deep","AR\nPV", "AR\nSMB"))]
+merged_abundance_richness_diversity_datatables[,DepthZone := factor(DepthZone, levels = c("Inner","Middle","Outer","Deep","AR_PVR","AR_SM"), labels = c("Inner","Middle","Outer","Deep","AR\nPVR", "AR\nSMB"))]
 
 # Convert 'metric' column to factor
 merged_abundance_richness_diversity_datatables[, metric := factor(metric, levels = names(metric_labels))]
 
 #Edit type_wAR, and set order
-merged_abundance_richness_diversity_datatables[, type_wAR := ifelse(type_wAR == "Island","Island",ifelse(DepthZone %in% c("AR\nPV", "AR\nSMB"),"Artificial mainland","Natural_mainland"))][,type_wAR := factor(type_wAR, c("Island","Natural_mainland","Artificial mainland"))]
+merged_abundance_richness_diversity_datatables[, type_wAR := ifelse(type_wAR == "Island","Island",ifelse(DepthZone %in% c("AR\nPVR", "AR\nSMB"),"Artificial mainland","Natural_mainland"))][,type_wAR := factor(type_wAR, c("Island","Natural_mainland","Artificial mainland"))]
 
 
 #Merged metric plot ####
@@ -1043,7 +1043,7 @@ Env_Site.l <- melt(Env_Site, id.vars = c("Site", "Region", "DepthZone", "type", 
 
 #Change factor order
 Env_Site.l[,DepthZone := factor(DepthZone, levels = c("Inner","Middle","Outer","Deep","AR_PVR","AR_SM"),
-                                           labels = c("Inner","Middle","Outer","Deep","AR\nPV","AR\nSMB"))]
+                                           labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB"))]
 
 #Facet labels
 facet_labels <- c("Relief_index" = "a.                                Relief index",

@@ -16,7 +16,7 @@ worms_id,taxa,common_name_final,kingdom,phylum,class,order,family,genus,rank
 240740,Embiotoca lateralis,striped seaperch,Animalia,Chordata,Teleostei,Ovalentaria incertae sedis,Embiotocidae,Embiotoca,Species
 280833,Gibbonsia elegans,spotted kelpfish,Animalia,Chordata,Teleostei,Blenniiformes,Clinidae,Gibbonsia,Species
 280865,Girella nigricans,opaleye,Animalia,Chordata,Teleostei,Centrarchiformes,Kyphosidae,Girella,Species
-125537,Gobiidae,gobies,Animalia,Chordata,Teleostei,Gobiiformes,Gobiidae,,Family
+125537,Gobiidae,gobies,Animalia,Chordata,Teleostei,Gobiiformes,Gobiidae,"",Family
 271856,Gymnothorax mordax,california moray,Animalia,Chordata,Teleostei,Anguilliformes,Muraenidae,Gymnothorax,Species
 275798,Halichoeres semicinctus,rock wrasse,Animalia,Chordata,Teleostei,Eupercaria incertae sedis,Labridae,Halichoeres,Species
 1019728,Kyphosus azureus,zebra-perch sea chub,Animalia,Chordata,Teleostei,Centrarchiformes,Kyphosidae,Hermosilla,Species
@@ -80,135 +80,135 @@ worms_id,taxa,common_name_final,kingdom,phylum,class,order,family,genus,rank
 283085,Urobatis halleri,Haller's round ray,Animalia,Chordata,Elasmobranchii,Myliobatiformes,Urotrygonidae,Urobatis,Species
 283202,Zalembius rosaceus,pink seaperch,Animalia,Chordata,Teleostei,Ovalentaria incertae sedis,Embiotocidae,Zalembius,Species
 1313053,Neoagarum fimbriatum,fringed sieve kelp,Chromista,Ochrophyta,Phaeophyceae,Laminariales,Agaraceae,Agarum,Species
-371791,Alaria marginata,,Chromista,Ochrophyta,Phaeophyceae,Laminariales,Alariaceae,Alaria,Species
-145086,Codium fragile,,Plantae,Chlorophyta,Ulvophyceae,Bryopsidales,Codiaceae,Codium,Species
-,,,,,,,,,
-145309,Desmarestia ligulata,,Chromista,Ochrophyta,Phaeophyceae,Desmarestiales,Desmarestiaceae,Desmarestia,Species
-,,,,,,,,,
+371791,Alaria marginata,"",Chromista,Ochrophyta,Phaeophyceae,Laminariales,Alariaceae,Alaria,Species
+145086,Codium fragile,"",Plantae,Chlorophyta,Ulvophyceae,Bryopsidales,Codiaceae,Codium,Species
+,"","","","","","","","",""
+145309,Desmarestia ligulata,"",Chromista,Ochrophyta,Phaeophyceae,Desmarestiales,Desmarestiaceae,Desmarestia,Species
+,"","","","","","","","",""
 372502,Egregia menziesii,feather boa kelp,Chromista,Ochrophyta,Phaeophyceae,Laminariales,Lessoniaceae,Egregia,Species
 371990,Eisenia arborea,southern sea palm,Chromista,Ochrophyta,Phaeophyceae,Laminariales,Lessoniaceae,Eisenia,Species
 372698,Laminaria farlowii,golden kombu,Chromista,Ochrophyta,Phaeophyceae,Laminariales,Laminariaceae,Laminaria,Species
 232231,Macrocystis pyrifera,giant kelp,Chromista,Ochrophyta,Phaeophyceae,Laminariales,Laminariaceae,Macrocystis,Species
-372700,Pelagophycus porra,,Chromista,Ochrophyta,Phaeophyceae,Laminariales,Laminariaceae,Pelagophycus,Species
+372700,Pelagophycus porra,"",Chromista,Ochrophyta,Phaeophyceae,Laminariales,Laminariaceae,Pelagophycus,Species
 240750,Pterygophora californica,stalked kelp,Chromista,Ochrophyta,Phaeophyceae,Laminariales,Alariaceae,Pterygophora,Species
-234483,Saccharina latissima,,Chromista,Ochrophyta,Phaeophyceae,Laminariales,Laminariaceae,Saccharina,Species
-494906,Sargassum agardhianum,,Chromista,Ochrophyta,Phaeophyceae,Fucales,Sargassaceae,Sargassum,Species
+234483,Saccharina latissima,"",Chromista,Ochrophyta,Phaeophyceae,Laminariales,Laminariaceae,Saccharina,Species
+494906,Sargassum agardhianum,"",Chromista,Ochrophyta,Phaeophyceae,Fucales,Sargassaceae,Sargassum,Species
 494853,Sargassum horneri,S. horneri,Chromista,Ochrophyta,Phaeophyceae,Fucales,Sargassaceae,Sargassum,Species
 494791,Sargassum muticum,S. muticum,Chromista,Ochrophyta,Phaeophyceae,Fucales,Sargassaceae,Sargassum,Species
 494907,Sargassum palmeri,S. palmeri,Chromista,Ochrophyta,Phaeophyceae,Fucales,Sargassaceae,Sargassum,Species
 144132,Sargassum,Sargassum sp,Chromista,Ochrophyta,Phaeophyceae,Fucales,Sargassaceae,Sargassum,Genus
 370250,Stephanocystis,chainbladder kelp,Chromista,Ochrophyta,Phaeophyceae,Fucales,Sargassaceae,Stephanocystis,Genus
-145721,Undaria pinnatifida,,Chromista,Ochrophyta,Phaeophyceae,Laminariales,Alariaceae,Undaria,Species
-581689,Acanthodoris hudsoni,,Animalia,Mollusca,Gastropoda,Nudibranchia,Onchidorididae,Acanthodoris,Species
-535686,Acanthodoris lutea,,Animalia,Mollusca,Gastropoda,Nudibranchia,Onchidorididae,Acanthodoris,Species
-535687,Acanthodoris rhodoceras,,Animalia,Mollusca,Gastropoda,Nudibranchia,Onchidorididae,Acanthodoris,Species
-410971,Actinostella bradleyi,,Animalia,Cnidaria,Hexacorallia,Actiniaria,Actiniidae,Actinostella,Species
-283337,Anthopleura artemisia,,Animalia,Cnidaria,Hexacorallia,Actiniaria,Actiniidae,Anthopleura,Species
+145721,Undaria pinnatifida,"",Chromista,Ochrophyta,Phaeophyceae,Laminariales,Alariaceae,Undaria,Species
+581689,Acanthodoris hudsoni,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Onchidorididae,Acanthodoris,Species
+535686,Acanthodoris lutea,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Onchidorididae,Acanthodoris,Species
+535687,Acanthodoris rhodoceras,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Onchidorididae,Acanthodoris,Species
+410971,Actinostella bradleyi,"",Animalia,Cnidaria,Hexacorallia,Actiniaria,Actiniidae,Actinostella,Species
+283337,Anthopleura artemisia,"",Animalia,Cnidaria,Hexacorallia,Actiniaria,Actiniidae,Anthopleura,Species
 283347,Anthopleura elegantissima,clonal anemone,Animalia,Cnidaria,Hexacorallia,Actiniaria,Actiniidae,Anthopleura,Species
 240753,Anthopleura sola,starburst anenome,Animalia,Cnidaria,Hexacorallia,Actiniaria,Actiniidae,Anthopleura,Species
 283377,Anthopleura xanthogrammica,giant green sea anemone,Animalia,Cnidaria,Hexacorallia,Actiniaria,Actiniidae,Anthopleura,Species
 240765,Aplysia californica,California sea hare,Animalia,Mollusca,Gastropoda,Aplysiida,Aplysiidae,Aplysia,Species
-568031,Aplysia vaccaria,,Animalia,Mollusca,Gastropoda,Aplysiida,Aplysiidae,Aplysia,Species
-529363,Apostichopus californicus,,Animalia,Echinodermata,Holothuroidea,Synallactida,Stichopodidae,Apostichopus,Species
+568031,Aplysia vaccaria,"",Animalia,Mollusca,Gastropoda,Aplysiida,Aplysiidae,Aplysia,Species
+529363,Apostichopus californicus,"",Animalia,Echinodermata,Holothuroidea,Synallactida,Stichopodidae,Apostichopus,Species
 529435,Apostichopus parvimensis,warty sea cucumber,Animalia,Echinodermata,Holothuroidea,Synallactida,Stichopodidae,Apostichopus,Species
-513125,Arbacia stellata,,Animalia,Echinodermata,Echinoidea,Arbacioida,Arbaciidae,Arbacia,Species
-255044,Astrometis sertulifera,,Animalia,Echinodermata,Asteroidea,Forcipulatida,Asteriidae,Astrometis,Species
-292851,Astropecten armatus,,Animalia,Echinodermata,Asteroidea,Paxillosida,Astropectinidae,Astropecten,Species
-581822,Baptodoris mimetica,,Animalia,Mollusca,Gastropoda,Nudibranchia,Discodorididae,Baptodoris,Species
-1736480,Boreoberthella californica,,Animalia,Mollusca,Gastropoda,Pleurobranchida,Pleurobranchidae,Berthella,Species
-562477,Cadlina flavomaculata,,Animalia,Mollusca,Gastropoda,Nudibranchia,Cadlinidae,Cadlina,Species
-581803,Cadlina limbaughorum,,Animalia,Mollusca,Gastropoda,Nudibranchia,Cadlinidae,Cadlina,Species
-562476,Cadlina luteomarginata,,Animalia,Mollusca,Gastropoda,Nudibranchia,Cadlinidae,Cadlina,Species
-534197,Calliostoma annulatum,,Animalia,Mollusca,Gastropoda,Trochida,Calliostomatidae,Calliostoma,Species
+513125,Arbacia stellata,"",Animalia,Echinodermata,Echinoidea,Arbacioida,Arbaciidae,Arbacia,Species
+255044,Astrometis sertulifera,"",Animalia,Echinodermata,Asteroidea,Forcipulatida,Asteriidae,Astrometis,Species
+292851,Astropecten armatus,"",Animalia,Echinodermata,Asteroidea,Paxillosida,Astropectinidae,Astropecten,Species
+581822,Baptodoris mimetica,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Discodorididae,Baptodoris,Species
+1736480,Boreoberthella californica,"",Animalia,Mollusca,Gastropoda,Pleurobranchida,Pleurobranchidae,Berthella,Species
+562477,Cadlina flavomaculata,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Cadlinidae,Cadlina,Species
+581803,Cadlina limbaughorum,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Cadlinidae,Cadlina,Species
+562476,Cadlina luteomarginata,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Cadlinidae,Cadlina,Species
+534197,Calliostoma annulatum,"",Animalia,Mollusca,Gastropoda,Trochida,Calliostomatidae,Calliostoma,Species
 440382,Cancer productus,red rock crab,Animalia,Arthropoda,Malacostraca,Decapoda,Cancridae,Cancer,Species
-106876,Cancer,,Animalia,Arthropoda,Malacostraca,Decapoda,Cancridae,Cancer,Genus
+106876,Cancer,"",Animalia,Arthropoda,Malacostraca,Decapoda,Cancridae,Cancer,Genus
 513165,Centrostephanus coronatus,crowned urchin,Animalia,Echinodermata,Echinoidea,Diadematoida,Diadematidae,Centrostephanus,Species
-240766,Ceratostoma,,Animalia,Mollusca,Gastropoda,Neogastropoda,Muricidae,Ceratostoma,Genus
-171324,Craniella arb,,Animalia,Porifera,Demospongiae,Tetractinellida,Tetillidae,Craniella,Species
-240774,Crassadoma gigantea,,Animalia,Mollusca,Bivalvia,Pectinida,Pectinidae,Crassadoma,Species
-580701,Crossata californica,,Animalia,Mollusca,Gastropoda,Littorinimorpha,Bursidae,Crossata,Species
-476468,Crossata ventricosa,,Animalia,Mollusca,Gastropoda,Littorinimorpha,Bursidae,Crossata,Species
-240771,Dermasterias imbricata,,Animalia,Echinodermata,Asteroidea,Valvatida,Asteropseidae,Dermasterias,Species
-536817,Diaulula sandiegensis,,Animalia,Mollusca,Gastropoda,Nudibranchia,Discodorididae,Diaulula,Species
-537019,Doriopsilla albopunctata,,Animalia,Mollusca,Gastropoda,Nudibranchia,Dendrodorididae,Doriopsilla,Species
-458417,Doriopsilla spaldingi,,Animalia,Mollusca,Gastropoda,Nudibranchia,Dendrodorididae,Doriopsilla,Species
-581816,Doris montereyensis,,Animalia,Mollusca,Gastropoda,Nudibranchia,Dorididae,Doris,Species
-513266,Eucidaris thouarsii,,Animalia,Echinodermata,Echinoidea,Cidaroida,Cidaridae,Eucidaris,Species
-289935,Eugorgia rubens,,Animalia,Cnidaria,Octocorallia,Malacalcyonacea,Gorgoniidae,Eugorgia,Species
-597520,Felimare californiensis,,Animalia,Mollusca,Gastropoda,Nudibranchia,Chromodorididae,Felimare,Species
-597534,Felimare porterae,,Animalia,Mollusca,Gastropoda,Nudibranchia,Chromodorididae,Felimare,Species
-597451,Felimida macfarlandi,,Animalia,Mollusca,Gastropoda,Nudibranchia,Chromodorididae,Felimida,Species
-1047483,Flabellinopsis iodinea,,Animalia,Mollusca,Gastropoda,Nudibranchia,Flabellinidae,Flabellina,Species
-1047455,Apata pricei,,Animalia,Mollusca,Gastropoda,Nudibranchia,Flabellinidae,Flabellina,Species
+240766,Ceratostoma,"",Animalia,Mollusca,Gastropoda,Neogastropoda,Muricidae,Ceratostoma,Genus
+171324,Craniella arb,"",Animalia,Porifera,Demospongiae,Tetractinellida,Tetillidae,Craniella,Species
+240774,Crassadoma gigantea,"",Animalia,Mollusca,Bivalvia,Pectinida,Pectinidae,Crassadoma,Species
+580701,Crossata californica,"",Animalia,Mollusca,Gastropoda,Littorinimorpha,Bursidae,Crossata,Species
+476468,Crossata ventricosa,"",Animalia,Mollusca,Gastropoda,Littorinimorpha,Bursidae,Crossata,Species
+240771,Dermasterias imbricata,"",Animalia,Echinodermata,Asteroidea,Valvatida,Asteropseidae,Dermasterias,Species
+536817,Diaulula sandiegensis,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Discodorididae,Diaulula,Species
+537019,Doriopsilla albopunctata,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Dendrodorididae,Doriopsilla,Species
+458417,Doriopsilla spaldingi,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Dendrodorididae,Doriopsilla,Species
+581816,Doris montereyensis,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Dorididae,Doris,Species
+513266,Eucidaris thouarsii,"",Animalia,Echinodermata,Echinoidea,Cidaroida,Cidaridae,Eucidaris,Species
+289935,Eugorgia rubens,"",Animalia,Cnidaria,Octocorallia,Malacalcyonacea,Gorgoniidae,Eugorgia,Species
+597520,Felimare californiensis,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Chromodorididae,Felimare,Species
+597534,Felimare porterae,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Chromodorididae,Felimare,Species
+597451,Felimida macfarlandi,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Chromodorididae,Felimida,Species
+1047483,Flabellinopsis iodinea,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Flabellinidae,Flabellina,Species
+1047455,Apata pricei,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Flabellinidae,Flabellina,Species
 445308,Haliotis corrugata,pink abalone,Animalia,Mollusca,Gastropoda,Lepetellida,Haliotidae,Haliotis,Species
 445325,Haliotis fulgens,green abalone,Animalia,Mollusca,Gastropoda,Lepetellida,Haliotidae,Haliotis,Species
-405014,Haliotis kamtschatkana,,Animalia,Mollusca,Gastropoda,Lepetellida,Haliotidae,Haliotis,Subspecies
+405014,Haliotis kamtschatkana,"",Animalia,Mollusca,Gastropoda,Lepetellida,Haliotidae,Haliotis,Subspecies
 445362,Haliotis sorenseni,white abalone,Animalia,Mollusca,Gastropoda,Lepetellida,Haliotidae,Haliotis,Species
-138050,Haliotis,,Animalia,Mollusca,Gastropoda,Lepetellida,Haliotidae,Haliotis,Genus
-408961,Hemisquilla californiensis,,Animalia,Arthropoda,Malacostraca,Stomatopoda,Hemisquillidae,Hemisquilla,Species
-123276,Henricia,,Animalia,Echinodermata,Asteroidea,Spinulosida,Echinasteridae,Henricia,Genus
-877759,Hermissenda opalescens,,Animalia,Mollusca,Gastropoda,Nudibranchia,Myrrhinidae,Hermissenda,Species
-447901,Latulambrus occidentalis,,Animalia,Arthropoda,Malacostraca,Decapoda,Parthenopidae,Heterocrypta,Species
-241882,Holothuria (Vaneyothuria) zacae,,Animalia,Echinodermata,Holothuroidea,Holothuriida,Holothuriidae,Holothuria,Species
-575288,Antiopella barbarensis,,Animalia,Mollusca,Gastropoda,Nudibranchia,Janolidae,Janolus,Species
-534401,Jorunna pardus,,Animalia,Mollusca,Gastropoda,Nudibranchia,Discodorididae,Jorunna,Species
+138050,Haliotis,"",Animalia,Mollusca,Gastropoda,Lepetellida,Haliotidae,Haliotis,Genus
+408961,Hemisquilla californiensis,"",Animalia,Arthropoda,Malacostraca,Stomatopoda,Hemisquillidae,Hemisquilla,Species
+123276,Henricia,"",Animalia,Echinodermata,Asteroidea,Spinulosida,Echinasteridae,Henricia,Genus
+877759,Hermissenda opalescens,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Myrrhinidae,Hermissenda,Species
+447901,Latulambrus occidentalis,"",Animalia,Arthropoda,Malacostraca,Decapoda,Parthenopidae,Heterocrypta,Species
+241882,Holothuria (Vaneyothuria) zacae,"",Animalia,Echinodermata,Holothuroidea,Holothuriida,Holothuriidae,Holothuria,Species
+575288,Antiopella barbarensis,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Janolidae,Janolus,Species
+534401,Jorunna pardus,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Discodorididae,Jorunna,Species
 491054,Kelletia kelletii,Kellet's whelk,Animalia,Mollusca,Gastropoda,Neogastropoda,Austrosiphonidae,Kelletia,Species
-286209,Leptogorgia alba,,Animalia,Cnidaria,Octocorallia,Malacalcyonacea,Gorgoniidae,Leptogorgia,Species
+286209,Leptogorgia alba,"",Animalia,Cnidaria,Octocorallia,Malacalcyonacea,Gorgoniidae,Leptogorgia,Species
 286222,Leptogorgia chilensis,red gorgonian,Animalia,Cnidaria,Octocorallia,Malacalcyonacea,Gorgoniidae,Leptogorgia,Species
-531202,Limacia cockerelli,,Animalia,Mollusca,Gastropoda,Nudibranchia,Polyceridae,Limacia,Species
-378630,Linckia columbiae,,Animalia,Echinodermata,Asteroidea,Valvatida,Ophidiasteridae,Linckia,Species
-441602,Loxorhynchus grandis,,Animalia,Arthropoda,Malacostraca,Decapoda,Epialtidae,Loxorhynchus,Species
-368106,Luidia armata,,Animalia,Echinodermata,Asteroidea,Paxillosida,Luidiidae,Luidia,Species
-368114,Luidia foliolata,,Animalia,Echinodermata,Asteroidea,Paxillosida,Luidiidae,Luidia,Species
+531202,Limacia cockerelli,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Polyceridae,Limacia,Species
+378630,Linckia columbiae,"",Animalia,Echinodermata,Asteroidea,Valvatida,Ophidiasteridae,Linckia,Species
+441602,Loxorhynchus grandis,"",Animalia,Arthropoda,Malacostraca,Decapoda,Epialtidae,Loxorhynchus,Species
+368106,Luidia armata,"",Animalia,Echinodermata,Asteroidea,Paxillosida,Luidiidae,Luidia,Species
+368114,Luidia foliolata,"",Animalia,Echinodermata,Asteroidea,Paxillosida,Luidiidae,Luidia,Species
 513378,Lytechinus pictus,painted urchin,Animalia,Echinodermata,Echinoidea,Camarodonta,Toxopneustidae,Lytechinus,Species
-242160,Mediaster aequalis,,Animalia,Echinodermata,Asteroidea,Valvatida,Goniasteridae,Mediaster,Species
+242160,Mediaster aequalis,"",Animalia,Echinodermata,Asteroidea,Valvatida,Goniasteridae,Mediaster,Species
 528084,Megastraea undosa,wavy turban snail,Animalia,Mollusca,Gastropoda,Trochida,Turbinidae,Megastraea,Species
-527885,Megathura crenulata,,Animalia,Mollusca,Gastropoda,Lepetellida,Fissurellidae,Megathura,Species
+527885,Megathura crenulata,"",Animalia,Mollusca,Gastropoda,Lepetellida,Fissurellidae,Megathura,Species
 591102,Mesocentrotus franciscanus,red urchin,Animalia,Echinodermata,Echinoidea,Camarodonta,Strongylocentrotidae,Mesocentrotus,Species
-283704,Metridium farcimen,,Animalia,Cnidaria,Hexacorallia,Actiniaria,Metridiidae,Metridium,Species
+283704,Metridium farcimen,"",Animalia,Cnidaria,Hexacorallia,Actiniaria,Metridiidae,Metridium,Species
 287556,Muricea californica,golden gorgonian,Animalia,Cnidaria,Octocorallia,Malacalcyonacea,Plexauridae,Muricea,Species
 287562,Muricea fruticosa,brown gorgonian,Animalia,Cnidaria,Octocorallia,Malacalcyonacea,Plexauridae,Muricea,Species
-367836,Navanax inermis,,Animalia,Mollusca,Gastropoda,Cephalaspidea,Aglajidae,Navanax,Species
-580674,Neobernaya spadicea,,Animalia,Mollusca,Gastropoda,Littorinimorpha,Cypraeidae,Neobernaya,Species
+367836,Navanax inermis,"",Animalia,Mollusca,Gastropoda,Cephalaspidea,Aglajidae,Navanax,Species
+580674,Neobernaya spadicea,"",Animalia,Mollusca,Gastropoda,Littorinimorpha,Cypraeidae,Neobernaya,Species
 341952,Octopus bimaculoides,California two-spot octopus,Animalia,Mollusca,Cephalopoda,Octopoda,Octopodidae,Octopus,Species
-1723348,Ceratodoris rosacea,,Animalia,Mollusca,Gastropoda,Nudibranchia,Goniodorididae,Okenia,Species
-245239,Ophioderma panamense,,Animalia,Echinodermata,Ophiuroidea,Ophiacanthida,Ophiodermatidae,Ophioderma,Species
-243980,Ophioplocus esmarki,,Animalia,Echinodermata,Ophiuroidea,Amphilepidida,Hemieuryalidae,Ophioplocus,Species
-255048,Orthasterias koehleri,,Animalia,Echinodermata,Asteroidea,Forcipulatida,Asteriidae,Orthasterias,Species
+1723348,Ceratodoris rosacea,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Goniodorididae,Okenia,Species
+245239,Ophioderma panamense,"",Animalia,Echinodermata,Ophiuroidea,Ophiacanthida,Ophiodermatidae,Ophioderma,Species
+243980,Ophioplocus esmarki,"",Animalia,Echinodermata,Ophiuroidea,Amphilepidida,Hemieuryalidae,Ophioplocus,Species
+255048,Orthasterias koehleri,"",Animalia,Echinodermata,Asteroidea,Forcipulatida,Asteriidae,Orthasterias,Species
 283820,Pachycerianthus fimbriatus,tube dwelling anenome,Animalia,Cnidaria,Hexacorallia,Ceriantharia,Cerianthidae,Pachycerianthus,Species
 382898,Panulirus interruptus,California spiny lobster,Animalia,Arthropoda,Malacostraca,Decapoda,Palinuridae,Panulirus,Species
 382131,Patiria miniata,bat star,Animalia,Echinodermata,Asteroidea,Valvatida,Asterinidae,Patiria,Species
-457913,Peltodoris mullineri,,Animalia,Mollusca,Gastropoda,Nudibranchia,Discodorididae,Peltodoris,Species
-594422,Peltodoris nobilis,,Animalia,Mollusca,Gastropoda,Nudibranchia,Discodorididae,Peltodoris,Species
-240757,Pisaster brevispinus,,Animalia,Echinodermata,Asteroidea,Forcipulatida,Asteriidae,Pisaster,Species
-240758,Pisaster giganteus,,Animalia,Echinodermata,Asteroidea,Forcipulatida,Asteriidae,Pisaster,Species
+457913,Peltodoris mullineri,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Discodorididae,Peltodoris,Species
+594422,Peltodoris nobilis,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Discodorididae,Peltodoris,Species
+240757,Pisaster brevispinus,"",Animalia,Echinodermata,Asteroidea,Forcipulatida,Asteriidae,Pisaster,Species
+240758,Pisaster giganteus,"",Animalia,Echinodermata,Asteroidea,Forcipulatida,Asteriidae,Pisaster,Species
 240755,Pisaster ochraceus,purple sea star,Animalia,Echinodermata,Asteroidea,Forcipulatida,Asteriidae,Pisaster,Species
 758426,Pododesmus macrochisma,green falsejingle,Animalia,Mollusca,Bivalvia,Pectinida,Anomiidae,Pododesmus,Species
-527533,Polycera atra,,Animalia,Mollusca,Gastropoda,Nudibranchia,Polyceridae,Polycera,Species
-527536,Polycera tricolor,,Animalia,Mollusca,Gastropoda,Nudibranchia,Polyceridae,Polycera,Species
-581670,Pomaulax gibberosus,,Animalia,Mollusca,Gastropoda,Trochida,Turbinidae,Pomaulax,Species
-134298,Suberites montiniger,,Animalia,Porifera,Demospongiae,Suberitida,Suberitidae,Pseudosuberites,Species
-464505,Pteria sterna,,Animalia,Mollusca,Bivalvia,Ostreida,Pteriidae,Pteria,Species
-240780,Pugettia producta,,Animalia,Arthropoda,Malacostraca,Decapoda,Epialtidae,Pugettia,Species
+527533,Polycera atra,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Polyceridae,Polycera,Species
+527536,Polycera tricolor,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Polyceridae,Polycera,Species
+581670,Pomaulax gibberosus,"",Animalia,Mollusca,Gastropoda,Trochida,Turbinidae,Pomaulax,Species
+134298,Suberites montiniger,"",Animalia,Porifera,Demospongiae,Suberitida,Suberitidae,Pseudosuberites,Species
+464505,Pteria sterna,"",Animalia,Mollusca,Bivalvia,Ostreida,Pteriidae,Pteria,Species
+240780,Pugettia producta,"",Animalia,Arthropoda,Malacostraca,Decapoda,Epialtidae,Pugettia,Species
 290961,Renilla koellikeri,Koelliker's sea pansy,Animalia,Cnidaria,Octocorallia,Scleralcyonacea,Renillidae,Renilla,Species
-440397,Romaleon antennarium,,Animalia,Arthropoda,Malacostraca,Decapoda,Cancridae,Romaleon,Species
-378795,Sclerasterias heteropaes,,Animalia,Echinodermata,Asteroidea,Forcipulatida,Asteriidae,Sclerasterias,Species
+440397,Romaleon antennarium,"",Animalia,Arthropoda,Malacostraca,Decapoda,Cancridae,Romaleon,Species
+378795,Sclerasterias heteropaes,"",Animalia,Echinodermata,Asteroidea,Forcipulatida,Asteriidae,Sclerasterias,Species
 240747,Strongylocentrotus purpuratus,purple sea urchin,Animalia,Echinodermata,Echinoidea,Camarodonta,Strongylocentrotidae,Strongylocentrotus,Species
 240756,Styela montereyensis,stalked tunicate,Animalia,Chordata,Ascidiacea,Stolidobranchia,Styelidae,Styela,Species
-285860,Stylaster californicus,,Animalia,Cnidaria,Hydrozoa,Anthoathecata,Stylasteridae,Stylaster,Species
-255062,Stylasterias forreri,,Animalia,Echinodermata,Asteroidea,Forcipulatida,Asteriidae,Stylasterias,Species
+285860,Stylaster californicus,"",Animalia,Cnidaria,Hydrozoa,Anthoathecata,Stylasteridae,Stylaster,Species
+255062,Stylasterias forreri,"",Animalia,Echinodermata,Asteroidea,Forcipulatida,Asteriidae,Stylasterias,Species
 286695,Stylatula elongata,slender sea pen,Animalia,Cnidaria,Octocorallia,Scleralcyonacea,Virgulariidae,Stylatula,Species
-441503,Taliepus nuttallii,,Animalia,Arthropoda,Malacostraca,Decapoda,Epialtidae,Taliepus,Species
-534195,Tegula regina,,Animalia,Mollusca,Gastropoda,Trochida,Tegulidae,Tegula,Species
-235615,Terebratalia transversa,,Animalia,Brachiopoda,Rhynchonellata,Terebratulida,Terebrataliidae,Terebratalia,Species
-170942,Tethya californiana,,Animalia,Porifera,Demospongiae,Tethyida,Tethyidae,Tethya,Species
-132095,Tetilla,,Animalia,Porifera,Demospongiae,Tetractinellida,Tetillidae,Tetilla,Genus
-132095,Tetilla,,Animalia,Porifera,Demospongiae,Tetractinellida,Tetillidae,Tetilla,Genus
-167952,Trikentrion helium,,Animalia,Porifera,Demospongiae,Axinellida,Raspailiidae,Trikentrion,Species
-531258,Triopha catalinae,,Animalia,Mollusca,Gastropoda,Nudibranchia,Polyceridae,Triopha,Species
-549413,Tritonia festiva,,Animalia,Mollusca,Gastropoda,Nudibranchia,Tritoniidae,Tritonia,Species
-527756,Tylodina fungina,,Animalia,Mollusca,Gastropoda,Umbraculida,Tylodinidae,Tylodina,Species
-283440,Urticina columbiana,,Animalia,Cnidaria,Hexacorallia,Actiniaria,Actiniidae,Urticina,Species
-100833,Urticina eques,,Animalia,Cnidaria,Hexacorallia,Actiniaria,Actiniidae,Urticina,Species
-283444,Urticina mcpeaki,,Animalia,Cnidaria,Hexacorallia,Actiniaria,Actiniidae,Urticina,Species
-100706,Urticina,,Animalia,Cnidaria,Hexacorallia,Actiniaria,Actiniidae,Urticina,Genus
+441503,Taliepus nuttallii,"",Animalia,Arthropoda,Malacostraca,Decapoda,Epialtidae,Taliepus,Species
+534195,Tegula regina,"",Animalia,Mollusca,Gastropoda,Trochida,Tegulidae,Tegula,Species
+235615,Terebratalia transversa,"",Animalia,Brachiopoda,Rhynchonellata,Terebratulida,Terebrataliidae,Terebratalia,Species
+170942,Tethya californiana,"",Animalia,Porifera,Demospongiae,Tethyida,Tethyidae,Tethya,Species
+132095,Tetilla,"",Animalia,Porifera,Demospongiae,Tetractinellida,Tetillidae,Tetilla,Genus
+132095,Tetilla,"",Animalia,Porifera,Demospongiae,Tetractinellida,Tetillidae,Tetilla,Genus
+167952,Trikentrion helium,"",Animalia,Porifera,Demospongiae,Axinellida,Raspailiidae,Trikentrion,Species
+531258,Triopha catalinae,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Polyceridae,Triopha,Species
+549413,Tritonia festiva,"",Animalia,Mollusca,Gastropoda,Nudibranchia,Tritoniidae,Tritonia,Species
+527756,Tylodina fungina,"",Animalia,Mollusca,Gastropoda,Umbraculida,Tylodinidae,Tylodina,Species
+283440,Urticina columbiana,"",Animalia,Cnidaria,Hexacorallia,Actiniaria,Actiniidae,Urticina,Species
+100833,Urticina eques,"",Animalia,Cnidaria,Hexacorallia,Actiniaria,Actiniidae,Urticina,Species
+283444,Urticina mcpeaki,"",Animalia,Cnidaria,Hexacorallia,Actiniaria,Actiniidae,Urticina,Species
+100706,Urticina,"",Animalia,Cnidaria,Hexacorallia,Actiniaria,Actiniidae,Urticina,Genus

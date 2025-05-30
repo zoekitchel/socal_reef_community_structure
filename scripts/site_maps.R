@@ -4,6 +4,7 @@
 # AUTHOR: kitchel@oxy.edu
 
 # PURPOSE: Site Map
+  #This script produces Figure 1
 
 #############################
 ##Setup
@@ -230,7 +231,7 @@ site_map_with_inset <- site_map_basic +
     ymin = 33.1)
 
 #Add legend, and small PVR plot to main plot
-site_map_with_insets <- ggdraw(site_map_with_inset) +
+Fig1_site_map_with_insets <- ggdraw(site_map_with_inset) +
   draw_plot(PVR_inset, x = -0.28, y = 0.059, height = 0.55) +
   draw_plot(inset_leg, x = -0.19, y = 0.36, height = 0.05) +
   geom_segment(aes(x = 0.55, y = 0.73, xend = 0.37, yend = 0.64),
@@ -239,7 +240,7 @@ site_map_with_insets <- ggdraw(site_map_with_inset) +
   geom_text(aes(label = "Santa Monica Bay"), x = 0.46, y = 0.85, size = 5)
 
 # Save the plot
-ggsave(site_map_with_insets, filename = "site_map_basic_with_insets.jpg", path = file.path("figures"), width = 9, height =4.5, units = "in", dpi = 300)
+ggsave(Fig1_site_map_with_insets, filename = "Fig1_site_map_basic_with_insets.jpg", path = file.path("figures"), width = 9, height =4.5, units = "in", dpi = 300)
 
 #Identify sites overlapping with MPAs
 #Bring in MPA polygons

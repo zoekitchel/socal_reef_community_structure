@@ -56,7 +56,7 @@ spp_top_macro_kelp_key <- data.table(Species = c("Anthopleura sola", "Apostichop
                                                        "wavy turban snail", "red urchin", "golden gorgonian","brown gorgonian", "tube dwelling anenome",
                                                        "CA spiny lobster", "bat star","purple urchin",
                                                        "fringed sieve kelp","feather boa kelp", "southern sea palm", "golden kombu", "giant kelp",
-                                                       "stalked kelp", "S. horneri","S. muticum","S. palmeri","Sargassum sp", "chainbladder kelp", "stalked tunicate"))
+                                                       "stalked kelp", "sargassum (horneri)","sargassum (muticum)","sargassum (palmeri)","Sargassum sp", "chainbladder kelp", "stalked tunicate"))
 
 species_key <- spp_top_macro_kelp_key[species_key, on = c("Species" = "Taxa")]
 
@@ -68,6 +68,11 @@ species_key[,common_name_final := ifelse(!is.na(common_name), common_name, #from
                                                 NA)))]
 
 species_key <- species_key[,.(worms_id,taxa,common_name_final,kingdom, phylum, class, order, family, genus, rank)]
+
+#In case sargassum fix didn't work
+species_key[, common_name_final := gsub("Sargassum horneri", "Sargassum (horneri)", common_name_final)]
+species_key[, common_name_final := gsub("Sargassum muticum", "Sargassum (muticum)", common_name_final)]
+species_key[, common_name_final := gsub("Sargassum palmeri", "Sargassum (palmeri)", common_name_final)]
 
 fwrite(species_key, file.path("keys","species_key.csv"))
 

@@ -144,10 +144,19 @@ dat_kelp <- data.table(dat_kelp)
   dat_kelp.malibu <- dat_kelp.malibu[Project != "TBF2016",]
   
   ########################
+  ##Do not keep early years, not totally trust worthy
+  ########################
+  dat_event.malibu <- dat_event.malibu[Project != "TBF2016",][SampleYear > 2010]
+  dat_fish_t.malibu <- dat_fish_t.malibu[Project != "TBF2016",][SampleYear > 2010]
+  dat_macroinvert.malibu <- dat_macroinvert.malibu[Project != "TBF2016",][SampleYear > 2010]
+  dat_kelp.malibu <- dat_kelp.malibu[Project != "TBF2016",][SampleYear > 2010]
+  
+  ########################
   ##Save full UPC output (so we can calculate UPC relief/substrate metrics)
   ########################
+  UPC_complete_malibu <- UPC_complete
   
-  saveRDS(UPC_complete, file.path("data","full_crane","UPC_complete.rds"))
+  saveRDS(UPC_complete_malibu, file.path("data","full_crane","UPC_complete_malibu.rds"))
   
   ########################
   ##Take average values across all years of sampling (avg density and avg biomass of each species at site)

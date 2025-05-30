@@ -333,6 +333,60 @@ ggsave(malibu_site_map_with_inset_palisadesonly,
        path = file.path("figures"),
        width = 12, height =7, units = "in", dpi = 300)
 
+####### edit but only 2 most directly impacted sites
+
+#Big Rock and Malibu Bluffs Only
+lat_lon_site_fix.BR_MB <- lat_lon_site_fix.malibu[label %in% c("P","Q")]
+
+malibu_palisades_firemap_BR_MB <- ggmap(malibu_basemap) +
+  geom_sf(data = watershed_perimeters.t, inherit.aes = F,
+          aes(color = Name, fill = Name), alpha = 0.2, linewidth = 1) +
+  scale_color_manual(values = c("#FFD699","#A7F3D0")) +
+  scale_fill_manual(values = c("#FFD699","#A7F3D0")) +
+  labs(color = "Watershed", fill = "Watershed") +
+  new_scale_color() +
+  new_scale_fill() +
+  geom_sf(data = fire_perimeters.t %>% filter(IncidentNa == "2025 Palisades"),inherit.aes = F,
+          aes(color = IncidentNa, fill = IncidentNa), alpha = 0.5, linewidth = 1.5) + #inherit aes false allows me to plot polygon on top of ggmap without coordinates
+  scale_color_manual(values = c("red")) +
+  scale_fill_manual(values = c("red")) +
+  labs(color = "Fire incident",fill = "Fire incident") +
+ # geom_point(data = lat_lon_site_fix.BR_MB, aes(x = Longitude, y = Latitude),
+          #   shape = 21, color = "black",fill = "white", size = 4) +
+ # geom_label_repel(data = lat_lon_site_fix.BR_MB, aes(x = Longitude, y = Latitude,label = Site),size = 5, nudge_y = -0.03) +
+  coord_sf(xlim = c(-119,-118.4), ylim = c(33.95, 34.25), expand = F, crs = 4326) +
+  theme_classic() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.border = element_rect(color = "black", fill = NA, size = 1),
+        legend.position = "top", legend.direction = "horizontal",
+        legend.title = element_text(size = 16, face = "bold"),
+        legend.text = element_text(size = 16)) +
+  guides(
+    fill = guide_legend(override.aes = list(size = 6)),
+    shape = guide_legend(override.aes = list(size = 6))) +   
+  # geom_rect(aes(xmin = -119.1,
+  #               xmax = -118.88,
+  #               ymin = 33.902,
+  #               ymax = 34.01),
+  #           fill = "white", color = "white") +  # Add white rectangle to highlight scalebar
+  annotation_scale(location = "bl",
+                   height = unit(5,"mm"), text_cex = 2.5)
+
+# Add the CA outline inset to the Palisades only map
+malibu_site_map_with_inset_palisadesonly_BR_MB <- malibu_palisades_firemap_BR_MB +
+  annotation_custom(
+    grob = ggplotGrob(california_inset), 
+    xmin = -118.58, 
+    ymin = 34.12)
+
+# Save the plot
+ggsave(malibu_site_map_with_inset_palisadesonly_BR_MB,
+       filename = "malibu_site_map_with_inset_palisadesonly_BR_MB.jpg",
+       path = file.path("figures"),
+       width = 12, height =7, units = "in", dpi = 300)
+
 ####################
 # Make tile plot with years that had observations ####
 ####################
