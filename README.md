@@ -60,6 +60,12 @@ Main text:
 Supplemental Figures: **in progress**
 - Figure S1: `scripts` > `depth_zone_summaries.R` outputs `FigS1_top5_sitetype_OUTERDEEP_only_stacked.jpg`
 - Figure S2: `scripts` > `depth_zone_summaries.R` outputs `FigS2_all_spp_top5_stacked_AR_complexes.jpg`
+- Figure S3: `scripts` > `abundance_diversity_depth.R` outputs `FigS3_mainlandvsisland_density_abundance_richness.jpg`
+- Figure S4: `scripts` > `abundance_diversity_depth.R` outputs `FigS4_depthzone_abun_rich_div_merge_dunn.l.jpg`
+- Figure S5: `scripts` > `abundance_diversity_depth.R` outputs `FigS5_depthzone_density_abundance_richness_MPA.jpg`
+- Figure S6: `scripts` > `community_visualizations.R` outputs `FigS6_PCoA_allspp_allsite_MPA_REG_merge.jpg`
+- Figure S7: `scripts` > `community_visualizations.R` outputs `FigS7_PCoA_allsite_AR_natural_merge_taxagroups.jpg`
+- Figure SX: `scripts` > `abundance_diversity_depth.R` outputs `FigSX_depthzone_relief_substrate.jpg` plus manual edit
 
 Supplemental Tables: **in progress**
 
