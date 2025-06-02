@@ -57,7 +57,7 @@ Main text:
 - Figure 7: `scripts` > `community_visualizations.R` outputs `Fig7_PCoA_allspp_allsite_AR_natural_merge.jpg`
 
 
-Supplemental Figures: **in progress**
+Supplemental Figures: 
 - Figure S1: `scripts` > `depth_zone_summaries.R` outputs `FigS1_top5_sitetype_OUTERDEEP_only_stacked.jpg`
 - Figure S2: `scripts` > `depth_zone_summaries.R` outputs `FigS2_all_spp_top5_stacked_AR_complexes.jpg`
 - Figure S3: `scripts` > `abundance_diversity_depth.R` outputs `FigS3_mainlandvsisland_density_abundance_richness.jpg`
