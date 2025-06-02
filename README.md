@@ -65,7 +65,7 @@ Supplemental Figures:
 - Figure S5: `scripts` > `abundance_diversity_depth.R` outputs `FigS5_depthzone_density_abundance_richness_MPA.jpg`
 - Figure S6: `scripts` > `community_visualizations.R` outputs `FigS6_PCoA_allspp_allsite_MPA_REG_merge.jpg`
 - Figure S7: `scripts` > `community_visualizations.R` outputs `FigS7_PCoA_allsite_AR_natural_merge_taxagroups.jpg`
-- Figure SX: `scripts` > `abundance_diversity_depth.R` outputs `FigSX_depthzone_relief_substrate.jpg` plus manual edit
+- Figure S8: `scripts` > `abundance_diversity_depth.R` outputs `FigSX_depthzone_relief_substrate.jpg` plus manual edit
 
 Supplemental Tables: **in progress**
 
