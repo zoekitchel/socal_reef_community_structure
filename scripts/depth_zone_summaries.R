@@ -667,6 +667,10 @@ dat_fishdensity_averages_sitetype.u[,DepthZone := factor(DepthZone,levels = c("I
 dat_fishdensity_averages_sitetype.u <- spp_color_key[dat_fishdensity_averages_sitetype.u, on = c("species_name" = "Species_top5")]
 dat_fishdensity_averages_sitetype.u[,rel_abun := round(summed_mean_depthzone_sitetype_density_m2/sum(summed_mean_depthzone_sitetype_density_m2),2),.(DepthZone, type)]
 
+#Calculations for Fig 2 (cartoon figure)
+max(dat_fishdensity_averages_sitetype.u[common_top5 != "Other"]$summed_mean_depthzone_sitetype_density_m2) #1.53 (30), include down to 0.05 density
+
+Fig2_fish_counts <- dat_fishdensity_averages_sitetype.u[common_top5 != "Other" & summed_mean_depthzone_sitetype_density_m2 >= 0.05][,count_for_fig := round(summed_mean_depthzone_sitetype_density_m2/0.05,0)][,.(DepthZone, type, common_top5, count_for_fig)]
 
 ####KELP######
 dat_kelp_averages_sitetype[, Species_top5_kelp := ifelse(frank(-mean_depthzone_density_m2)<=5,taxa,"Other"),.(DepthZone,type)]
@@ -678,6 +682,11 @@ dat_kelpdensity_averages_sitetype.u[,full_label := ifelse(Species_top5_kelp == "
 dat_kelpdensity_averages_sitetype.u[,DepthZone := factor(DepthZone,levels = c("Inner","Middle","Outer","Deep","AR_PVR","AR_SM"), labels = c("Depth zone\nInner","Depth zone\nMiddle","Depth zone\nOuter","Depth zone\nDeep","Artificial reef\nPalos Verdes","Artificial reef\nSanta Monica\nBay"))]
 dat_kelpdensity_averages_sitetype.u <- spp_color_key[dat_kelpdensity_averages_sitetype.u, on = c("species_name" = "Species_top5_kelp")]
 
+#Calculations for Fig 2 (cartoon figure)
+max(dat_kelpdensity_averages_sitetype.u[common_top5_kelp != "Other"]$summed_mean_depthzone_sitetype_density_m2) #1.19 (6), include down to 0.2 density
+
+Fig2_kelp_counts <- dat_kelpdensity_averages_sitetype.u[common_top5_kelp != "Other" & summed_mean_depthzone_sitetype_density_m2 >= 0.20][,count_for_fig := round(summed_mean_depthzone_sitetype_density_m2/0.20,0)][,.(DepthZone, type, common_top5_kelp, count_for_fig)]
+
 
 #####MACRO######
 dat_macroinvert_averages_sitetype[, Species_top5_macroinvert := ifelse(frank(-mean_depthzone_density_m2)<=5,taxa,"Other"),.(DepthZone,type)]
@@ -687,6 +696,13 @@ dat_macroinvertdensity_averages_sitetype.u <- unique(dat_macroinvert_averages_si
 dat_macroinvertdensity_averages_sitetype.u[,full_label := ifelse(Species_top5_macroinvert == "Other","Other",paste0(Species_top5_macroinvert,"\n", common_top5_macroinvert))]
 dat_macroinvertdensity_averages_sitetype.u[,DepthZone := factor(DepthZone,levels = c("Inner","Middle","Outer","Deep","AR_PVR","AR_SM"), labels = c("Depth zone\nInner","Depth zone\nMiddle","Depth zone\nOuter","Depth zone\nDeep","Artificial reef\nPalos Verdes","Artificial reef\nSanta Monica\nBay"))]
 dat_macroinvertdensity_averages_sitetype.u <- spp_color_key[dat_macroinvertdensity_averages_sitetype.u, on = c("species_name" = "Species_top5_macroinvert")]
+
+#Calculations for Fig 2 (cartoon figure)
+max(dat_macroinvertdensity_averages_sitetype.u[common_top5_macroinvert != "Other"]$summed_mean_depthzone_sitetype_density_m2) #2.5 (12), include down to 0.2 density
+
+Fig2_macroinvert_counts <- dat_macroinvertdensity_averages_sitetype.u[common_top5_macroinvert != "Other" & summed_mean_depthzone_sitetype_density_m2 >= 0.20][,count_for_fig := round(summed_mean_depthzone_sitetype_density_m2/0.20,0)][,.(DepthZone, type, common_top5_macroinvert, count_for_fig)]
+
+
 
 ######FISHBIOMASS######
 dat_fish_averages_sitetype[, Species_top5_fishbiomass := ifelse(frank(-mean_depthzone_wt_density_g_m2)<=5,taxa,"Other"),.(DepthZone,type)]

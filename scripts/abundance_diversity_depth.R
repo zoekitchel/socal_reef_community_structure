@@ -1,9 +1,10 @@
 # CREATION DATE 7 July 2024
-# MODIFIED DATE 19 December 2024
+# MODIFIED DATE 2 June 2024
 
 # AUTHOR: kitchel@oxy.edu
 
 # PURPOSE: Abundance and diversity with depth
+  #Makes Figure 3, S3, S4, SX (substrate/relief)
 
 #############################
 ##Setup
@@ -139,13 +140,16 @@ ggsave(fish_abundance_depthzone, path = file.path("figures"), filename ="fish_ab
 (fish_abundance_depthzone_dunn <- generate_boxplot_nonpar_dunn_letters(dt = dat_fish_total_abundances, var = "total_abundance_depthzone_site", plot = fish_abundance_depthzone))
 
 #Compare fish densities between islands and mainland with Wilcox rank-sum test (Mann-Whitney U test)
-wilcox.test(dat_fish_total_abundances[type_wAR == "Natural_mainland"]$total_abundance_depthzone_site, dat_fish_total_abundances[type_wAR == "Island"]$total_abundance_depthzone_site) #Fish density significantly higher at island sites
+wilcox.test(dat_fish_total_abundances[type_wAR == "Natural_mainland"]$total_abundance_depthzone_site,
+            dat_fish_total_abundances[type_wAR == "Island"]$total_abundance_depthzone_site) #Fish density significantly higher at island sites
 #The two groups are significantly different (W = 1619, p < 0.0001)
 
 #Means and SD
-mean(dat_fish_total_abundances[type_wAR == "Island"]$total_abundance_depthzone_site); sd(dat_fish_total_abundances[type_wAR == "Island"]$total_abundance_depthzone_site)
+mean(dat_fish_total_abundances[type_wAR == "Island"]$total_abundance_depthzone_site);
+sd(dat_fish_total_abundances[type_wAR == "Island"]$total_abundance_depthzone_site)
 #Mean = 144, SD = 136
-mean(dat_fish_total_abundances[type_wAR == "Natural_mainland"]$total_abundance_depthzone_site); sd(dat_fish_total_abundances[type_wAR == "Natural_mainland"]$total_abundance_depthzone_site)
+mean(dat_fish_total_abundances[type_wAR == "Natural_mainland"]$total_abundance_depthzone_site);
+sd(dat_fish_total_abundances[type_wAR == "Natural_mainland"]$total_abundance_depthzone_site)
 #Mean = 39, SD = 37
 
 ##Island vs. mainland vs. MPA status ####
@@ -168,6 +172,28 @@ fish_abundance_depthzone_MPA <- ggplot(dat_fish_total_abundances) +
 
 ggsave(fish_abundance_depthzone_MPA, path = file.path("figures"), filename ="fish_abundance_depthzone_MPA.jpg", height = 4.5, width = 6, units = "in")
 
+#Compare in and out MPA
+wilcox.test(dat_fish_total_abundances[MPA_overlap == "TRUE" & type_wAR %in% c("Natural_mainland","Island")]$total_abundance_depthzone_site,
+            dat_fish_total_abundances[MPA_overlap == "FALSE" & type_wAR %in% c("Natural_mainland","Island")]$total_abundance_depthzone_site)
+#The two groups are significantly different W = 7301.5, p-value = 2.161e-07
+
+#Compare in and out MPA ISLAND ONLY
+wilcox.test(dat_fish_total_abundances[MPA_overlap == "TRUE" & type_wAR %in% c("Island")]$total_abundance_depthzone_site,
+            dat_fish_total_abundances[MPA_overlap == "FALSE" & type_wAR %in% c("Island")]$total_abundance_depthzone_site) 
+#The two groups are NOT significantly different W = 418, p-value = 0.3621
+
+#Compare in and out MPA MAINLAND ONLY
+wilcox.test(dat_fish_total_abundances[MPA_overlap == "TRUE" & type_wAR %in% c("Natural_mainland")]$total_abundance_depthzone_site,
+            dat_fish_total_abundances[MPA_overlap == "FALSE" & type_wAR %in% c("Natural_mainland")]$total_abundance_depthzone_site) 
+#The two groups are significantly different W = 3859.5, p-value = 2.181e-06
+
+##Means and SD for depth zones
+mean(dat_fish_total_abundances[DepthZone == "Inner"]$total_abundance_depthzone_site);
+sd(dat_fish_total_abundances[DepthZone == "Inner"]$total_abundance_depthzone_site)
+#Mean = 35, SD = 42
+mean(dat_fish_total_abundances[DepthZone == "Deep"]$total_abundance_depthzone_site);
+sd(dat_fish_total_abundances[DepthZone == "Deep"]$total_abundance_depthzone_site)
+#Mean = 108, SD = 131
 
 #Visualize all fish biomass ####
 
@@ -181,8 +207,8 @@ fish_biomass_depthzone <- ggplot(dat_fish_total_abundances) +
   ) +
   scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland","Artificial reef")) +
   scale_pattern_manual(values = c("stripe","none","none"), labels = c("Natural island","Natural mainland","Artificial reef")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = bquote("   Density\n(kg per 100 m"^2*")"), fill = "Reef type", pattern = "Reef type") +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = bquote("   Density\n(kg per 100 m"^2*")"), fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   theme(
     legend.position = c(0.97, 0.95),
@@ -194,8 +220,9 @@ ggsave(fish_biomass_depthzone, path = file.path("figures"), filename ="fish_biom
 (fish_biomass_depthzone_dunn <- generate_boxplot_nonpar_dunn_letters(dat_fish_total_abundances, "total_biomass_depthzone_site", fish_biomass_depthzone))
 
 #Just Island vs. Mainland comparison
-wilcox.test(dat_fish_total_abundances[type_wAR == "Natural_mainland"]$total_biomass_depthzone_site, dat_fish_total_abundances[type_wAR == "Island"]$total_biomass_depthzone_site) #Fish density significantly higher at island sites
-#W = 2628, p < 0.0001 (significantly different)
+wilcox.test(dat_fish_total_abundances[type_wAR == "Natural_mainland"]$total_biomass_depthzone_site,
+            dat_fish_total_abundances[type_wAR == "Island"]$total_biomass_depthzone_site) #Fish density significantly higher in MPAs
+#W = 2628, p = 3.163e-05 (significantly different)
 
 
 #Means and SD
@@ -222,20 +249,30 @@ fish_biomass_depthzone_MPA <- ggplot(dat_fish_total_abundances) +
 
 ggsave(fish_biomass_depthzone_MPA, path = file.path("figures"), filename ="fish_biomass_depthzone_MPA.jpg", height = 4.5, width = 6, units = "in")
 
+#Compare in and out MPA mainland
+wilcox.test(dat_fish_total_abundances[MPA_overlap == "TRUE" & type_wAR == "Natural_mainland"]$total_biomass_depthzone_site,
+            dat_fish_total_abundances[MPA_overlap == "FALSE" & type_wAR == "Natural_mainland"]$total_biomass_depthzone_site) #Fish biomass significantly higher at MPAs
+#The two groups are significantly different (W = 4231, p-value = 7.685e-10)
+
+#Compare in and out MPA island
+wilcox.test(dat_fish_total_abundances[MPA_overlap == "TRUE" & type_wAR == "Island"]$total_biomass_depthzone_site,
+            dat_fish_total_abundances[MPA_overlap == "FALSE" & type_wAR == "Island"]$total_biomass_depthzone_site) #Fish biomass significantly higher at MPAs
+#The two groups are NOT significantly different (W = 401, p-value = 0.5364)
+
 #Visualize all macroinvertebrate density####
 ##Island vs. mainland ####
 macroinvert_abundance_depthzone <- ggplot(dat_macroinvert_total_abundances) +
-  geom_boxplot_pattern(aes(x = DepthZone, y = total_abundance_depthzone_site, fill = type, pattern = type), position = position_dodge2(preserve = "single"),
+  geom_boxplot_pattern(aes(x = DepthZone, y = total_abundance_depthzone_site, fill = type_wAR, pattern = type_wAR), position = position_dodge2(preserve = "single"),
                        colour          = 'black', 
                        pattern_density = 0.01, 
                        pattern_fill    = 'black',
                        pattern_colour  = 'black',
                        pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
-  scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = bquote("Density (count per 100 m"^2*")"), fill = "Reef type", pattern = "Reef type") +
+  scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_pattern_manual(values = c("stripe","none","none"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = bquote("Density (count per 100 m"^2*")"), fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   ggtitle("Macroinvertebrate") +
   theme(
@@ -249,7 +286,9 @@ ggsave(macroinvert_abundance_depthzone, path = file.path("figures"), filename ="
 macroinvert_abundance_depthzone_dunn <- generate_boxplot_nonpar_dunn_letters(dat_macroinvert_total_abundances, "total_abundance_depthzone_site", macroinvert_abundance_depthzone)
 
 #Just Island vs. Mainland comparison
-wilcox.test(dat_macroinvert_total_abundances[type_wAR == "Natural_mainland"]$total_abundance_depthzone_site, dat_macroinvert_total_abundances[type_wAR == "Island"]$total_abundance_depthzone_site) #macroinvert density significantly higher at island sites
+wilcox.test(dat_macroinvert_total_abundances[type_wAR == "Natural_mainland"]$total_abundance_depthzone_site,
+            dat_macroinvert_total_abundances[type_wAR == "Island"]$total_abundance_depthzone_site) 
+#W = 4309.5, p-value = 0.8565
 
 #Means and SD
 mean(dat_macroinvert_total_abundances[type_wAR == "Island"]$total_abundance_depthzone_site); sd(dat_macroinvert_total_abundances[type_wAR == "Island"]$total_abundance_depthzone_site)
@@ -278,17 +317,17 @@ ggsave(macroinvert_abundance_depthzone_MPA, path = file.path("figures"), filenam
 #Visualize all kelp density ####
 #Island vs. mainland ####
 kelp_abundance_depthzone <- ggplot(dat_kelp_total_abundances) +
-  geom_boxplot_pattern(aes(x = DepthZone, y = total_abundance_depthzone_site, fill = type, pattern = type), position = position_dodge2(preserve = "single"),
+  geom_boxplot_pattern(aes(x = DepthZone, y = total_abundance_depthzone_site, fill = type_wAR, pattern = type_wAR), position = position_dodge2(preserve = "single"),
                        colour          = 'black', 
                        pattern_density = 0.01, 
                        pattern_fill    = 'black',
                        pattern_colour  = 'black',
                        pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
-  scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = bquote("Density (count per 100 m"^2*")"), fill = "Reef type", pattern = "Reef type") +
+  scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_pattern_manual(values = c("stripe","none","none"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = bquote("Density (count per 100 m"^2*")"), fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   ggtitle("Macroalgae") +
   theme(
@@ -302,7 +341,9 @@ ggsave(kelp_abundance_depthzone, path = file.path("figures"), filename ="kelp_ab
 kelp_abundance_depthzone_dunn <- generate_boxplot_nonpar_dunn_letters(dat_kelp_total_abundances, "total_abundance_depthzone_site", kelp_abundance_depthzone)
 
 #Just Island vs. Mainland comparison
-wilcox.test(dat_kelp_total_abundances[type_wAR == "Natural_mainland"]$total_abundance_depthzone_site, dat_kelp_total_abundances[type_wAR == "Island"]$total_abundance_depthzone_site) #kelp density significantly higher at island sites
+wilcox.test(dat_kelp_total_abundances[type_wAR == "Natural_mainland"]$total_abundance_depthzone_site,
+            dat_kelp_total_abundances[type_wAR == "Island"]$total_abundance_depthzone_site) #kelp density significantly higher at island sites
+#W = 2920, p-value = 0.0006571
 
 #Means and SD
 mean(dat_kelp_total_abundances[type_wAR == "Island"]$total_abundance_depthzone_site); sd(dat_kelp_total_abundances[type_wAR == "Island"]$total_abundance_depthzone_site)
@@ -358,6 +399,10 @@ dat_kelp_richness_depthzone_site[,DepthZone := factor(DepthZone, levels = c("Inn
 
 
 #Visualize all fish richness ####
+
+#Adjust factor level
+dat_fish_richness_depthzone_site[,type_wAR:=factor(type_wAR, levels = c("Island","Natural_mainland","Artificial_reef"))]
+
 ##Island vs. mainland ####
 fish_richness_depthzone <- ggplot(dat_fish_richness_depthzone_site) +
   geom_boxplot_pattern(aes(x = DepthZone, y = total_richness_depthzone_site, fill = type_wAR, pattern = type_wAR), position = position_dodge2(preserve = "single"),
@@ -367,10 +412,10 @@ fish_richness_depthzone <- ggplot(dat_fish_richness_depthzone_site) +
                        pattern_colour  = 'black',
                        pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
-  scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = "Richness\n", fill = "Reef type", pattern = "Reef type") +
+  scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_pattern_manual(values = c("stripe","none","none"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = "Richness\n", fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   theme(
     legend.position = c(0.4, 1),
@@ -382,15 +427,16 @@ ggsave(fish_richness_depthzone, path = file.path("figures"), filename ="fish_ric
 fish_richness_depthzone_dunn <- generate_boxplot_nonpar_dunn_letters(dat_fish_richness_depthzone_site, "total_richness_depthzone_site", fish_richness_depthzone, richness = T)
 
 #Just Island vs. Mainland comparison
-wilcox.test(dat_fish_richness_depthzone_site[type_wAR == "Natural_mainland"]$total_richness_depthzone_site, dat_fish_richness_depthzone_site[type_wAR == "Island"]$total_richness_depthzone_site) #Fish richness significantly higher at mainland sites
+wilcox.test(dat_fish_richness_depthzone_site[type_wAR == "Natural_mainland"]$total_richness_depthzone_site,
+            dat_fish_richness_depthzone_site[type_wAR == "Island"]$total_richness_depthzone_site) #Fish richness significantly higher at mainland sites
+#W = 5907, p-value = 1.522e-05
 
 #Means and SD
-mean(dat_fish_richness_depthzone_site[type_wAR == "Island"]$total_richness_depthzone_site); sd(dat_fish_richness_depthzone_site[type_wAR == "Island"]$total_richness_depthzone_site)
-mean(dat_fish_richness_depthzone_site[type_wAR == "Natural_mainland"]$total_richness_depthzone_site); sd(dat_fish_richness_depthzone_site[type_wAR == "Natural_mainland"]$total_richness_depthzone_site)
+mean(dat_fish_richness_depthzone_site[type_wAR == "Island"]$total_richness_depthzone_site);
+sd(dat_fish_richness_depthzone_site[type_wAR == "Island"]$total_richness_depthzone_site)
+mean(dat_fish_richness_depthzone_site[type_wAR == "Natural_mainland"]$total_richness_depthzone_site);
+sd(dat_fish_richness_depthzone_site[type_wAR == "Natural_mainland"]$total_richness_depthzone_site)
 
-
-#Adjust factor level
-dat_fish_richness_depthzone_site[,type_wAR:=factor(type_wAR, levels = c("Island","Natural_mainland","Artificial_reef"))]
 
 ##Island vs. mainland vs. MPA status ####
 fish_richness_depthzone_MPA <- ggplot(dat_fish_richness_depthzone_site) +
@@ -399,8 +445,8 @@ fish_richness_depthzone_MPA <- ggplot(dat_fish_richness_depthzone_site) +
   ) +
   scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
   scale_color_manual(values = c("black","darkgrey")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = "Richness\n", fill = "Reef type", pattern = "Reef type", color = "MPA overlap") +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = "Richness\n", fill = "Reef type", pattern = "Reef type", color = "MPA overlap") +
   theme_classic() +
   ggtitle("Fish")+
   theme(
@@ -412,9 +458,19 @@ fish_richness_depthzone_MPA <- ggplot(dat_fish_richness_depthzone_site) +
 
 ggsave(fish_richness_depthzone_MPA, path = file.path("figures"), filename ="fish_richness_depthzone_MPA.jpg", height = 4.5, width = 6, units = "in")
 
+wilcox.test(dat_fish_richness_depthzone_site[type_wAR == "Natural_mainland" & MPA_overlap == "TRUE"]$total_richness_depthzone_site,
+            dat_fish_richness_depthzone_site[type_wAR == "Natural_mainland" & MPA_overlap == "FALSE"]$total_richness_depthzone_site)
+#The two groups are not significantly different (W = 2763, p = 0.57)
 
+wilcox.test(dat_fish_richness_depthzone_site[type_wAR == "Island" & MPA_overlap == "TRUE"]$total_richness_depthzone_site,
+            dat_fish_richness_depthzone_site[type_wAR == "Island" & MPA_overlap == "FALSE"]$total_richness_depthzone_site)
+#The two groups are not significantly different (W = 364.5, p = 1)
 
 #Visualize all macroinvertebrate richness ####
+
+#Adjust factor level
+dat_macroinvert_richness_depthzone_site[,type_wAR:=factor(type_wAR, levels = c("Island","Natural_mainland","Artificial_reef"))]
+
 ##Island vs. mainland ####
 macroinvert_richness_depthzone <- ggplot(dat_macroinvert_richness_depthzone_site) +
   geom_boxplot_pattern(aes(x = DepthZone, y = total_richness_depthzone_site, fill = type_wAR, pattern = type_wAR), position = position_dodge2(preserve = "single"),
@@ -424,10 +480,10 @@ macroinvert_richness_depthzone <- ggplot(dat_macroinvert_richness_depthzone_site
                        pattern_colour  = 'black',
                        pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
-  scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = "Richness", fill = "Reef type", pattern = "Reef type") +
+  scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_pattern_manual(values = c("stripe","none","none"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = "Richness", fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   theme(
     legend.position = c(0.4, 1),
@@ -439,14 +495,14 @@ ggsave(macroinvert_richness_depthzone, path = file.path("figures"), filename ="m
 macroinvert_richness_depthzone_dunn <- generate_boxplot_nonpar_dunn_letters(dat_macroinvert_richness_depthzone_site, "total_richness_depthzone_site", macroinvert_richness_depthzone, richness = T)
 
 #Just Island vs. Mainland comparison
-wilcox.test(dat_macroinvert_richness_depthzone_site[type_wAR == "Natural_mainland"]$total_richness_depthzone_site, dat_macroinvert_richness_depthzone_site[type_wAR == "Island"]$total_richness_depthzone_site) #macroinvert density significantly higher at island sites
+wilcox.test(dat_macroinvert_richness_depthzone_site[type_wAR == "Natural_mainland"]$total_richness_depthzone_site,
+            dat_macroinvert_richness_depthzone_site[type_wAR == "Island"]$total_richness_depthzone_site) 
+
+#W = 6648, p-value = 4.688e-10
 
 #Means and SD
 mean(dat_macroinvert_richness_depthzone_site[type_wAR == "Island"]$total_richness_depthzone_site); sd(dat_macroinvert_richness_depthzone_site[type_wAR == "Island"]$total_richness_depthzone_site)
 mean(dat_macroinvert_richness_depthzone_site[type_wAR == "Natural_mainland"]$total_richness_depthzone_site); sd(dat_macroinvert_richness_depthzone_site[type_wAR == "Natural_mainland"]$total_richness_depthzone_site)
-
-#Adjust factor level
-dat_macroinvert_richness_depthzone_site[,type_wAR:=factor(type_wAR, levels = c("Island","Natural_mainland","Artificial_reef"))]
 
 ##Island vs. mainland vs. MPA status ####
 macroinvert_richness_depthzone_MPA <- ggplot(dat_macroinvert_richness_depthzone_site) +
@@ -455,8 +511,8 @@ macroinvert_richness_depthzone_MPA <- ggplot(dat_macroinvert_richness_depthzone_
   ) +
   scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
   scale_color_manual(values = c("black","darkgrey")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = "Richness\n", fill = "Reef type", pattern = "Reef type", color = "MPA overlap") +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = "Richness\n", fill = "Reef type", pattern = "Reef type", color = "MPA overlap") +
   theme_classic() +
   ggtitle("Macroinvertebrate")+
   theme(
@@ -470,6 +526,10 @@ ggsave(macroinvert_richness_depthzone_MPA, path = file.path("figures"), filename
 
 
 #Visualize all kelp richness ####
+
+#Adjust factor level
+dat_kelp_richness_depthzone_site[,type_wAR:=factor(type_wAR, levels = c("Island","Natural_mainland","Artificial_reef"))]
+
 ##Island vs. mainland ####
 kelp_richness_depthzone <- ggplot(dat_kelp_richness_depthzone_site) +
   geom_boxplot_pattern(aes(x = DepthZone, y = total_richness_depthzone_site, fill = type_wAR, pattern = type_wAR), position = position_dodge2(preserve = "single"),
@@ -479,10 +539,10 @@ kelp_richness_depthzone <- ggplot(dat_kelp_richness_depthzone_site) +
                        pattern_colour  = 'black',
                        pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
-  scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = "Richness", fill = "Reef type", pattern = "Reef type") +
+  scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_pattern_manual(values = c("stripe","none","none"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = "Richness", fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   theme(
     legend.position = c(0.95, 1),
@@ -495,14 +555,14 @@ ggsave(kelp_richness_depthzone, path = file.path("figures"), filename ="kelp_ric
 kelp_richness_depthzone_dunn <- generate_boxplot_nonpar_dunn_letters(dat_kelp_richness_depthzone_site, "total_richness_depthzone_site", kelp_richness_depthzone, richness = T)
 
 #Just Island vs. Mainland comparison
-wilcox.test(dat_kelp_richness_depthzone_site[type_wAR == "Natural_mainland"]$total_richness_depthzone_site, dat_kelp_richness_depthzone_site[type_wAR == "Island"]$total_richness_depthzone_site) 
+wilcox.test(dat_kelp_richness_depthzone_site[type_wAR == "Natural_mainland"]$total_richness_depthzone_site,
+            dat_kelp_richness_depthzone_site[type_wAR == "Island"]$total_richness_depthzone_site) 
+
+#W = 4402.5, p-value = 0.6653
 
 #Means and SD
 mean(dat_kelp_richness_depthzone_site[type_wAR == "Island"]$total_richness_depthzone_site); sd(dat_kelp_richness_depthzone_site[type_wAR == "Island"]$total_richness_depthzone_site)
 mean(dat_kelp_richness_depthzone_site[type_wAR == "Natural_mainland"]$total_richness_depthzone_site); sd(dat_kelp_richness_depthzone_site[type_wAR == "Natural_mainland"]$total_richness_depthzone_site)
-
-#Adjust factor level
-dat_kelp_richness_depthzone_site[,type_wAR:=factor(type_wAR, levels = c("Island","Natural_mainland","Artificial_reef"))]
 
 ##Island vs. mainland vs. MPA status ####
 kelp_richness_depthzone_MPA <- ggplot(dat_kelp_richness_depthzone_site) +
@@ -511,8 +571,8 @@ kelp_richness_depthzone_MPA <- ggplot(dat_kelp_richness_depthzone_site) +
   ) +
   scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
   scale_color_manual(values = c("black","darkgrey")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = "Richness\n", fill = "Reef type", pattern = "Reef type", color = "MPA overlap") +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = "Richness\n", fill = "Reef type", pattern = "Reef type", color = "MPA overlap") +
   theme_classic() +
   ggtitle("Macroalgae")+
   theme(
@@ -564,6 +624,12 @@ dat_kelp_simpson[,DepthZone := factor(DepthZone, levels = c("Inner","Middle","Ou
 
 
 #Visualize fish diversity (calculated with density) ####
+
+
+#Adjust factor level
+dat_fish_simpson[,type_wAR:=factor(type_wAR, levels = c("Island","Natural_mainland","Artificial_reef"))]
+
+
 ##Island vs. mainland
 fish_simpson_depthzone_density <- ggplot(dat_fish_simpson) +
   geom_boxplot_pattern(aes(x = DepthZone, y = Simpson_index_density, fill = type_wAR, pattern = type_wAR), position = position_dodge2(preserve = "single"),
@@ -573,10 +639,10 @@ fish_simpson_depthzone_density <- ggplot(dat_fish_simpson) +
                        pattern_colour  = 'black',
                        pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
-  scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex",  y = "Simpson index\n(count-based)", fill = "Reef type", pattern = "Reef type") +
+  scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_pattern_manual(values = c("stripe","none","none"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location",  y = "Simpson index\n(count-based)", fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   theme(
     legend.position = c(0.87, 0.15)
@@ -587,14 +653,13 @@ ggsave(fish_simpson_depthzone_density, path = file.path("figures"), filename ="f
 fish_simpson_depthzone_density_dunn <- generate_boxplot_nonpar_dunn_letters(dat_fish_simpson, "Simpson_index_density", fish_simpson_depthzone_density)
 
 #Just Island vs. Mainland comparison
-wilcox.test(dat_fish_simpson[type_wAR == "Natural_mainland"]$Simpson_index_density, dat_fish_simpson[type_wAR == "Island"]$Simpson_index_density) #Fish density significantly higher at island sites
+wilcox.test(dat_fish_simpson[type_wAR == "Natural_mainland"]$Simpson_index_density,
+            dat_fish_simpson[type_wAR == "Island"]$Simpson_index_density) #Fish density significantly higher at island sites
+#W = 6130, p-value = 1.035e-06
 
 #Means and SD
 mean(dat_fish_simpson[type_wAR == "Island"]$Simpson_index_density); sd(dat_fish_simpson[type_wAR == "Island"]$Simpson_index_density)
 mean(dat_fish_simpson[type_wAR == "Natural_mainland"]$Simpson_index_density); sd(dat_fish_simpson[type_wAR == "Natural_mainland"]$Simpson_index_density)
-
-#Adjust factor level
-dat_fish_simpson[,type_wAR:=factor(type_wAR, levels = c("Island","Natural_mainland","Artificial_reef"))]
 
 ##Island vs. mainland vs. MPA status ####
 fish_simpson_depthzone_density_MPA <- ggplot(dat_fish_simpson) +
@@ -603,8 +668,8 @@ fish_simpson_depthzone_density_MPA <- ggplot(dat_fish_simpson) +
   ) +
   scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
   scale_color_manual(values = c("black","darkgrey")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = "Richness\n", fill = "Reef type", pattern = "Reef type", color = "MPA overlap") +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = "Richness\n", fill = "Reef type", pattern = "Reef type", color = "MPA overlap") +
   theme_classic() +
   ggtitle("Fish")+
   theme(
@@ -616,7 +681,14 @@ fish_simpson_depthzone_density_MPA <- ggplot(dat_fish_simpson) +
 
 ggsave(fish_simpson_depthzone_density_MPA, path = file.path("figures"), filename ="fish_simpson_depthzone_density_MPA.jpg", height = 4.5, width = 6, units = "in")
 
+#Compare means with wilcox test
+wilcox.test(dat_fish_simpson[type_wAR == "Natural_mainland" & MPA_overlap == "TRUE"]$Simpson_index_density,
+            dat_fish_simpson[type_wAR == "Natural_mainland" & MPA_overlap == "FALSE"]$Simpson_index_density)
+#The two groups are not significantly different (W = 2520, p-value = 0.716)
 
+wilcox.test(dat_fish_simpson[type_wAR == "Island" & MPA_overlap == "TRUE"]$Simpson_index_density,
+            dat_fish_simpson[type_wAR == "Island" & MPA_overlap == "FALSE"]$Simpson_index_density)
+#The two groups are not significantly different (W = 360, p-value = 0.9453)
 
 #Simpson diversity for fish biomass ####
 ##Mainland versus island ####
@@ -629,10 +701,10 @@ fish_simpson_depthzone_biomass <- ggplot(dat_fish_simpson) +
                        pattern_colour  = 'black',
                        pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
-  scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = "Simpson index\n(biomass-based)", fill = "Reef type", pattern = "Reef type") +
+  scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_pattern_manual(values = c("stripe","none","none"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = "Simpson index\n(biomass-based)", fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   theme(
     legend.position = c(0.87, 0.15)
@@ -650,7 +722,9 @@ summary(lm(data = dat_fish_simpson[type_wAR != "Artificial_reef"], Simpson_index
 fish_simpson_depthzone_biomass_dunn <- generate_boxplot_nonpar_dunn_letters(dat_fish_simpson, "Simpson_index_biomass", fish_simpson_depthzone_biomass)
 
 #Just Island vs. Mainland comparison
-wilcox.test(dat_fish_simpson[type_wAR == "Natural_mainland"]$Simpson_index_biomass, dat_fish_simpson[type_wAR == "Island"]$Simpson_index_biomass) #Fish biomass significantly higher at island sites
+wilcox.test(dat_fish_simpson[type_wAR == "Natural_mainland"]$Simpson_index_biomass,
+            dat_fish_simpson[type_wAR == "Island"]$Simpson_index_biomass) #Fish biomass significantly higher at island sites
+#W = 4941, p-value = 0.06989
 
 #Means and SD
 mean(dat_fish_simpson[type_wAR == "Island"]$Simpson_index_biomass); sd(dat_fish_simpson[type_wAR == "Island"]$Simpson_index_biomass)
@@ -663,8 +737,8 @@ fish_simpson_depthzone_biomass_MPA <- ggplot(dat_fish_simpson) +
   ) +
   scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
   scale_color_manual(values = c("black","darkgrey")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = "Richness\n", fill = "Reef type", pattern = "Reef type", color = "MPA overlap") +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = "Richness\n", fill = "Reef type", pattern = "Reef type", color = "MPA overlap") +
   theme_classic() +
   ggtitle("Fish")+
   theme(
@@ -676,7 +750,21 @@ fish_simpson_depthzone_biomass_MPA <- ggplot(dat_fish_simpson) +
 
 ggsave(fish_simpson_depthzone_biomass_MPA, path = file.path("figures"), filename ="fish_simpson_depthzone_biomass_MPA.jpg", height = 4.5, width = 6, units = "in")
 
+#Compare in and out MPA
+#Compare means with wilcox test
+wilcox.test(dat_fish_simpson[type_wAR == "Natural_mainland" & MPA_overlap == "TRUE"]$Simpson_index_biomass,
+            dat_fish_simpson[type_wAR == "Natural_mainland" & MPA_overlap == "FALSE"]$Simpson_index_biomass)
+#The two groups are not significantly different (W = 2472, p-value = 0.5846)
+
+wilcox.test(dat_fish_simpson[type_wAR == "Island" & MPA_overlap == "TRUE"]$Simpson_index_biomass,
+            dat_fish_simpson[type_wAR == "Island" & MPA_overlap == "FALSE"]$Simpson_index_biomass)
+#The two groups are not significantly different (W = 338, p-value = 0.6554)
+
 #Visualize macroinvert diversity (calculated with density) ####
+
+#Adjust factor level
+dat_macroinvert_simpson[,type_wAR:=factor(type_wAR, levels = c("Island","Natural_mainland","Artificial_reef"))]
+
 ##Island vs. mainland #### 
 macroinvert_simpson_depthzone_density <- ggplot(dat_macroinvert_simpson) +
   geom_boxplot_pattern(aes(x = DepthZone, y = Simpson_index_density, fill = type_wAR, pattern = type_wAR), position = position_dodge2(preserve = "single"),
@@ -686,10 +774,10 @@ macroinvert_simpson_depthzone_density <- ggplot(dat_macroinvert_simpson) +
                        pattern_colour  = 'black',
                        pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
-  scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial mainland","Natural island","Natural mainland")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = "Simpson index", fill = "Reef type", pattern = "Reef type") +
+  scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_pattern_manual(values = c("stripe","none","none"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = "Simpson index", fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   theme(
     legend.position = c(0.87, 0.15)
@@ -698,14 +786,14 @@ macroinvert_simpson_depthzone_density <- ggplot(dat_macroinvert_simpson) +
 macroinvert_simpson_depthzone_dunn <- generate_boxplot_nonpar_dunn_letters(dat_macroinvert_simpson, "Simpson_index_density", macroinvert_simpson_depthzone_density)
 
 #Just Island vs. Mainland comparison
-wilcox.test(dat_macroinvert_simpson[type_wAR == "Natural_mainland"]$Simpson_index_density, dat_macroinvert_simpson[type_wAR == "Island"]$Simpson_index_density) #macroinvert density significantly higher at island sites
+wilcox.test(dat_macroinvert_simpson[type_wAR == "Natural_mainland"]$Simpson_index_density,
+            dat_macroinvert_simpson[type_wAR == "Island"]$Simpson_index_density)
 
 #Means and SD
 mean(dat_macroinvert_simpson[type_wAR == "Island"]$Simpson_index_density); sd(dat_macroinvert_simpson[type_wAR == "Island"]$Simpson_index_density)
+
 mean(dat_macroinvert_simpson[type_wAR == "Natural_mainland"]$Simpson_index_density); sd(dat_macroinvert_simpson[type_wAR == "Natural_mainland"]$Simpson_index_density)
 
-#Adjust factor level
-dat_macroinvert_simpson[,type_wAR:=factor(type_wAR, levels = c("Island","Natural_mainland","Artificial_reef"))]
 
 ##Island vs. mainland vs. MPA status ####
 macroinvert_simpson_depthzone_density_MPA <- ggplot(dat_macroinvert_simpson) +
@@ -714,8 +802,8 @@ macroinvert_simpson_depthzone_density_MPA <- ggplot(dat_macroinvert_simpson) +
   ) +
   scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
   scale_color_manual(values = c("black","darkgrey")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = "Richness\n", fill = "Reef type", pattern = "Reef type", color = "MPA overlap") +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = "Richness\n", fill = "Reef type", pattern = "Reef type", color = "MPA overlap") +
   theme_classic() +
   ggtitle("Macroinvertebrate")+
   theme(
@@ -729,6 +817,11 @@ ggsave(macroinvert_simpson_depthzone_density_MPA, path = file.path("figures"), f
 
 
 #Visualize kelp diversity (calculated with density) ####
+
+#Adjust factor level
+dat_kelp_simpson[,type_wAR:=factor(type_wAR, levels = c("Island","Natural_mainland","Artificial_reef"))]
+
+
 ##Island vs. mainland #### 
 kelp_simpson_depthzone_density <- ggplot(dat_kelp_simpson) +
   geom_boxplot_pattern(aes(x = DepthZone, y = Simpson_index_density, fill = type_wAR, pattern = type_wAR), position = position_dodge2(preserve = "single"),
@@ -738,10 +831,10 @@ kelp_simpson_depthzone_density <- ggplot(dat_kelp_simpson) +
                        pattern_colour  = 'black',
                        pattern_spacing = 0.05, outlier.alpha = 0.3, outlier.size = 1.2
   ) +
-  scale_fill_manual(values = c("#FB8071","#7FB1D3","#BDBAD9"), labels = c("Artificial mainland","Natural island","Natural_mainland")) +
-  scale_pattern_manual(values = c("none","stripe","none"), labels = c("Artificial mainland","Natural island","Natural_mainland")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = "Simpson index", fill = "Reef type", pattern = "Reef type") +
+  scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_pattern_manual(values = c("stripe","none","none"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = "Simpson index", fill = "Reef type", pattern = "Reef type") +
   theme_classic() +
   theme(
     legend.position = c(0.87, 0.85)
@@ -752,14 +845,14 @@ ggsave(kelp_simpson_depthzone_density, path = file.path("figures"), filename ="k
 kelp_simpson_depthzone_density_dunn <- generate_boxplot_nonpar_dunn_letters(dat_kelp_simpson, "Simpson_index_density", kelp_simpson_depthzone_density)
 
 #Just Island vs. Mainland comparison
-wilcox.test(dat_kelp_simpson[type_wAR == "Natural_mainland"]$Simpson_index_density, dat_kelp_simpson[type_wAR == "Island"]$Simpson_index_density) #kelp density significantly higher at island sites
+wilcox.test(dat_kelp_simpson[type_wAR == "Natural_mainland"]$Simpson_index_density,
+            dat_kelp_simpson[type_wAR == "Island"]$Simpson_index_density) 
+#W = 4326, p-value = 0.823
 
 #Means and SD
 mean(dat_kelp_simpson[type_wAR == "Island"]$Simpson_index_density); sd(dat_kelp_simpson[type_wAR == "Island"]$Simpson_index_density)
 mean(dat_kelp_simpson[type_wAR == "Natural_mainland"]$Simpson_index_density); sd(dat_kelp_simpson[type_wAR == "Natural_mainland"]$Simpson_index_density)
 
-#Adjust factor level
-dat_kelp_simpson[,type_wAR:=factor(type_wAR, levels = c("Island","Natural_mainland","Artificial_reef"))]
 
 ##Island vs. mainland vs. MPA status ####
 kelp_simpson_depthzone_density_MPA <- ggplot(dat_kelp_simpson) +
@@ -768,8 +861,8 @@ kelp_simpson_depthzone_density_MPA <- ggplot(dat_kelp_simpson) +
   ) +
   scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland", "Artificial mainland")) +
   scale_color_manual(values = c("black","darkgrey")) +
-  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","Palos\nVerdes","Santa\nMonica\nBay")) +
-  labs(x = "                        Depth Zone                AR Complex", y = "Richness\n", fill = "Reef type", pattern = "Reef type", color = "MPA overlap") +
+  scale_x_discrete(labels = c("Inner","Middle","Outer","Deep","AR\nPVR","AR\nSMB")) +
+  labs(x = "                        Depth Zone                AR Location", y = "Richness\n", fill = "Reef type", pattern = "Reef type", color = "MPA overlap") +
   theme_classic() +
   ggtitle("Macroalgae")+
   theme(
@@ -783,7 +876,7 @@ ggsave(kelp_simpson_depthzone_density_MPA, path = file.path("figures"), filename
 
 
 #add legend on top
-megamerge_dunn_leg <- get_legend(fish_simpson_depthzone_density_dunn + theme(legend.position = "top", legend.direction = "horizontal"))
+megamerge_dunn_leg <- get_legend(fish_simpson_depthzone_density_dunn + theme(legend.position = "top", legend.direction = "horizontal", legend.text = element_text(size = 15), legend.title = element_text(size = 17)))
 
 #Plot all using patchwork package
 # Arrange the plots
@@ -795,17 +888,17 @@ depthzone_abun_rich_div_merge_dunn <- (fish_abundance_depthzone_dunn + theme(axi
      kelp_richness_depthzone_dunn + theme(axis.title.x = element_blank(), axis.title.y = element_blank(), legend.position = "none") +
      macroinvert_richness_depthzone_dunn + theme(axis.title.x = element_blank(), axis.title.y = element_blank(), legend.position = "none")) /      # Row 3: 3 plots across
   (fish_simpson_depthzone_density_dunn + theme(axis.title.x = element_blank(), legend.position = "none") +
-     kelp_simpson_depthzone_density_dunn + theme(axis.title.y = element_blank(), legend.position = "none") +
-     macroinvert_simpson_depthzone_dunn + theme(axis.title.y = element_blank(), legend.position = "none"))/      # Row 4: 3 plots across
-  (fish_simpson_depthzone_biomass_dunn + theme(legend.position = "none") + plot_spacer() +plot_spacer()) # Row 5: 1 plot taking 1/3 of the width
+     kelp_simpson_depthzone_density_dunn + theme(axis.title.x = element_blank(), axis.title.y = element_blank(), legend.position = "none") +
+     macroinvert_simpson_depthzone_dunn + theme(axis.title.x = element_blank(), axis.title.y = element_blank(), legend.position = "none"))/      # Row 4: 3 plots across
+  (fish_simpson_depthzone_biomass_dunn + theme(axis.title.x = element_blank(), legend.position = "none") + plot_spacer() +plot_spacer()) # Row 5: 1 plot taking 1/3 of the width
 
 depthzone_abun_rich_div_merge_dunn <- depthzone_abun_rich_div_merge_dunn + plot_annotation(tag_levels = 'a') + plot_layout(guides = "collect")
 
 # Combine the legend grob and the arranged plots
-depthzone_abun_rich_div_merge_dunn.l <- plot_grid(megamerge_dunn_leg, depthzone_abun_rich_div_merge_dunn, ncol = 1, rel_heights = c(1,10))
+FigS4_depthzone_abun_rich_div_merge_dunn.l <- plot_grid(megamerge_dunn_leg, depthzone_abun_rich_div_merge_dunn, ncol = 1, rel_heights = c(1,10))
 
 #save
-ggsave(depthzone_abun_rich_div_merge_dunn.l, path = file.path("figures"), filename = "depthzone_abun_rich_div_merge_dunn.l.jpg", height = 14, width = 12, unit = "in")
+ggsave(FigS4_depthzone_abun_rich_div_merge_dunn.l, path = file.path("figures"), filename = "FigS4_depthzone_abun_rich_div_merge_dunn.l.jpg", height = 14, width = 14, unit = "in")
 
 
 #########
@@ -864,7 +957,7 @@ merged_abundance_richness_diversity_datatables[, type_wAR := ifelse(type_wAR == 
 
 
 #Merged metric plot ####
-depthzone_density_abundance_richness <- ggplot(merged_abundance_richness_diversity_datatables) +
+Fig3_depthzone_density_abundance_richness <- ggplot(merged_abundance_richness_diversity_datatables) +
   geom_boxplot_pattern(aes(x = DepthZone, y = value, fill = type_wAR, pattern = type_wAR), position = position_dodge2(preserve = "single"),
                        colour          = 'black', 
                        pattern_density = 0.01, 
@@ -897,13 +990,13 @@ depthzone_density_abundance_richness <- ggplot(merged_abundance_richness_diversi
   )
   
 
-depthzone_density_abundance_richness
+Fig3_depthzone_density_abundance_richness
 
-ggsave(depthzone_density_abundance_richness, path = "figures",filename = "depthzone_density_abundance_richness.jpg", height = 12, width = 10, units = "in")
+ggsave(Fig3_depthzone_density_abundance_richness, path = "figures",filename = "Fig3_depthzone_density_abundance_richness.jpg", height = 12, width = 10, units = "in")
 
 ###Merged plot, also split by MPA ####
 
-depthzone_density_abundance_richness_MPA <- ggplot(merged_abundance_richness_diversity_datatables) +
+FigS5_depthzone_density_abundance_richness_MPA <- ggplot(merged_abundance_richness_diversity_datatables) +
   geom_boxplot(aes(x = DepthZone, y = value, fill = type_wAR, color = MPA_overlap), position = position_dodge2(preserve = "single"),
                        outlier.size = 1.2
   ) +
@@ -932,13 +1025,13 @@ depthzone_density_abundance_richness_MPA <- ggplot(merged_abundance_richness_div
   )
 
 
-depthzone_density_abundance_richness_MPA
+FigS5_depthzone_density_abundance_richness_MPA
 
-ggsave(depthzone_density_abundance_richness_MPA, path = "figures",filename = "depthzone_density_abundance_richness_MPA.jpg", height = 12, width = 10, units = "in")
+ggsave(FigS5_depthzone_density_abundance_richness_MPA, path = "figures",filename = "FigS5_depthzone_density_abundance_richness_MPA.jpg", height = 12, width = 10, units = "in")
 
 ###Merged plot, but don't split by depth zone ####
 
-mainlandvsisland_density_abundance_richness <- ggplot(merged_abundance_richness_diversity_datatables) +
+FigS3_mainlandvsisland_density_abundance_richness <- ggplot(merged_abundance_richness_diversity_datatables) +
   geom_boxplot_pattern(aes(x = taxa_type, y = value, fill = type_wAR, pattern = type_wAR), position = position_dodge2(preserve = "single"),
                        colour          = 'black', 
                        pattern_density = 0.01, 
@@ -970,7 +1063,7 @@ mainlandvsisland_density_abundance_richness <- ggplot(merged_abundance_richness_
     axis.title.y = element_blank()
   )
 
-ggsave(mainlandvsisland_density_abundance_richness, path = "figures",filename = "mainlandvsisland_density_abundance_richness.jpg", height = 6, width = 12, units = "in")
+ggsave(FigS3_mainlandvsisland_density_abundance_richness, path = "figures",filename = "FigS3_mainlandvsisland_density_abundance_richness.jpg", height = 6, width = 12, units = "in")
 
 
 #################################################################################
@@ -1036,10 +1129,10 @@ dat_kelp_simpson.env <- dat_kelp_simpson.env[complete.cases(dat_kelp_simpson.env
 dat_kelp_simpson.env[, (paste0(predictors, ".s")) := lapply(.SD, scale), .SDcols = predictors]
 
 #How does substrate and relief vary with depth?
-Env_Site <- unique(dat_fish_total_abundances.env[,.(Site, Region, DepthZone, type, type_wAR, Relief_index, Relief_SD, Substrate_index, Substrate_SD)])
+Env_Site <- unique(dat_fish_total_abundances.env[,.(Site,DepthZone, type, type_wAR, Relief_index, Relief_SD, Substrate_index, Substrate_SD)])
 
 #Wide to long
-Env_Site.l <- melt(Env_Site, id.vars = c("Site", "Region", "DepthZone", "type", "type_wAR"), variable.name = "Reef metric",value.name = "value")
+Env_Site.l <- melt(Env_Site, id.vars = c("Site", "DepthZone", "type", "type_wAR"), variable.name = "Reef metric",value.name = "value")
 
 #Change factor order
 Env_Site.l[,DepthZone := factor(DepthZone, levels = c("Inner","Middle","Outer","Deep","AR_PVR","AR_SM"),
@@ -1053,7 +1146,7 @@ facet_labels <- c("Relief_index" = "a.                                Relief ind
 
 #Make plot of relief and substrate for island and mainland reefs ####
 #merged plot
-depthzone_relief_substrate <- ggplot(Env_Site.l) +
+FigS8_depthzone_relief_substrate <- ggplot(Env_Site.l) +
   geom_boxplot_pattern(aes(x = DepthZone, y = value, fill = type_wAR, pattern = type_wAR), position = position_dodge2(preserve = "single"),
                        colour          = 'black', 
                        pattern_density = 0.01, 
@@ -1080,13 +1173,14 @@ depthzone_relief_substrate <- ggplot(Env_Site.l) +
     legend.direction = "horizontal",
     legend.text = element_text(size = 10),
     legend.title = element_text(size = 13),
-    axis.text.x = element_text(size = 10)
+    axis.text.x = element_text(size = 10),
+    axis.title.x = element_blank()
   )
 
 
-depthzone_relief_substrate 
+FigS8_depthzone_relief_substrate 
 
-ggsave(depthzone_relief_substrate, path = "figures",filename = "depthzone_relief_substrate.jpg", height = 8, width = 10, units = "in")
+ggsave(FigS8_depthzone_relief_substrate, path = "figures",filename = "FigS8_depthzone_relief_substrate.jpg", height = 8, width = 10, units = "in")
 
 #####################
 #Function to make Kendall correlation plots and data tables of correlations for each taxa and metric
