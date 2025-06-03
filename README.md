@@ -48,18 +48,24 @@ To reproduce the analysis, run these scripts in order:
 
 Main text:
 
-- Figure 1: `scripts` > `site_maps.R` outputs `site_map_basic_with_insets.jpg`
-- Figure 2: Made manually with fish icons from [Dr. Larry G. Allen](https://www.researchgate.net/profile/Larry-Allen-3). Thanks, Larry!
+- Figure 1: `scripts` > `site_maps.R` outputs `Fig1_site_map_basic_with_insets.jpg`
+- Figure 2: Made manually with fish icons from [Dr. Larry G. Allen](https://www.researchgate.net/profile/Larry-Allen-3). Based on data behind fiures 3-6. Thanks, Larry!
 - Figure 3: `scripts` > `abundance_diversity_depth.R` outputs `depthzone_density_abundance_richness.jpg`
 - Figure 4: `scripts` > `depth_zone_summaries.R` outputs `Fig4_fish_top5_sitetype_stacked.jpg`
 - Figure 5: `scripts` > `depth_zone_summaries.R` outputs `Fig5_kelp_top5_sitetype_stacked.jpg`
 - Figure 6: `scripts` > `depth_zone_summaries.R` outputs `Fig6_macroinvert_top5_sitetype_stacked.jpg`
-- Figure 7: `scripts` > `community_visualizations.R` outputs `PCoA_fish_allsite_AR_natural_merge.jpg`
+- Figure 7: `scripts` > `community_visualizations.R` outputs `Fig7_PCoA_allspp_allsite_AR_natural_merge.jpg`
 
 
-Supplemental Figures: **in progress**
+Supplemental Figures: 
 - Figure S1: `scripts` > `depth_zone_summaries.R` outputs `FigS1_top5_sitetype_OUTERDEEP_only_stacked.jpg`
 - Figure S2: `scripts` > `depth_zone_summaries.R` outputs `FigS2_all_spp_top5_stacked_AR_complexes.jpg`
+- Figure S3: `scripts` > `abundance_diversity_depth.R` outputs `FigS3_mainlandvsisland_density_abundance_richness.jpg`
+- Figure S4: `scripts` > `abundance_diversity_depth.R` outputs `FigS4_depthzone_abun_rich_div_merge_dunn.l.jpg`
+- Figure S5: `scripts` > `abundance_diversity_depth.R` outputs `FigS5_depthzone_density_abundance_richness_MPA.jpg`
+- Figure S6: `scripts` > `community_visualizations.R` outputs `FigS6_PCoA_allspp_allsite_MPA_REG_merge.jpg`
+- Figure S7: `scripts` > `community_visualizations.R` outputs `FigS7_PCoA_allsite_AR_natural_merge_taxagroups.jpg`
+- Figure S8: `scripts` > `abundance_diversity_depth.R` outputs `FigSX_depthzone_relief_substrate.jpg` plus manual edit
 
 Supplemental Tables: **in progress**
 
