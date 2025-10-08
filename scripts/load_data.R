@@ -10,6 +10,7 @@
 #############################
 
 library(data.table)
+library(lubridate)
 library(vegan)
 library(dplyr)
 
@@ -200,7 +201,7 @@ dat_macroinvert.r <- dat_macroinvert[Site %in% site_by_years[Years_sampled >= 3]
 dat_kelp.r <- dat_kelp[Site %in% site_by_years[Years_sampled >= 3]$Site]
 
 ########################
-##Remove TBF 2016 Project (ASK WHAT THIS IS AND IF I SHOULD LEAVE IT IN)
+##Remove TBF 2016 Project
 ########################
 dat_event.r <- dat_event.r[Project != "TBF2016",]
 dat_fish_t.r <- dat_fish_t.r[Project != "TBF2016",]

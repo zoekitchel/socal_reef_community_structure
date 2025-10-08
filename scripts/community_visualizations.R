@@ -13,12 +13,12 @@ library(ggplot2)
 library(data.table)
 library(dplyr)
 library(vegan)
-library(ggvegan)
+#library(ggvegan)
 library(labdsv)
 library(cowplot)
 library(ggnewscale)
 library(ggrepel)
-library(gllvm) #latent variable modeling
+#library(gllvm) #latent variable modeling
 
 source(file.path("functions","return_spptaxonomy_function.R"))
 
@@ -351,7 +351,8 @@ Fig7_PCoA_allspp_allsite_AR_natural_merge <- plot_grid(PCoA_allspp_allsite_point
 
 
 ggsave(Fig7_PCoA_allspp_allsite_AR_natural_merge, path = "figures", filename = "Fig7_PCoA_allspp_allsite_AR_natural_merge.jpg", width =18, height = 6)
-  
+ggsave(Fig7_PCoA_allspp_allsite_AR_natural_merge, path = "figures", filename = "Fig7_PCoA_allspp_allsite_AR_natural_merge.pdf", width =18, height = 6)
+
 
 
 

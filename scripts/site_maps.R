@@ -13,7 +13,7 @@ library(ggplot2)
 library(data.table)
 library(dplyr)
 library(vegan)
-library(ggvegan)
+#library(ggvegan)
 library(labdsv)
 library(cowplot)
 library(marmap) #to pull depth data
@@ -208,7 +208,10 @@ inset_leg <- get_legend(ggplot() +
     scale_shape_manual(values = c(17,17,17,17,21)) +
     labs(color = "Depth zone/\nreef type", shape = "Depth zone/\nreef type") +
     theme_classic() +
-    theme(legend.background = element_rect(fill = "NA")))
+    theme(
+      legend.background = element_rect(fill = NA, color = NA),
+      legend.key = element_rect(fill = NA, color = NA))  # ← removes white behind symbols
+)
 
 #Create inset plot for PVR
 PVR_inset <- ggplot() +
@@ -240,7 +243,10 @@ Fig1_site_map_with_insets <- ggdraw(site_map_with_inset) +
   geom_text(aes(label = "Santa Monica Bay"), x = 0.46, y = 0.85, size = 5)
 
 # Save the plot
-ggsave(Fig1_site_map_with_insets, filename = "Fig1_site_map_basic_with_insets.jpg", path = file.path("figures"), width = 9, height =4.5, units = "in", dpi = 300)
+ggsave(Fig1_site_map_with_insets, filename = "Fig1_site_map_basic_with_insets.jpg", path = file.path("figures"),
+       width = 9, height =4.5, units = "in", dpi = 500)
+ggsave(Fig1_site_map_with_insets, filename = "Fig1_site_map_basic_with_insets.pdf", path = file.path("figures"),
+       width = 9, height =4.5, units = "in")
 
 #Identify sites overlapping with MPAs
 #Bring in MPA polygons

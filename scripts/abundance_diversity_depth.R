@@ -1,5 +1,5 @@
 # CREATION DATE 7 July 2024
-# MODIFIED DATE 2 June 2024
+# MODIFIED DATE 17 July 2024
 
 # AUTHOR: kitchel@oxy.edu
 
@@ -874,9 +874,16 @@ kelp_simpson_depthzone_density_MPA <- ggplot(dat_kelp_simpson) +
 
 ggsave(kelp_simpson_depthzone_density_MPA, path = file.path("figures"), filename ="kelp_simpson_depthzone_density_MPA.jpg", height = 4.5, width = 6, units = "in")
 
+#Dummy plot for legend
+reef_type_legend_dummyplot <- fish_simpson_depthzone_biomass +
+  theme(legend.position = "top", 
+        legend.direction = "horizontal", 
+        legend.text = element_text(size = 15), 
+        legend.title = element_text(size = 17))
 
 #add legend on top
-megamerge_dunn_leg <- get_legend(fish_simpson_depthzone_density_dunn + theme(legend.position = "top", legend.direction = "horizontal", legend.text = element_text(size = 15), legend.title = element_text(size = 17)))
+megamerge_dunn_leg <- get_plot_component(reef_type_legend_dummyplot, "guide-box", return_all = TRUE)[[4]]
+
 
 #Plot all using patchwork package
 # Arrange the plots
@@ -895,10 +902,10 @@ depthzone_abun_rich_div_merge_dunn <- (fish_abundance_depthzone_dunn + theme(axi
 depthzone_abun_rich_div_merge_dunn <- depthzone_abun_rich_div_merge_dunn + plot_annotation(tag_levels = 'a') + plot_layout(guides = "collect")
 
 # Combine the legend grob and the arranged plots
-FigS4_depthzone_abun_rich_div_merge_dunn.l <- plot_grid(megamerge_dunn_leg, depthzone_abun_rich_div_merge_dunn, ncol = 1, rel_heights = c(1,10))
+#FigS4_depthzone_abun_rich_div_merge_dunn.l <- cowplot::plot_grid(megamerge_dunn_leg, depthzone_abun_rich_div_merge_dunn, ncol = 1, rel_heights = c(1,10))
 
 #save
-ggsave(FigS4_depthzone_abun_rich_div_merge_dunn.l, path = file.path("figures"), filename = "FigS4_depthzone_abun_rich_div_merge_dunn.l.jpg", height = 14, width = 14, unit = "in")
+#ggsave(FigS4_depthzone_abun_rich_div_merge_dunn.l, path = file.path("figures"), filename = "FigS4_depthzone_abun_rich_div_merge_dunn.l.jpg", height = 14, width = 14, unit = "in")
 
 
 #########
@@ -942,8 +949,8 @@ metric_labels <- c(
   total_abundance_depthzone_site = "Density\n(count-based)",
   total_biomass_depthzone_site = "Density\n(biomass-based)",
   total_richness_depthzone_site = "Richness\n ",
-  Simpson_index_density = "Simpson diversity\n(count-based)",
-  Simpson_index_biomass = "Simpson diversity\n(biomass-based)"
+  Simpson_index_density = "Simpson's diversity index\n(count-based)",
+  Simpson_index_biomass = "Simpson's diversity index\n(biomass-based)"
 )
 
 #change ARM to AR only
@@ -955,6 +962,25 @@ merged_abundance_richness_diversity_datatables[, metric := factor(metric, levels
 #Edit type_wAR, and set order
 merged_abundance_richness_diversity_datatables[, type_wAR := ifelse(type_wAR == "Island","Island",ifelse(DepthZone %in% c("AR\nPVR", "AR\nSMB"),"Artificial mainland","Natural_mainland"))][,type_wAR := factor(type_wAR, c("Island","Natural_mainland","Artificial mainland"))]
 
+#Figure label key
+  #fish density count a
+  #macro algae density b
+  #macroinvertebrate density c
+  #fish density biomass d
+  #fish richness e
+  #algae richness f
+  #macroinvert richness g
+  #fish diversity count h
+  #macro algae diversity i
+  #macroinvertebrate diversity j
+  #fish diversity biomass k
+
+figure3_label_key <- unique(merged_abundance_richness_diversity_datatables[,.(taxa_type, metric)])
+
+figure3_label_key[,letter_label := c("a.","d.","c.","b.","e.","g.","f.","h.","k.","j.","i.")]
+
+#Merge back
+merged_abundance_richness_diversity_datatables <- figure3_label_key[merged_abundance_richness_diversity_datatables, on = c("taxa_type","metric")]
 
 #Merged metric plot ####
 Fig3_depthzone_density_abundance_richness <- ggplot(merged_abundance_richness_diversity_datatables) +
@@ -967,6 +993,12 @@ Fig3_depthzone_density_abundance_richness <- ggplot(merged_abundance_richness_di
   ) +
   scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland","Artificial mainland")) +
   scale_pattern_manual(values = c("stripe","none","none"), labels = c("Natural island","Natural mainland","Artificial mainland")) +
+  geom_text(aes(x = -Inf, y = Inf, label = letter_label),
+            hjust = -0.4,  # farther left
+            vjust = 1.5,   # farther down
+            fontface = "bold",
+            size = 5       # optional: adjust font size
+  ) +
   labs(x = "Depth Zone", y = "Value", fill = "Reef type", pattern = "Reef type") +
   facet_grid(rows = vars(metric),cols = vars(taxa_type), scales = "free", labeller = labeller(metric = as_labeller(metric_labels)), switch = "y") +
   theme_classic() +
@@ -978,7 +1010,7 @@ Fig3_depthzone_density_abundance_richness <- ggplot(merged_abundance_richness_di
     panel.border = element_rect(color = "black", fill = NA),
     strip.placement = "outside",
     strip.background = element_blank(),
-    strip.text = element_text(size = 13),
+    strip.text = element_text(size = 11.5),
     axis.title.x = element_blank(),
     legend.key.size = unit(2.5,"lines"),
     legend.justification = "center",
@@ -993,6 +1025,7 @@ Fig3_depthzone_density_abundance_richness <- ggplot(merged_abundance_richness_di
 Fig3_depthzone_density_abundance_richness
 
 ggsave(Fig3_depthzone_density_abundance_richness, path = "figures",filename = "Fig3_depthzone_density_abundance_richness.jpg", height = 12, width = 10, units = "in")
+ggsave(Fig3_depthzone_density_abundance_richness, path = "figures",filename = "Fig3_depthzone_density_abundance_richness.pdf", height = 12, width = 10, units = "in")
 
 ###Merged plot, also split by MPA ####
 
@@ -1002,6 +1035,12 @@ FigS5_depthzone_density_abundance_richness_MPA <- ggplot(merged_abundance_richne
   ) +
   scale_fill_manual(values = c("#7FB1D3","#BDBAD9","#FB8071"), labels = c("Natural island","Natural mainland","Artificial mainland")) +
   scale_color_manual(values = c("black","darkgrey")) +
+  geom_text(aes(x = -Inf, y = Inf, label = letter_label),
+            hjust = -0.4,  # farther left
+            vjust = 1.5,   # farther down
+            fontface = "bold",
+            size = 4       # optional: adjust font size
+  ) +
   labs(x = "Depth Zone", y = "Value", fill = "Reef type", pattern = "Reef type", color = "MPA overlap") +
   facet_grid(rows = vars(metric),cols = vars(taxa_type), scales = "free", labeller = labeller(metric = as_labeller(metric_labels)), switch = "y") +
   theme_classic() +
@@ -1013,7 +1052,7 @@ FigS5_depthzone_density_abundance_richness_MPA <- ggplot(merged_abundance_richne
     panel.border = element_rect(color = "black", fill = NA),
     strip.placement = "outside",
     strip.background = element_blank(),
-    strip.text = element_text(size = 13),
+    strip.text = element_text(size = 11.5),
     axis.title.x = element_blank(),
     legend.key.size = unit(2.5,"lines"),
     legend.justification = "center",
@@ -1052,7 +1091,7 @@ FigS3_mainlandvsisland_density_abundance_richness <- ggplot(merged_abundance_ric
     panel.border = element_rect(color = "black", fill = NA),
     strip.placement = "outside",
     strip.background = element_blank(),
-    strip.text = element_text(size = 13),
+    strip.text = element_text(size = 11.5),
     axis.title.x = element_blank(),
     legend.key.size = unit(2.5,"lines"),
     legend.justification = "center",
@@ -1167,7 +1206,7 @@ FigS8_depthzone_relief_substrate <- ggplot(Env_Site.l) +
     panel.border = element_rect(color = "black", fill = NA),
     strip.placement = "outside",
     strip.background = element_blank(),
-    strip.text = element_text(size = 13, hjust = 0),
+    strip.text = element_text(size = 11.5, hjust = 0),
     legend.key.size = unit(2.5,"lines"),
     legend.justification = "center",
     legend.direction = "horizontal",
@@ -1377,7 +1416,7 @@ all_kendall_correlations[,metric := factor(metric,levels = c("Species richness",
         panel.border = element_rect(color = "black", fill = NA),
         strip.placement = "outside",
   strip.background = element_blank(),
-  strip.text = element_text(size = 13),
+  strip.text = element_text(size = 11.5),
   axis.title.y = element_blank()
   ))
 
@@ -1557,7 +1596,7 @@ all_taxa_env_model_rank_output[,metric := factor(metric, levels = c(
 #Rename metric categories
 all_taxa_env_model_rank_output[,metric_category := factor(metric_category, levels = c(
   "abundance","richness","Simpson_diversity"),
-  labels = c("Abundance","Richness","Simpson diversity index"))]
+  labels = c("Abundance","Richness","Simpson's diversity index"))]
 
 
 #visualize
@@ -1575,7 +1614,7 @@ all_taxa_env_model_rank_plot <- ggplot() +
   theme(legend.position = "top",
         legend.justification = "left",
         axis.text = element_text(size = 12),
-        strip.text = element_text(size = 12),
+        strip.text = element_text(size = 11),
         axis.title = element_text(size = 12),
         legend.text = element_text(size = 10),
         legend.title = element_text(size = 12))
