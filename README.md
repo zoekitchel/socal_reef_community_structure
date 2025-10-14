@@ -1,6 +1,6 @@
 # Community structure of southern California’s subtidal rocky reefs across depth and implications for artificial reef design
 
-Currently in prep for Marine Ecology Progress Series.
+[Currently in press at Marine Ecology Progress Series](https://doi.org/10.3354/meps14991)
 
 *Zoë J. Kitchel<sup>1</sup>, Jeremy T. Claisse<sup>1,2</sup>, Daniel J. Pondella II<sup>1</sup>, Chelsea M. Williams<sup>1</sup>, Jonathan P. Williams<sup>1</sup>, & Donna Schroeder<sup>3</sup>*
 
