@@ -13,20 +13,14 @@ library(ggnewscale)
 library(ggrepel)
 library(data.table)
 library(dplyr)
-library(vegan)
-library(ggvegan)
-library(labdsv)
-library(cowplot)
-library(marmap) #to pull depth data
-library(rasterVis)
-library(ggspatial)
-library(ggmap) #background google map
 library(sf)
-library(stringr)
+library(ggmap)
+library(ggspatial)
 library(rnaturalearth)
+library(stringr)
 
 #############################
-# Get correct lat lon values for Malibut sites ####
+# Get correct lat lon values for Malibu sites ####
 #############################
 
 #Chelsea recommends using Lat/Lon from "2023 Dive Site Priority" instead of All Sites File
@@ -77,22 +71,22 @@ dat_event_malibu[,years_sampled := uniqueN(SampleYear),Site]
 #Reduce to unique Site
 lat_lon_site_orig.malibu <- unique(dat_event_malibu[,.(Site,reef_type, years_sampled)])
 
-#merge event data with fixed lat and lon from dive site priority list
+#Merge event data with fixed lat and lon from dive site priority list
 lat_lon_site_fix.malibu <- lat_lon_site_orig.malibu[dive_site_priority_list.r, on = c("Site")]
 
 #Delete any rows without values, and use this as key for Site, Lat and Long
 lat_lon_site_fix.malibu <- lat_lon_site_fix.malibu[complete.cases(lat_lon_site_fix.malibu),]
 
-#only keep unique values
+#Only keep unique values
 lat_lon_site_fix.malibu <- unique(lat_lon_site_fix.malibu) #24 sites
 
-#delete old lat lon columns from all sites
+#Delete old lat lon columns from all sites
 lat_lon_site_fix.malibu <- lat_lon_site_fix.malibu[,.(Site, reef_type, years_sampled, Latitude_fix, Longitude_fix)]
 
 #Per Chelsea's advice, remove Malibu Bluffs Eelgrass and Santa Monica Bay ARs
 lat_lon_site_fix.malibu <- lat_lon_site_fix.malibu[!(Site %in% c("Malibu Bluffs Eelgrass", "Santa Monica Bay AR")),]
 
-#change col names
+#Change col names
 colnames(lat_lon_site_fix.malibu) <- c("Site","Reef_type","Years_sampled","Latitude","Longitude")
 
 #Add column for labeling on map by longitude
@@ -224,7 +218,8 @@ watershed_perimeters.t <- watershed_perimeters.t %>%
 #Map
 #######################
 #Plot using ggmap (google map) remember to 
-#add API here: https://console.cloud.google.com/google/maps-apis/credentials?utm_source=Docs_CreateAPIKey&utm_content=Docs_maps-backend&_gl=1*xzqbpi*_ga*ODI3MDgxMjQ1LjE3MzgyMDI3OTI.*_ga_NRWSTWS78N*MTczODIwMjc5Mi4xLjEuMTczODIwMzE3OS4wLjAuMA..&project=alpine-canto-410820
+#Add computer API here: https://console.cloud.google.com/google/maps-apis/credentials?utm_source=Docs_CreateAPIKey&utm_content=Docs_maps-backend&_gl=1*xzqbpi*_ga*ODI3MDgxMjQ1LjE3MzgyMDI3OTI.*_ga_NRWSTWS78N*MTczODIwMjc5Mi4xLjEuMTczODIwMzE3OS4wLjAuMA..&project=alpine-canto-410820
+#Then, you will have to use ggmap::register_google() function to link api key to computer
 
 #Malibu map
 malibu_basemap <- get_googlemap("Malibu, CA, USA", zoom = 10, maptype = "satellite")
