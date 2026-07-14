@@ -72,4 +72,4 @@ Supplemental Tables: **in progress**
 
 ## Notes
 * Upon publication, package versions used in this analysis will be captured by `renv` and listed [in the lockfile](....renv.lock). Here is [a summary of how renv works](https://rstudio.github.io/renv/articles/renv.html). 
-* Most of these analyses were run on a personal computer using R 4.2.1, and should be easy to reproduce if you have data access from VRG.
+* All analyses were run on a personal computer using R 4.2.1, and should be easy to reproduce if you have data access from VRG.
