@@ -1,6 +1,6 @@
 # Community structure of southern California’s subtidal rocky reefs across depth and implications for artificial reef design
 
-[Currently in press at Marine Ecology Progress Series](https://doi.org/10.3354/meps14991)
+[Published in Marine Ecology Progress Series](https://doi.org/10.3354/meps14991) as: Kitchel, Z., Claisse, J., Pondella, D., Williams, C., Williams, J., & Schroeder, D. (2025). Community structure of southern California’s subtidal rocky reefs and implications for artificial reef design. Marine Ecology Progress Series, 774, 91-108.
 
 *Zoë J. Kitchel<sup>1</sup>, Jeremy T. Claisse<sup>1,2</sup>, Daniel J. Pondella II<sup>1</sup>, Chelsea M. Williams<sup>1</sup>, Jonathan P. Williams<sup>1</sup>, & Donna Schroeder<sup>3</sup>*
 
@@ -27,7 +27,7 @@ The repository is organized as follows:
 
 ## What's not in the repository? 
 
-Raw data? TBD.
+Contact VRG for information on data accessibility. 
 
 ## In what order should things be run?
 
@@ -67,9 +67,6 @@ Supplemental Figures:
 - Figure S7: `scripts` > `community_visualizations.R` outputs `FigS7_PCoA_allsite_AR_natural_merge_taxagroups.jpg`
 - Figure S8: `scripts` > `abundance_diversity_depth.R` outputs `FigSX_depthzone_relief_substrate.jpg` plus manual edit
 
-Supplemental Tables: **in progress**
-
 
 ## Notes
-* Upon publication, package versions used in this analysis will be captured by `renv` and listed [in the lockfile](....renv.lock). Here is [a summary of how renv works](https://rstudio.github.io/renv/articles/renv.html). 
 * All analyses were run on a personal computer using R 4.2.1, and should be easy to reproduce if you have data access from VRG.
